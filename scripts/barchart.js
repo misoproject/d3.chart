@@ -34,22 +34,25 @@ window.barchart = function(options) {
 
     var rect = svg.selectAll("rect")
       .data(data, function(d) { return d.time; });
+    var entering = rect.enter().insert("rect", "line");
+    var exiting = rect.exit();
+    var enteringTrans = entering.transition();
+    var trans = rect.transition();
+    var exitingTrans = exiting.transition();
 
-    rect.enter().insert("rect", "line")
+    entering
         .attr("x", function(d, i) { return x(i + 1) - .5; })
         .attr("y", function(d) { return h - y(d.value) - .5; })
         .attr("width", w)
         .attr("height", function(d) { return y(d.value); })
-      .transition()
-        .duration(1000)
+
+    enteringTrans.duration(1000)
         .attr("x", function(d, i) { return x(i) - .5; });
 
-    rect.transition()
-        .duration(1000)
+    trans.duration(1000)
         .attr("x", function(d, i) { return x(i) - .5; });
 
-    rect.exit().transition()
-        .duration(1000)
+    exitingTrans.duration(1000)
         .attr("x", function(d, i) { return x(i - 1) - .5; })
         .remove();
   }
