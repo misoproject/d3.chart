@@ -1,4 +1,4 @@
-(function(window, undefined) {
+window.barchart = function(options) {
 
   var svg,
     t = 1297110663, // start time (seconds since epoch)
@@ -12,8 +12,10 @@
     };
   }
 
-  var w = 20,
-    h = 80;
+  options = options || {};
+
+  var w = options.width || 20,
+    h = options.height || 80;
 
   var x = d3.scale.linear()
     .domain([0, 1])
@@ -28,7 +30,7 @@
     .attr("width", w * data.length - 1)
     .attr("height", h);
 
-  function redraw() {
+  function chart() {
 
     var rect = svg.selectAll("rect")
       .data(data, function(d) { return d.time; });
@@ -52,11 +54,9 @@
         .remove();
   }
 
-  redraw();
-  setInterval(function() {
-    data.shift();
-    data.push(next());
-    redraw();
-  }, 1500);
+  chart.data = data;
+  chart.next = next;
 
-}(this));
+  return chart;
+
+};
