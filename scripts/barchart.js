@@ -53,24 +53,28 @@ window.barchart = function(options) {
         .remove();
   }
 
-  function chart() {
+  // This bar chart manages its own data outside of the framework, so we'll
+  // ignore the data passed to the `dataBind` method. It wouldn't take much to
+  // make this implementation a little more intuitive, though.
+  function dataBind(_) {
 
-    var rect = svg.selectAll("rect")
+    return this.selectAll("rect")
       .data(data, function(d) { return d.time; });
-    var entering = rect.enter().insert("rect", "line");
-    var exiting = rect.exit();
-    var enteringTrans = entering.transition();
-    var trans = rect.transition();
-    var exitingTrans = exiting.transition();
-
-    entering.call(onEnter);
-
-    enteringTrans.call(onEnterTrans);
-
-    trans.call(onTrans);
-
-    exitingTrans.call(onExitTrans);
   }
+
+  function insert() {
+    return this.insert("rect", "line");
+  }
+
+  var chart = svg.layer({
+    dataBind: dataBind,
+    insert: insert
+  });
+
+  chart.on("enter", onEnter);
+  chart.on("enter:transition", onEnterTrans);
+  chart.on("update:transition", onTrans);
+  chart.on("exit:transition", onExitTrans);
 
   chart.data = data;
   chart.next = next;

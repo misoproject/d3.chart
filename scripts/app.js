@@ -2,11 +2,11 @@
 
   var myBarChart = barchart();
 
-  myBarChart();
+  myBarChart.draw();
   setInterval(function() {
     myBarChart.data.shift();
     myBarChart.data.push(myBarChart.next());
-    myBarChart();
+    myBarChart.draw();
   }, 1500);
 
   var myChord = chord();
