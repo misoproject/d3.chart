@@ -9,6 +9,19 @@
     myBarChart.draw();
   }, 1500);
 
+  var myBarChart2 = barchart();
+
+  myBarChart2.on("update:transition", function() {
+    this.attr("opacity", function(d, i) { return i/32; });
+  });
+
+  myBarChart2.draw();
+  setInterval(function() {
+    myBarChart2.data.shift();
+    myBarChart2.data.push(myBarChart2.next());
+    myBarChart2.draw();
+  }, 1500);
+
   var myChord = chord();
   // From http://mkweb.bcgsc.ca/circos/guide/tables/
   var matrix = [
