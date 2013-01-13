@@ -94,6 +94,6 @@
 		}
 	};
 
-	d3.Layer = Layer;
+	d3.layer = function(base) { return new Layer(base); };
 
 }(this));
