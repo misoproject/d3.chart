@@ -33,4 +33,11 @@
 
   myChord(matrix);
 
+  var myChord2 = chord();
+
+  myChord2.layers.ticks.on("enter", function(entering) {
+    entering.attr("fill", "#a00");
+  });
+  myChord2(matrix);
+
 }(this));
