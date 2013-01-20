@@ -49,4 +49,7 @@
   });
   myChord2(matrix);
 
+  var myWackyChord = wackyChord();
+  myWackyChord(matrix);
+
 }(this));
