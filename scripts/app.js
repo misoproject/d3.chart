@@ -22,6 +22,15 @@
     myBarChart2.draw();
   }, 1500);
 
+  var myWackyBarChart = wackyBC();
+
+  myWackyBarChart.draw();
+  setInterval(function() {
+    myWackyBarChart.data.shift();
+    myWackyBarChart.data.push(myBarChart.next());
+    myWackyBarChart.draw();
+  }, 1500);
+
   var myChord = chord();
   // From http://mkweb.bcgsc.ca/circos/guide/tables/
   var matrix = [
