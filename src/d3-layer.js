@@ -94,6 +94,17 @@
 		}
 	};
 
-	d3.layer = function(base) { return new Layer(base); };
+	d3.selection.prototype.layer = function(options) {
+		var layer = new Layer(this);
+		layer.dataBind = options.dataBind;
+		layer.insert = options.insert;
+
+		// Mix the public methods into the D3.js selection (bound appropriately)
+		this.on = function() { return layer.on.apply(layer, arguments); };
+		this.off = function() { return layer.off.apply(layer, arguments); };
+		this.draw = function() { return layer.draw.apply(layer, arguments); };
+
+		return this;
+	};
 
 }(this));
