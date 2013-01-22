@@ -1,6 +1,6 @@
 (function(window, undefined) {
 
-  var myBarChart = barchart();
+  var myBarChart = new Barchart();
 
   myBarChart.draw();
   setInterval(function() {
@@ -9,9 +9,9 @@
     myBarChart.draw();
   }, 1500);
 
-  var myBarChart2 = barchart();
+  var myBarChart2 = new Barchart();
 
-  myBarChart2.on("update:transition", function() {
+  myBarChart2.layers.bars.on("update:transition", function() {
     this.attr("opacity", function(d, i) { return i/32; });
   });
 
@@ -22,7 +22,7 @@
     myBarChart2.draw();
   }, 1500);
 
-  var myWackyBarChart = wackyBC();
+  var myWackyBarChart = new WackyBC();
 
   myWackyBarChart.draw();
   setInterval(function() {

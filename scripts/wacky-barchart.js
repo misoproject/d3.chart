@@ -1,11 +1,10 @@
-window.wackyBC = function(options) {
+window.WackyBC = window.Barchart.extend({
 
-    var barchart = window.barchart;
-    var chart = barchart(options);
+  initialize: function(options) {
 
-    chart.on("update:transition", function(updating) {
+    this.layers.bars.on("update:transition", function(updating) {
       updating.attr("height", Math.random()*10 + 20);
     });
 
-    return chart;
-};
+  }
+});
