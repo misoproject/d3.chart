@@ -31,7 +31,7 @@
     myWackyBarChart.draw();
   }, 1500);
 
-  var myChord = chord();
+  var myChord = new Chord();
   // From http://mkweb.bcgsc.ca/circos/guide/tables/
   var matrix = [
     [11975,  5871, 8916, 2868],
@@ -40,16 +40,16 @@
     [ 1013,   990,  940, 6907]
   ];
 
-  myChord(matrix);
+  myChord.draw(matrix);
 
-  var myChord2 = chord();
+  var myChord2 = new Chord();
 
   myChord2.layers.ticks.on("enter", function(entering) {
     entering.attr("fill", "#a00");
   });
-  myChord2(matrix);
+  myChord2.draw(matrix);
 
-  var myWackyChord = wackyChord();
-  myWackyChord(matrix);
+  var myWackyChord = new WackyChord();
+  myWackyChord.draw(matrix);
 
 }(this));

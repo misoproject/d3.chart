@@ -1,14 +1,14 @@
-window.wackyChord = function(options) {
+window.WackyChord = window.Chord.extend({
 
-    var chord = window.chord;
-    var chart = chord(options);
+  initialize: function() {
     var colors = ["#000000", "#FFDD89", "#957244", "#F26223"];
 
-    chart.layers.ticks.on("enter", function() {
+    this.layers.ticks.on("enter", function() {
       this.each(function(data, idx, group) {
         d3.select(this).attr("fill", colors[group]);
       });
     });
 
-    return chart;
-};
+  }
+
+});
