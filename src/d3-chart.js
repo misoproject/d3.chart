@@ -21,22 +21,23 @@
 		return object;
 	}
 
-	// initCascade
-	// Call the initialize method up the inheritance chain, starting with the
-	// base class and continuing "downward".
-	function initCascade(instance, args) {
-		var sup = this.constructor.__super__;
-		if (sup) {
-			initCascade.call(sup, instance, args);
-		}
-		this.initialize.apply(instance, args);
-	}
-
 	var Chart = function() {
 
-		this.layers = {};
+		var mixin, mixinNs;
 
-		initCascade.call(this, this, arguments);
+		this.layers = {};
+		for (mixinNs in this.mixins) {
+			// I don't think this approach is technically possible, since you would
+			// actually need to call the mixin's constructor (not just its
+			// `initialize` method) in order to ensure that the mixin's mixins are
+			// created. I guess the Chart constructor could only *conditionally* set
+			// `this.layers = {};` if `this.layers` has not already been set, but
+			// that has definite code smell.
+			//this.mixins[mixinName].prototype.initialize.call(this);
+			this[mixinNs] = new this.mixins[mixinNs];
+		}
+
+		this.initialize.apply(this, arguments);
 	};
 
 	Chart.prototype.initialize = function() {};
@@ -47,20 +48,20 @@
 
 	Chart.prototype.draw = function(data) {
 
-		var layerName;
+		var layerName, mixinNs;
 
 		data = this.transform(data);
 
 		for (layerName in this.layers) {
 			this.layers[layerName].draw(data);
 		}
+		for (mixinNs in this.mixins) {
+			this[mixinNs].draw(data);
+		}
 	};
 
-	// Method to correctly set up the prototype chain, for subclasses. Borrowed
-	// from Backbone.js
-	// http://backbonejs.org/
-	Chart.extend = function(protoProps, staticProps) {
-		var parent = this;
+	window.d3.chart = function(protoProps, staticProps) {
+		var parent = Chart;
 		var child;
 
 		// The constructor function for the new subclass is either defined by you
@@ -91,8 +92,5 @@
 
 		return child;
 	};
-
-
-	window.d3.chart = Chart;
 
 }(this));
