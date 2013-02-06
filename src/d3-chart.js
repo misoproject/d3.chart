@@ -21,9 +21,17 @@
 		return object;
 	}
 
-	var Chart = function() {
+	var Chart = function(opts) {
 
 		var mixin, mixinNs;
+
+		if (!this.base) {
+			if (!opts || !opts.base) {
+				this.base = d3.select("body").append("svg");
+			} else {
+				this.base = opts.base;
+			}
+		}
 
 		this.layers = {};
 		for (mixinNs in this.mixins) {
@@ -34,7 +42,7 @@
 			// `this.layers = {};` if `this.layers` has not already been set, but
 			// that has definite code smell.
 			//this.mixins[mixinName].prototype.initialize.call(this);
-			this[mixinNs] = new this.mixins[mixinNs];
+			this[mixinNs] = new this.mixins[mixinNs]({ base: this.base });
 		}
 
 		this.initialize.apply(this, arguments);
