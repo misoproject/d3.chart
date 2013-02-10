@@ -21,16 +21,25 @@
 		return object;
 	}
 
+	var secret = {};
+
 	var Chart = function(opts) {
 
 		var mixin, mixinNs;
 
+		if (opts === secret) {
+			return this;
+		}
+
+		if (opts == null) {
+			opts = {};
+		}
+
 		if (!this.base) {
-			if (!opts || !opts.base) {
-				this.base = d3.select("body").append("svg");
-			} else {
-				this.base = opts.base;
+			if (!opts.base) {
+				opts.base = d3.select("body").append("svg").append("g");
 			}
+			this.base = opts.base;
 		}
 
 		this.layers = {};
@@ -42,7 +51,9 @@
 			// `this.layers = {};` if `this.layers` has not already been set, but
 			// that has definite code smell.
 			//this.mixins[mixinName].prototype.initialize.call(this);
-			this[mixinNs] = new this.mixins[mixinNs]({ base: this.base });
+			this[mixinNs] = new this.mixins[mixinNs](secret);
+			opts.base = this.base.append("g");
+			this.constructor.apply(this[mixinNs], [opts].concat(Array.prototype.slice.call(arguments, 1)));
 		}
 
 		this.initialize.apply(this, arguments);
