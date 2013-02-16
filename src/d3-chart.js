@@ -2,6 +2,17 @@
 
 	"use strict";
 
+	var d3 = window.d3;
+
+	var Dummy = function() {};
+	var variadicNew = function(Ctor, args) {
+		var inst;
+		Dummy.prototype = Ctor.prototype;
+		inst = new Dummy();
+		Ctor.apply(inst, args);
+		return inst;
+	};
+
 	// extend
 	// Borrowed from Underscore.js
 	function extend(object) {
@@ -51,10 +62,10 @@
 	Chart.prototype.mixin = function() {
 		var mixins, mixinName;
 
-		// Support signature #mixin( <string> name, <Chart> chart )
+		// Support signature #mixin( <string> name [, arguments...] )
 		if (typeof arguments[0] === "string") {
 			mixins = {};
-			mixins[arguments[0]] = arguments[1];
+			mixins[arguments[0]] = Array.prototype.slice.call(arguments, 1);
 		// Support signature #mixin( <object> mixins )
 		} else {
 			mixins = arguments[0];
@@ -62,10 +73,10 @@
 
 		for (mixinName in mixins) {
 			if (Object.hasOwnProperty.call(mixins, mixinName)) {
-				this._mixins[mixinName] = mixins[mixinName];
+				this._mixins[mixinName] = variadicNew(Chart[mixinName], mixins[mixinName]);
 				// Extend root-level of instance for easier access (i.e.
 				// `this[mixinName]` instead of `this._mixins[mixinName]`)
-				this[mixinName] = mixins[mixinName];
+				this[mixinName] = this._mixins[mixinName];
 			}
 		}
 	};
@@ -85,7 +96,7 @@
 		}
 	};
 
-	window.d3.chart = function(protoProps, staticProps) {
+	d3.chart = function(name, protoProps, staticProps) {
 		var parent = Chart;
 		var child;
 
@@ -115,7 +126,15 @@
 		// later.
 		child.__super__ = parent.prototype;
 
+		Chart[name] = child;
 		return child;
+	};
+
+	d3.selection.prototype.chart = function(chartName) {
+		var chartArgs = Array.prototype.slice.call(arguments, 1);
+		var ChartCtor = Chart[chartName];
+		console.log(chartName, ChartCtor);
+		return variadicNew(ChartCtor, chartArgs);
 	};
 
 }(this));
