@@ -21,15 +21,9 @@
 		return object;
 	}
 
-	var secret = {};
-
 	var Chart = function(opts) {
 
 		var mixin, mixinNs;
-
-		if (opts === secret) {
-			return this;
-		}
 
 		if (opts == null) {
 			opts = {};
@@ -43,18 +37,7 @@
 		}
 
 		this.layers = {};
-		for (mixinNs in this.mixins) {
-			// I don't think this approach is technically possible, since you would
-			// actually need to call the mixin's constructor (not just its
-			// `initialize` method) in order to ensure that the mixin's mixins are
-			// created. I guess the Chart constructor could only *conditionally* set
-			// `this.layers = {};` if `this.layers` has not already been set, but
-			// that has definite code smell.
-			//this.mixins[mixinName].prototype.initialize.call(this);
-			this[mixinNs] = new this.mixins[mixinNs](secret);
-			opts.base = this.base.append("g");
-			this.constructor.apply(this[mixinNs], [opts].concat(Array.prototype.slice.call(arguments, 1)));
-		}
+		this._mixins = {};
 
 		this.initialize.apply(this, arguments);
 	};
@@ -65,17 +48,40 @@
 		return data;
 	};
 
+	Chart.prototype.mixin = function() {
+		var mixins, mixinName;
+
+		// Support signature #mixin( <string> name, <Chart> chart )
+		if (typeof arguments[0] === "string") {
+			mixins = {};
+			mixins[arguments[0]] = arguments[1];
+		// Support signature #mixin( <object> mixins )
+		} else {
+			mixins = arguments[0];
+		}
+
+		for (mixinName in mixins) {
+			if (Object.hasOwnProperty.call(mixins, mixinName)) {
+				this._mixins[mixinName] = mixins[mixinName];
+				// Extend root-level of instance for easier access (i.e.
+				// `this[mixinName]` instead of `this._mixins[mixinName]`)
+				this[mixinName] = mixins[mixinName];
+			}
+		}
+	};
+
 	Chart.prototype.draw = function(data) {
 
-		var layerName, mixinNs;
+		var layerName, mixinName;
 
 		data = this.transform(data);
 
 		for (layerName in this.layers) {
 			this.layers[layerName].draw(data);
 		}
-		for (mixinNs in this.mixins) {
-			this[mixinNs].draw(data);
+
+		for (mixinName in this._mixins) {
+			this._mixins[mixinName].draw(data);
 		}
 	};
 
