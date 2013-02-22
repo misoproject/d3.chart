@@ -59,26 +59,14 @@
 		return data;
 	};
 
-	Chart.prototype.mixin = function() {
-		var mixins, mixinName;
+	Chart.prototype.mixin = function(nameSpace, chartName) {
+		var args = Array.prototype.slice.call(arguments, 2);
+		var ctor = Chart[chartName];
 
-		// Support signature #mixin( <string> name [, arguments...] )
-		if (typeof arguments[0] === "string") {
-			mixins = {};
-			mixins[arguments[0]] = Array.prototype.slice.call(arguments, 1);
-		// Support signature #mixin( <object> mixins )
-		} else {
-			mixins = arguments[0];
-		}
-
-		for (mixinName in mixins) {
-			if (Object.hasOwnProperty.call(mixins, mixinName)) {
-				this._mixins[mixinName] = variadicNew(Chart[mixinName], mixins[mixinName]);
-				// Extend root-level of instance for easier access (i.e.
-				// `this[mixinName]` instead of `this._mixins[mixinName]`)
-				this[mixinName] = this._mixins[mixinName];
-			}
-		}
+		this._mixins[nameSpace] = variadicNew(ctor, args);
+		// Extend root-level of instance for easier access (i.e.
+		// `this[namepsace]` instead of `this._mixins[namepsace]`)
+		this[nameSpace] = this._mixins[nameSpace];
 	};
 
 	Chart.prototype.draw = function(data) {
@@ -133,7 +121,6 @@
 	d3.selection.prototype.chart = function(chartName) {
 		var chartArgs = Array.prototype.slice.call(arguments, 1);
 		var ChartCtor = Chart[chartName];
-		console.log(chartName, ChartCtor);
 		return variadicNew(ChartCtor, chartArgs);
 	};
 
