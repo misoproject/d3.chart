@@ -32,25 +32,22 @@
 		return object;
 	}
 
-	var Chart = function(opts) {
+	var Chart = function(selection) {
 
 		var mixin, mixinNs;
 
-		if (opts == null) {
-			opts = {};
-		}
-
-		if (!this.base) {
-			if (!opts.base) {
-				opts.base = d3.select("body").append("svg").append("g");
-			}
-			this.base = opts.base;
-		}
-
+		this.base = selection;
 		this.layers = {};
-		this._mixins = [];
+		var mixins = this._mixins = [];
 
-		this.initialize.apply(this, arguments);
+		var oldmixin = d3.selection.prototype.mixin;
+		d3.selection.prototype.mixin = function() {
+			var chart = this.chart.apply(this, arguments);
+			mixins.push(chart);
+			return chart;
+		};
+		this.initialize.apply(this, Array.prototype.slice.call(arguments, 1));
+		d3.selection.prototype.mixin = oldmixin;
 	};
 
 	Chart.prototype.initialize = function() {};
@@ -119,6 +116,7 @@
 
 	d3.selection.prototype.chart = function(chartName) {
 		var chartArgs = Array.prototype.slice.call(arguments, 1);
+		chartArgs.unshift(this);
 		var ChartCtor = Chart[chartName];
 		return variadicNew(ChartCtor, chartArgs);
 	};
