@@ -48,7 +48,7 @@
 		}
 
 		this.layers = {};
-		this._mixins = {};
+		this._mixins = [];
 
 		this.initialize.apply(this, arguments);
 	};
@@ -59,14 +59,13 @@
 		return data;
 	};
 
-	Chart.prototype.mixin = function(nameSpace, chartName) {
-		var args = Array.prototype.slice.call(arguments, 2);
+	Chart.prototype.mixin = function(chartName) {
+		var args = Array.prototype.slice.call(arguments, 1);
 		var ctor = Chart[chartName];
+		var chart = variadicNew(ctor, args);
 
-		this._mixins[nameSpace] = variadicNew(ctor, args);
-		// Extend root-level of instance for easier access (i.e.
-		// `this[namepsace]` instead of `this._mixins[namepsace]`)
-		this[nameSpace] = this._mixins[nameSpace];
+		this._mixins.push(chart);
+		return chart;
 	};
 
 	Chart.prototype.draw = function(data) {
