@@ -40,14 +40,7 @@
 		this.layers = {};
 		var mixins = this._mixins = [];
 
-		var oldmixin = d3.selection.prototype.mixin;
-		d3.selection.prototype.mixin = function() {
-			var chart = this.chart.apply(this, arguments);
-			mixins.push(chart);
-			return chart;
-		};
 		this.initialize.apply(this, Array.prototype.slice.call(arguments, 1));
-		d3.selection.prototype.mixin = oldmixin;
 	};
 
 	Chart.prototype.initialize = function() {};
@@ -56,8 +49,9 @@
 		return data;
 	};
 
-	Chart.prototype.mixin = function(chartName) {
-		var args = Array.prototype.slice.call(arguments, 1);
+	Chart.prototype.mixin = function(selection, chartName) {
+		var args = Array.prototype.slice.call(arguments, 2);
+		args.unshift(selection);
 		var ctor = Chart[chartName];
 		var chart = variadicNew(ctor, args);
 
