@@ -94,11 +94,13 @@
 		// `parent`'s constructor function.
 		var Surrogate = function(){ this.constructor = child; };
 		Surrogate.prototype = parent.prototype;
-		child.prototype = new Surrogate;
+		child.prototype = new Surrogate();
 
 		// Add prototype properties (instance properties) to the subclass, if
 		// supplied.
-		if (protoProps) extend(child.prototype, protoProps);
+		if (protoProps) {
+			extend(child.prototype, protoProps);
+		}
 
 		// Set a convenience property in case the parent's prototype is needed
 		// later.

@@ -2,6 +2,8 @@
 
 	"use strict";
 
+	var d3 = window.d3;
+
 	var errors = {
 		noBase: new Error("d3.layer must be initialized with a base"),
 		noDataBind: new Error("d3.layer must specify a `dataBind` method."),
