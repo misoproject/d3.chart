@@ -4,11 +4,11 @@
 
 	var d3 = window.d3;
 
-	var Dummy = function() {};
+	var Surrogate = function(ctor) { this.constructor = ctor; };
 	var variadicNew = function(Ctor, args) {
 		var inst;
-		Dummy.prototype = Ctor.prototype;
-		inst = new Dummy();
+		Surrogate.prototype = Ctor.prototype;
+		inst = new Surrogate(Ctor);
 		Ctor.apply(inst, args);
 		return inst;
 	};
@@ -74,40 +74,22 @@
 		}
 	};
 
-	d3.chart = function(name, protoProps, staticProps) {
-		var parent = Chart;
-		var child;
-
-		// The constructor function for the new subclass is either defined by you
-		// (the "constructor" property in your `extend` definition), or defaulted
-		// by us to simply call the parent's constructor.
-		if (protoProps && Object.hasOwnProperty.call(protoProps, 'constructor')) {
-			child = protoProps.constructor;
-		} else {
-			child = function(){ return parent.apply(this, arguments); };
-		}
-
-		// Add static properties to the constructor function, if supplied.
-		extend(child, parent, staticProps);
+	// d3.chart
+	// A factory for creating chart constructors
+	d3.chart = function(name, protoProps) {
+		var Child = function() { return Chart.apply(this, arguments); };
 
 		// Set the prototype chain to inherit from `parent`, without calling
 		// `parent`'s constructor function.
-		var Surrogate = function(){ this.constructor = child; };
-		Surrogate.prototype = parent.prototype;
-		child.prototype = new Surrogate();
+		Surrogate.prototype = Chart.prototype;
+		Child.prototype = new Surrogate(Child);
 
 		// Add prototype properties (instance properties) to the subclass, if
 		// supplied.
-		if (protoProps) {
-			extend(child.prototype, protoProps);
-		}
+		if (protoProps) extend(Child.prototype, protoProps);
 
-		// Set a convenience property in case the parent's prototype is needed
-		// later.
-		child.__super__ = parent.prototype;
-
-		Chart[name] = child;
-		return child;
+		Chart[name] = Child;
+		return Child;
 	};
 
 	d3.selection.prototype.chart = function(chartName) {
