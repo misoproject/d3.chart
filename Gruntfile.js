@@ -3,7 +3,13 @@ module.exports = function(grunt) {
   "use strict";
 
   grunt.initConfig({
-    pkg: grunt.file.readJSON("package.json"),
+    meta: {
+      pkg: grunt.file.readJSON("package.json"),
+      srcFiles: [
+        "src/d3-layer.js",
+        "src/d3-chart.js"
+      ]
+    },
     jshint: {
       options: {
         curly: true,
@@ -14,7 +20,7 @@ module.exports = function(grunt) {
           browser: true
         },
         files: {
-          src: ["src/*.js"]
+          src: "<%= meta.srcFiles %>"
         }
       },
       grunt: {
@@ -28,17 +34,14 @@ module.exports = function(grunt) {
     },
     concat: {
       options: {
-        banner: "/*! <%= pkg.name %> - v<%= pkg.version %>\n" +
-          " *  License: <%= pkg.license %>\n" +
+        banner: "/*! <%= meta.pkg.name %> - v<%= meta.pkg.version %>\n" +
+          " *  License: <%= meta.pkg.license %>\n" +
           " *  Date: <%= grunt.template.today('yyyy-mm-dd') %>\n" +
           " */\n"
       },
       dist: {
         files: {
-          "dist/d3.chart.js": [
-            "src/d3-layer.js",
-            "src/d3-chart.js"
-          ]
+          "dist/d3.chart.js": "<%= meta.srcFiles %>"
         }
       }
     },
