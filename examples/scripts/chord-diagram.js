@@ -22,9 +22,11 @@ window.Chord = function(options) {
         .sortSubgroups(d3.descending)
         .matrix(matrix);
 
-    svg.append("g").selectAll("path")
-        .data(chord.groups)
-      .enter().append("path")
+    var handles = svg.append("g").selectAll("path")
+        .data(chord.groups);
+    var enteringHandles = handles.enter().append("path");
+
+    enteringHandles
         .style("fill", function(d) { return fill(d.index); })
         .style("stroke", function(d) { return fill(d.index); })
         .attr("d", d3.svg.arc().innerRadius(innerRadius).outerRadius(outerRadius))
@@ -34,32 +36,36 @@ window.Chord = function(options) {
     var ticks = svg.append("g").selectAll("g")
         .data(chord.groups)
       .enter().append("g").selectAll("g")
-        .data(groupTicks)
-      .enter().append("g")
+        .data(groupTicks);
+    var enteringTicks = ticks.enter().append("g");
+
+    enteringTicks
         .attr("transform", function(d) {
           return "rotate(" + (d.angle * 180 / Math.PI - 90) + ")"
               + "translate(" + outerRadius + ",0)";
         });
 
-    ticks.append("line")
+    enteringTicks.append("line")
         .attr("x1", 1)
         .attr("y1", 0)
         .attr("x2", 5)
         .attr("y2", 0)
         .style("stroke", "#000");
 
-    ticks.append("text")
+    enteringTicks.append("text")
         .attr("x", 8)
         .attr("dy", ".35em")
         .attr("transform", function(d) { return d.angle > Math.PI ? "rotate(180)translate(-16)" : null; })
         .style("text-anchor", function(d) { return d.angle > Math.PI ? "end" : null; })
         .text(function(d) { return d.label; });
 
-    svg.append("g")
+    var chords = svg.append("g")
         .attr("class", "chord")
       .selectAll("path")
-        .data(chord.chords)
-      .enter().append("path")
+        .data(chord.chords);
+    var enteringChords = chords.enter().append("path");
+
+    enteringChords
         .attr("d", d3.svg.chord().radius(innerRadius))
         .style("fill", function(d) { return fill(d.target.index); })
         .style("opacity", 1);
