@@ -20,21 +20,27 @@ window.BarChart = function(options) {
 
     var rect = svg.selectAll("rect")
       .data(data, function(d) { return d.time; });
+    var entering = rect.enter().insert("rect", "line");
+    var enteringTrans = entering.transition();
+    var exiting = rect.exit();
+    var trans = rect.transition();
+    var exitingTrans = exiting.transition();
 
-    rect.enter().insert("rect", "line")
+    entering
         .attr("x", function(d, i) { return x(i + 1) - .5; })
         .attr("y", function(d) { return h - y(d.value) - .5; })
         .attr("width", w / data.length)
-        .attr("height", function(d) { return y(d.value); })
-      .transition()
+        .attr("height", function(d) { return y(d.value); });
+
+    enteringTrans
         .duration(1000)
         .attr("x", function(d, i) { return x(i) - .5; });
 
-    rect.transition()
+    trans
         .duration(1000)
         .attr("x", function(d, i) { return x(i) - .5; });
 
-    rect.exit().transition()
+    exitingTrans
         .duration(1000)
         .attr("x", function(d, i) { return x(i - 1) - .5; })
         .remove();
