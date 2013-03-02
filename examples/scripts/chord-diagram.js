@@ -1,35 +1,26 @@
-(function(window, undefined) {
+window.Chord = function(options) {
 
   "use strict";
+
+  options = options || {};
+
   var d3 = window.d3;
 
-  // From http://mkweb.bcgsc.ca/circos/guide/tables/
-  var matrix = [
-    [11975,  5871, 8916, 2868],
-    [ 1951, 10048, 2060, 6171],
-    [ 8010, 16145, 8090, 8045],
-    [ 1013,   990,  940, 6907]
-  ];
-
-  var chord = d3.layout.chord()
-      .padding(.05)
-      .sortSubgroups(d3.descending)
-      .matrix(matrix);
-
-  var width = 960,
-      height = 500,
-      innerRadius = Math.min(width, height) * .41,
-      outerRadius = innerRadius * 1.1;
+  var width, height, innerRadius, outerRadius;
 
   var fill = d3.scale.ordinal()
       .domain(d3.range(4))
       .range(["#000000", "#FFDD89", "#957244", "#F26223"]);
 
   var svg = d3.select("body").append("svg")
-      .attr("width", width)
-      .attr("height", height)
-    .append("g")
-      .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+    .append("g");
+
+  function chord(matrix) {
+
+  var chord = d3.layout.chord()
+      .padding(.05)
+      .sortSubgroups(d3.descending)
+      .matrix(matrix);
 
   svg.append("g").selectAll("path")
       .data(chord.groups)
@@ -73,6 +64,8 @@
       .style("fill", function(d) { return fill(d.target.index); })
       .style("opacity", 1);
 
+  }
+
   // Returns an array of tick angles and labels, given a group.
   function groupTicks(d) {
     var k = (d.endAngle - d.startAngle) / d.value;
@@ -94,4 +87,41 @@
     };
   }
 
-}(this));
+  chord.width = function(newWidth) {
+    if (!arguments.length) {
+      return width;
+    }
+    width = newWidth;
+    svg.attr("width", width);
+    chord.setRadius();
+    return this;
+  };
+
+  chord.height = function(newHeight) {
+    if (!arguments.length) {
+      return height;
+    }
+    height = newHeight;
+    svg.attr("height", height);
+    chord.setRadius();
+    return this;
+  };
+
+  chord.setRadius = function(radius) {
+    if (!arguments.length) {
+      radius = Math.min(chord.width(), chord.height()) * 0.41;
+    }
+    outerRadius = radius;
+    innerRadius = radius / 1.1;
+    return this;
+  };
+
+  chord.width(options.width || 800);
+  chord.height(options.height || 500);
+  chord.setRadius();
+
+  svg.attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+  return chord;
+
+};
