@@ -17,52 +17,52 @@ window.Chord = function(options) {
 
   function chord(matrix) {
 
-  var chord = d3.layout.chord()
-      .padding(.05)
-      .sortSubgroups(d3.descending)
-      .matrix(matrix);
+    var chord = d3.layout.chord()
+        .padding(.05)
+        .sortSubgroups(d3.descending)
+        .matrix(matrix);
 
-  svg.append("g").selectAll("path")
-      .data(chord.groups)
-    .enter().append("path")
-      .style("fill", function(d) { return fill(d.index); })
-      .style("stroke", function(d) { return fill(d.index); })
-      .attr("d", d3.svg.arc().innerRadius(innerRadius).outerRadius(outerRadius))
-      .on("mouseover", fade(.1))
-      .on("mouseout", fade(1));
+    svg.append("g").selectAll("path")
+        .data(chord.groups)
+      .enter().append("path")
+        .style("fill", function(d) { return fill(d.index); })
+        .style("stroke", function(d) { return fill(d.index); })
+        .attr("d", d3.svg.arc().innerRadius(innerRadius).outerRadius(outerRadius))
+        .on("mouseover", fade(.1))
+        .on("mouseout", fade(1));
 
-  var ticks = svg.append("g").selectAll("g")
-      .data(chord.groups)
-    .enter().append("g").selectAll("g")
-      .data(groupTicks)
-    .enter().append("g")
-      .attr("transform", function(d) {
-        return "rotate(" + (d.angle * 180 / Math.PI - 90) + ")"
-            + "translate(" + outerRadius + ",0)";
-      });
+    var ticks = svg.append("g").selectAll("g")
+        .data(chord.groups)
+      .enter().append("g").selectAll("g")
+        .data(groupTicks)
+      .enter().append("g")
+        .attr("transform", function(d) {
+          return "rotate(" + (d.angle * 180 / Math.PI - 90) + ")"
+              + "translate(" + outerRadius + ",0)";
+        });
 
-  ticks.append("line")
-      .attr("x1", 1)
-      .attr("y1", 0)
-      .attr("x2", 5)
-      .attr("y2", 0)
-      .style("stroke", "#000");
+    ticks.append("line")
+        .attr("x1", 1)
+        .attr("y1", 0)
+        .attr("x2", 5)
+        .attr("y2", 0)
+        .style("stroke", "#000");
 
-  ticks.append("text")
-      .attr("x", 8)
-      .attr("dy", ".35em")
-      .attr("transform", function(d) { return d.angle > Math.PI ? "rotate(180)translate(-16)" : null; })
-      .style("text-anchor", function(d) { return d.angle > Math.PI ? "end" : null; })
-      .text(function(d) { return d.label; });
+    ticks.append("text")
+        .attr("x", 8)
+        .attr("dy", ".35em")
+        .attr("transform", function(d) { return d.angle > Math.PI ? "rotate(180)translate(-16)" : null; })
+        .style("text-anchor", function(d) { return d.angle > Math.PI ? "end" : null; })
+        .text(function(d) { return d.label; });
 
-  svg.append("g")
-      .attr("class", "chord")
-    .selectAll("path")
-      .data(chord.chords)
-    .enter().append("path")
-      .attr("d", d3.svg.chord().radius(innerRadius))
-      .style("fill", function(d) { return fill(d.target.index); })
-      .style("opacity", 1);
+    svg.append("g")
+        .attr("class", "chord")
+      .selectAll("path")
+        .data(chord.chords)
+      .enter().append("path")
+        .attr("d", d3.svg.chord().radius(innerRadius))
+        .style("fill", function(d) { return fill(d.target.index); })
+        .style("opacity", 1);
 
   }
 
