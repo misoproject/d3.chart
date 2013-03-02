@@ -32,6 +32,17 @@
 		return object;
 	}
 
+	// initCascade
+	// Call the initialize method up the inheritance chain, starting with the
+	// base class and continuing "downward".
+	var initCascade = function(instance, args) {
+		var sup = this.constructor.__super__;
+		if (sup) {
+			initCascade.call(sup, instance, args);
+		}
+		this.initialize.apply(instance, args);
+	};
+
 	var Chart = function(selection) {
 
 		var mixin, mixinNs;
@@ -40,7 +51,7 @@
 		this.layers = {};
 		var mixins = this._mixins = [];
 
-		this.initialize.apply(this, Array.prototype.slice.call(arguments, 1));
+		initCascade.call(this, this, Array.prototype.slice.call(arguments, 1));
 	};
 
 	Chart.prototype.initialize = function() {};
@@ -74,22 +85,50 @@
 		}
 	};
 
-	// d3.chart
-	// A factory for creating chart constructors
-	d3.chart = function(name, protoProps) {
-		var Child = function() { return Chart.apply(this, arguments); };
+	Chart.extend = function(name, protoProps, staticProps) {
+		var parent = this;
+		var child;
+
+		// The constructor function for the new subclass is either defined by you
+		// (the "constructor" property in your `extend` definition), or defaulted
+		// by us to simply call the parent's constructor.
+		if (protoProps && Object.hasOwnProperty.call(protoProps, 'constructor')) {
+			child = protoProps.constructor;
+		} else {
+			child = function(){ return parent.apply(this, arguments); };
+		}
+
+		// Add static properties to the constructor function, if supplied.
+		extend(child, parent, staticProps);
 
 		// Set the prototype chain to inherit from `parent`, without calling
 		// `parent`'s constructor function.
-		Surrogate.prototype = Chart.prototype;
-		Child.prototype = new Surrogate(Child);
+		var Surrogate = function(){ this.constructor = child; };
+		Surrogate.prototype = parent.prototype;
+		child.prototype = new Surrogate;
 
 		// Add prototype properties (instance properties) to the subclass, if
 		// supplied.
-		if (protoProps) extend(Child.prototype, protoProps);
+		if (protoProps) extend(child.prototype, protoProps);
 
-		Chart[name] = Child;
-		return Child;
+		// Set a convenience property in case the parent's prototype is needed
+		// later.
+		child.__super__ = parent.prototype;
+
+		Chart[name] = child;
+		return child;
+	};
+
+	// d3.chart
+	// A factory for creating chart constructors
+	d3.chart = function(name) {
+		if (arguments.length === 0) {
+			return Chart;
+		} else if (arguments.length === 1) {
+			return Chart[name];
+		}
+
+		return Chart.extend.apply(Chart, arguments);
 	};
 
 	d3.selection.prototype.chart = function(chartName) {
