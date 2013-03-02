@@ -1,26 +1,22 @@
-(function(window, undefined) {
+window.BarChart = function(options) {
 
   "use strict";
 
-  var w = 20,
-    h = 80,
-    dataSrc = new DataSrc(),
-    data = dataSrc.data;
+  options = options || {};
+
+  var w, h,
+    data = options.data || [];
 
   var x = d3.scale.linear()
-    .domain([0, 1])
-    .range([0, w]);
+    .domain([0, data.length]);
 
   var y = d3.scale.linear()
-    .domain([0, 100])
-    .rangeRound([0, h]);
+    .domain([0, 100]);
 
   var svg = d3.select("body").append("svg")
-    .attr("class", "chart")
-    .attr("width", w * data.length - 1)
-    .attr("height", h);
+    .attr("class", "chart");
 
-  function redraw() {
+  function chart() {
 
     var rect = svg.selectAll("rect")
       .data(data, function(d) { return d.time; });
@@ -28,7 +24,7 @@
     rect.enter().insert("rect", "line")
         .attr("x", function(d, i) { return x(i + 1) - .5; })
         .attr("y", function(d) { return h - y(d.value) - .5; })
-        .attr("width", w)
+        .attr("width", w / data.length)
         .attr("height", function(d) { return y(d.value); })
       .transition()
         .duration(1000)
@@ -44,10 +40,29 @@
         .remove();
   }
 
-  redraw();
-  setInterval(function() {
-    dataSrc.fetch();
-    redraw();
-  }, 1500);
+  chart.width = function(newWidth) {
+    if (!arguments.length) {
+      return w;
+    }
+    w = newWidth;
+    x.range([0, w]);
+    svg.attr("width", w);
+    return this;
+  };
 
-}(this));
+  chart.height = function(newHeight) {
+    if (!arguments.length) {
+      return h;
+    }
+    h = newHeight;
+    y.rangeRound([0, h]);
+    svg.attr("height", h);
+    return this;
+  };
+
+  chart.width(options.width || 600);
+  chart.height(options.height || 80);
+
+  return chart;
+
+};
