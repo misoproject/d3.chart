@@ -35,6 +35,14 @@
     myCustomBarChart.draw();
   }, 1500);
 
+  var dataSrc3 = new DataSrc();
+  var myFadingBarChart = FadingBarChart({ data: dataSrc3.data });
+  myFadingBarChart.draw();
+  setInterval(function() {
+    dataSrc3.fetch();
+    myFadingBarChart.draw();
+  }, 1500);
+
   var myChord = Chord();
   myChord(matrix);
 
