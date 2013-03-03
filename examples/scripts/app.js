@@ -38,7 +38,8 @@
   }, 1500);
 
   var dataSrc3 = new DataSrc();
-  var myFadingBarChart = FadingBarChart({ data: dataSrc3.data });
+  var myFadingBarChart = d3.select("body")
+    .append("svg").chart("FadingBarChart", { data: dataSrc3.data });
   myFadingBarChart.draw();
   setInterval(function() {
     dataSrc3.fetch();
