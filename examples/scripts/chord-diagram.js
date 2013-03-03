@@ -8,7 +8,7 @@ window.Chord = function(options) {
 
   var width, height, innerRadius, outerRadius;
   // This object serves as a namespace for the diagram's layers
-  var layers = {};
+  var layers = chord.layers = {};
 
   var fill = d3.scale.ordinal()
       .domain(d3.range(4))
@@ -52,34 +52,38 @@ window.Chord = function(options) {
         .style("opacity", 1);
   }
 
-  layers.handles = function(chord) {
+  layers.handles = svg.append("g").layer({
+    dataBind: function(chord) {
+      return this.selectAll("path").data(chord.groups);
+    },
+    insert: function() {
+      return this.append("path");
+    }
+  });
+  layers.handles.on("enter", onEnterHandles);
 
-    var handles = svg.append("g").selectAll("path")
-        .data(chord.groups);
-    var enteringHandles = handles.enter().append("path");
+  layers.ticks = svg.append("g").layer({
+    dataBind: function(chord) {
+      return this.append("g").selectAll("g")
+          .data(chord.groups)
+        .enter().append("g").selectAll("g")
+          .data(groupTicks);
+    },
+    insert: function() {
+      return this.append("g");
+    }
+  });
+  layers.ticks.on("enter", onEnterTicks);
 
-    enteringHandles.call(onEnterHandles);
-  };
-
-  layers.ticks = function(chord) {
-    var ticks = svg.append("g").selectAll("g")
-        .data(chord.groups)
-      .enter().append("g").selectAll("g")
-        .data(groupTicks);
-    var enteringTicks = ticks.enter().append("g");
-
-    enteringTicks.call(onEnterTicks);
-  };
-
-  layers.chords = function(chord) {
-    var chords = svg.append("g")
-        .attr("class", "chord")
-      .selectAll("path")
-        .data(chord.chords);
-    var enteringChords = chords.enter().append("path");
-
-    enteringChords.call(onEnterChords);
-  };
+  layers.chords = svg.append("g").attr("class", "chord").layer({
+    dataBind: function(chord) {
+      return this.selectAll("path").data(chord.chords);
+    },
+    insert: function() {
+      return this.append("path");
+    }
+  });
+  layers.chords.on("enter", onEnterChords);
 
   function chord(matrix) {
 
@@ -88,9 +92,9 @@ window.Chord = function(options) {
         .sortSubgroups(d3.descending)
         .matrix(matrix);
 
-    layers.handles(chord);
-    layers.ticks(chord);
-    layers.chords(chord);
+    layers.handles.draw(chord);
+    layers.ticks.draw(chord);
+    layers.chords.draw(chord);
   }
 
   // Returns an array of tick angles and labels, given a group.
