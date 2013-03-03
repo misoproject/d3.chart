@@ -16,6 +16,29 @@ window.BarChart = function(options) {
   var svg = d3.select("body").append("svg")
     .attr("class", "chart");
 
+  function onEnter() {
+    this.attr("x", function(d, i) { return x(i + 1) - .5; })
+        .attr("y", function(d) { return h - y(d.value) - .5; })
+        .attr("width", w / data.length)
+        .attr("height", function(d) { return y(d.value); });
+  }
+
+  function onEnterTrans() {
+    this.duration(1000)
+        .attr("x", function(d, i) { return x(i) - .5; });
+  }
+
+  function onTrans() {
+    this.duration(1000)
+        .attr("x", function(d, i) { return x(i) - .5; });
+  }
+
+  function onExitTrans() {
+    this.duration(1000)
+        .attr("x", function(d, i) { return x(i - 1) - .5; })
+        .remove();
+  }
+
   function chart() {
 
     var rect = svg.selectAll("rect")
@@ -26,24 +49,10 @@ window.BarChart = function(options) {
     var trans = rect.transition();
     var exitingTrans = exiting.transition();
 
-    entering
-        .attr("x", function(d, i) { return x(i + 1) - .5; })
-        .attr("y", function(d) { return h - y(d.value) - .5; })
-        .attr("width", w / data.length)
-        .attr("height", function(d) { return y(d.value); });
-
-    enteringTrans
-        .duration(1000)
-        .attr("x", function(d, i) { return x(i) - .5; });
-
-    trans
-        .duration(1000)
-        .attr("x", function(d, i) { return x(i) - .5; });
-
-    exitingTrans
-        .duration(1000)
-        .attr("x", function(d, i) { return x(i - 1) - .5; })
-        .remove();
+    entering.call(onEnter);
+    enteringTrans.call(onEnterTrans);
+    trans.call(onTrans);
+    exitingTrans.call(onExitTrans);
   }
 
   chart.width = function(newWidth) {
