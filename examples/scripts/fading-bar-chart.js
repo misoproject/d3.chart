@@ -1,18 +1,13 @@
-window.FadingBarChart = function(options) {
+d3.chart("BarChart").extend("FadingBarChart", {
+  initialize: function(options) {
 
-  "use strict";
-  var BarChart = window.BarChart;
+    var chart = this;
 
-  var fadingBarChart = BarChart(options);
-
-  fadingBarChart.on("update:transition", function() {
-    var length = 0;
-    // Terrible hack to get the length of the selection
-    this.attr("opacity", function() { length++; });
-    this.attr("opacity", function(d, i) {
-      return i / length;
+    this.layers.bars.on("update:transition", function() {
+      this.attr("opacity", function(d, i) {
+        return i / chart.data.length;
+      });
     });
-  });
 
-  return fadingBarChart;
-};
+  }
+});
