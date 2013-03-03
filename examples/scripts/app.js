@@ -16,10 +16,10 @@
 
   var dataSrc = new DataSrc();
   var myBarChart = BarChart({ data: dataSrc.data });
-  myBarChart();
+  myBarChart.draw();
   setInterval(function() {
     dataSrc.fetch();
-    myBarChart();
+    myBarChart.draw();
   }, 1500);
 
   var myChord = Chord();
