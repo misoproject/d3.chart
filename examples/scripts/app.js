@@ -57,4 +57,7 @@
   });
   myCustomChord(matrix);
 
+  var myImprovedChord = ImprovedChord();
+  myImprovedChord(matrix);
+
 }(this));
