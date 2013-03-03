@@ -39,21 +39,25 @@ window.BarChart = function(options) {
         .remove();
   }
 
-  function chart() {
+  function dataBind() {
 
-    var rect = svg.selectAll("rect")
+    return this.selectAll("rect")
       .data(data, function(d) { return d.time; });
-    var entering = rect.enter().insert("rect", "line");
-    var enteringTrans = entering.transition();
-    var exiting = rect.exit();
-    var trans = rect.transition();
-    var exitingTrans = exiting.transition();
-
-    entering.call(onEnter);
-    enteringTrans.call(onEnterTrans);
-    trans.call(onTrans);
-    exitingTrans.call(onExitTrans);
   }
+
+  function insert() {
+    return this.insert("rect", "line");
+  }
+
+  var chart = svg.layer({
+    dataBind: dataBind,
+    insert: insert
+  });
+
+  chart.on("enter", onEnter);
+  chart.on("enter:transition", onEnterTrans);
+  chart.on("update:transition", onTrans);
+  chart.on("exit:transition", onExitTrans);
 
   chart.width = function(newWidth) {
     if (!arguments.length) {
