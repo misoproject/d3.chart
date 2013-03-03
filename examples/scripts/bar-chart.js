@@ -5,10 +5,8 @@ d3.chart("BarChart", {
     options = options || {};
 
     var chart = this;
-    this.data = options.data || [];
 
-    this.x = d3.scale.linear()
-      .domain([0, this.data.length]);
+    this.x = d3.scale.linear();
 
     this.y = d3.scale.linear()
       .domain([0, 100]);
@@ -17,9 +15,11 @@ d3.chart("BarChart", {
       .attr("class", "chart");
 
     function onEnter() {
+      var length = 0;
+      this.attr("x", function() { ++length; });
       this.attr("x", function(d, i) { return chart.x(i + 1) - .5; })
           .attr("y", function(d) { return chart.h - chart.y(d.value) - .5; })
-          .attr("width", chart.w / chart.data.length)
+          .attr("width", chart.w / length)
           .attr("height", function(d) { return chart.y(d.value); });
     }
 
@@ -39,10 +39,10 @@ d3.chart("BarChart", {
           .remove();
     }
 
-    function dataBind() {
+    function dataBind(data) {
 
       return this.selectAll("rect")
-        .data(chart.data, function(d) { return d.time; });
+        .data(data, function(d) { return d.time; });
     }
 
     function insert() {
@@ -81,6 +81,12 @@ d3.chart("BarChart", {
     this.y.rangeRound([0, this.h]);
     this.base.attr("height", this.h);
     return this;
+  },
+
+  transform: function(data) {
+    data = data.data;
+    this.x.domain([0, data.length]);
+    return data;
   }
 
 });
