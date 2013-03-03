@@ -45,11 +45,13 @@
     myFadingBarChart.draw();
   }, 1500);
 
-  var myChord = Chord();
-  myChord(matrix);
+  var myChord = d3.select("body")
+    .append("svg").chart("Chord");
+  myChord.draw(matrix);
 
   var colors = ["#000000", "#FFDD89", "#957244", "#F26224"];
-  var myCustomChord = Chord();
+  var myCustomChord = d3.select("body")
+    .append("svg").chart("Chord");
   myCustomChord.layers.ticks.on("enter", function() {
     this.each(function(data, idx, group) {
       d3.select(this)
@@ -57,7 +59,7 @@
         .attr("fill", colors[group]);
     });
   });
-  myCustomChord(matrix);
+  myCustomChord.draw(matrix);
 
   var myImprovedChord = ImprovedChord();
   myImprovedChord(matrix);
