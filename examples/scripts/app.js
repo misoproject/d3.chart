@@ -22,6 +22,19 @@
     myBarChart.draw();
   }, 1500);
 
+  var dataSrc2 = new DataSrc();
+  var myCustomBarChart = BarChart({ data: dataSrc2.data });
+  myCustomBarChart.on("update:transition", function() {
+    this.attr("opacity", function(d, i) {
+      return i / dataSrc2.data.length;
+    });
+  });
+  myCustomBarChart.draw();
+  setInterval(function() {
+    dataSrc2.fetch();
+    myCustomBarChart.draw();
+  }, 1500);
+
   var myChord = Chord();
   myChord(matrix);
 
