@@ -62,7 +62,8 @@
   });
   myCustomChord.draw(matrix);
 
-  var myImprovedChord = ImprovedChord();
-  myImprovedChord(matrix);
+  var myImprovedChord = d3.select("body")
+    .append("svg").chart("ImprovedChord");
+  myImprovedChord.draw(matrix);
 
 }(this));
