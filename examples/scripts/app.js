@@ -15,7 +15,8 @@
   ];
 
   var dataSrc = new DataSrc();
-  var myBarChart = BarChart({ data: dataSrc.data });
+  var myBarChart = d3.select("body")
+    .append("svg").chart("BarChart", { data: dataSrc.data });
   myBarChart.draw();
   setInterval(function() {
     dataSrc.fetch();
@@ -23,8 +24,9 @@
   }, 1500);
 
   var dataSrc2 = new DataSrc();
-  var myCustomBarChart = BarChart({ data: dataSrc2.data });
-  myCustomBarChart.on("update:transition", function() {
+  var myCustomBarChart = d3.select("body")
+    .append("svg").chart("BarChart", { data: dataSrc2.data });
+  myCustomBarChart.layers.bars.on("update:transition", function() {
     this.attr("opacity", function(d, i) {
       return i / dataSrc2.data.length;
     });
