@@ -15,6 +15,41 @@ window.Chord = function(options) {
   var svg = d3.select("body").append("svg")
     .append("g");
 
+  function onEnterHandles() {
+    this.style("fill", function(d) { return fill(d.index); })
+        .style("stroke", function(d) { return fill(d.index); })
+        .attr("d", d3.svg.arc().innerRadius(innerRadius).outerRadius(outerRadius))
+        .on("mouseover", fade(.1))
+        .on("mouseout", fade(1));
+  }
+
+  function onEnterTicks() {
+    this.attr("transform", function(d) {
+          return "rotate(" + (d.angle * 180 / Math.PI - 90) + ")"
+              + "translate(" + outerRadius + ",0)";
+        });
+
+    this.append("line")
+        .attr("x1", 1)
+        .attr("y1", 0)
+        .attr("x2", 5)
+        .attr("y2", 0)
+        .style("stroke", "#000");
+
+    this.append("text")
+        .attr("x", 8)
+        .attr("dy", ".35em")
+        .attr("transform", function(d) { return d.angle > Math.PI ? "rotate(180)translate(-16)" : null; })
+        .style("text-anchor", function(d) { return d.angle > Math.PI ? "end" : null; })
+        .text(function(d) { return d.label; });
+  }
+
+  function onEnterChords() {
+    this.attr("d", d3.svg.chord().radius(innerRadius))
+        .style("fill", function(d) { return fill(d.target.index); })
+        .style("opacity", 1);
+  }
+
   function chord(matrix) {
 
     var chord = d3.layout.chord()
@@ -26,12 +61,7 @@ window.Chord = function(options) {
         .data(chord.groups);
     var enteringHandles = handles.enter().append("path");
 
-    enteringHandles
-        .style("fill", function(d) { return fill(d.index); })
-        .style("stroke", function(d) { return fill(d.index); })
-        .attr("d", d3.svg.arc().innerRadius(innerRadius).outerRadius(outerRadius))
-        .on("mouseover", fade(.1))
-        .on("mouseout", fade(1));
+    enteringHandles.call(onEnterHandles);
 
     var ticks = svg.append("g").selectAll("g")
         .data(chord.groups)
@@ -39,25 +69,7 @@ window.Chord = function(options) {
         .data(groupTicks);
     var enteringTicks = ticks.enter().append("g");
 
-    enteringTicks
-        .attr("transform", function(d) {
-          return "rotate(" + (d.angle * 180 / Math.PI - 90) + ")"
-              + "translate(" + outerRadius + ",0)";
-        });
-
-    enteringTicks.append("line")
-        .attr("x1", 1)
-        .attr("y1", 0)
-        .attr("x2", 5)
-        .attr("y2", 0)
-        .style("stroke", "#000");
-
-    enteringTicks.append("text")
-        .attr("x", 8)
-        .attr("dy", ".35em")
-        .attr("transform", function(d) { return d.angle > Math.PI ? "rotate(180)translate(-16)" : null; })
-        .style("text-anchor", function(d) { return d.angle > Math.PI ? "end" : null; })
-        .text(function(d) { return d.label; });
+    enteringTicks.call(onEnterTicks);
 
     var chords = svg.append("g")
         .attr("class", "chord")
@@ -65,10 +77,7 @@ window.Chord = function(options) {
         .data(chord.chords);
     var enteringChords = chords.enter().append("path");
 
-    enteringChords
-        .attr("d", d3.svg.chord().radius(innerRadius))
-        .style("fill", function(d) { return fill(d.target.index); })
-        .style("opacity", 1);
+    enteringChords.call(onEnterChords);
 
   }
 
