@@ -76,6 +76,10 @@
 
     data = this.transform(data);
 
+    if (data === undefined) {
+      return;
+    }
+
     for (layerName in this.layers) {
       this.layers[layerName].draw(data);
     }
