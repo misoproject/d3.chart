@@ -40,7 +40,11 @@
 		if (sup) {
 			initCascade.call(sup, instance, args);
 		}
-		this.initialize.apply(instance, args);
+		// Do not invoke the `initialize` method on classers further up the
+		// prototype chain.
+		if (Object.hasOwnProperty.call(this.constructor.prototype, "initialize")) {
+			this.initialize.apply(instance, args);
+		}
 	};
 
 	var Chart = function(selection) {
