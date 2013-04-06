@@ -23,6 +23,22 @@ module.exports = function(grunt) {
           src: "<%= meta.srcFiles %>"
         }
       },
+      test: {
+        options: {
+          globals: {
+            d3: true,
+            assert: true,
+            chai: true,
+            setup: true,
+            suite: true,
+            test: true,
+            sinon: true
+          }
+        },
+        files: {
+          src: ["test/tests/*.js"]
+        }
+      },
       grunt: {
         options: {
           node: true
