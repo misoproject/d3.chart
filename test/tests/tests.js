@@ -67,6 +67,14 @@ suite("d3.chart", function() {
 				assert(this.init2.calledBefore(this.init3));
 				assert.equal(this.init3.callCount, 1);
 			});
+			test("calls each `initialize` method in the prototype chain exactly once", function() {
+				d3.chart("test3").extend("test4");
+				d3.select("#test").chart("test4");
+
+				assert.equal(this.init1.callCount, 1);
+				assert.equal(this.init2.callCount, 1);
+				assert.equal(this.init3.callCount, 1);
+			});
 		});
 	});
 
