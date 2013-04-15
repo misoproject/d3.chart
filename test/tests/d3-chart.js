@@ -180,4 +180,43 @@ suite("d3.chart", function() {
 			assert(this.layer2.draw.calledBefore(this.mixin2.draw));
 		});
 	});
+
+	suite("#layer", function() {
+
+		test("creates a layer with the same selection", function() {
+			var base = d3.select("#test");
+			var layerbase = base.append("g");
+			var chart = base.chart("test");
+			var layer = chart.layer("testlayer", layerbase, {});
+			assert.equal(layer, layerbase);
+		});
+
+		test("returns a layer", function() {
+			var base = d3.select("#test");
+			var chart = base.chart("test");
+			var layer = chart.layer("testlayer", base.append("g"), {});
+			assert.equal(chart.layer("testlayer"), layer);
+		});
+
+		test("extends the selection with a `draw` method", function() {
+			var base = d3.select("#test");
+			var chart = base.chart("test");
+			var layer = chart.layer("testlayer", base.append("g"), {});
+			assert.typeOf(layer.draw, "function");
+		});
+
+		test("extends the selection with an `on` method", function() {
+			var base = d3.select("#test");
+			var chart = base.chart("test");
+			var layer = chart.layer("testlayer", base.append("g"), {});
+			assert.typeOf(layer.on, "function");
+		});
+
+		test("extends the selection with an `off` method", function() {
+			var base = d3.select("#test");
+			var chart = base.chart("test");
+			var layer = chart.layer("testlayer", base.append("g"), {});
+			assert.typeOf(layer.off, "function");
+		});
+	});
 });
