@@ -75,67 +75,118 @@ suite("d3.layer", function() {
 			this.layer.draw([]);
 			assert(this.insert.calledOn(this.dataBind.returnValues[0].enter.returnValues[0]));
 		});
+		
 		suite("event triggering", function() {
 			setup(function() {
-				var onEnter1 = this.onEnter1 = sinon.spy();
-				var onUpdate1 = this.onUpdate1 = sinon.spy();
-				var onUpdate2 = this.onUpdate2 = sinon.spy();
-				var onExit1 = this.onExit1 = sinon.spy();
-				var onExit2 = this.onExit2 = sinon.spy();
-				var onExit3 = this.onExit3 = sinon.spy();
-				var onEnterTrans1 = this.onEnterTrans1 = sinon.spy();
-				var onEnterTrans2 = this.onEnterTrans2 = sinon.spy();
-				var onEnterTrans3 = this.onEnterTrans3 = sinon.spy();
-				var onUpdateTrans1 = this.onUpdateTrans1 = sinon.spy();
-				var onUpdateTrans2 = this.onUpdateTrans2 = sinon.spy();
-				var onExitTrans1 = this.onExitTrans1 = sinon.spy();
-
-				this.layer.on("enter", onEnter1);
-				this.layer.on("update", onUpdate1);
-				this.layer.on("update", onUpdate2);
-				this.layer.on("exit", this.onExit1);
-				this.layer.on("exit", this.onExit2);
-				this.layer.on("exit", this.onExit3);
-				this.layer.on("enter:transition", onEnterTrans1);
-				this.layer.on("enter:transition", onEnterTrans2);
-				this.layer.on("enter:transition", onEnterTrans3);
-				this.layer.on("update:transition", onUpdateTrans1);
-				this.layer.on("update:transition", onUpdateTrans2);
-				this.layer.on("exit:transition", onExitTrans1);
-			});
-			test("invokes all event handlers exactly once", function() {
-				this.layer.draw([]);
-
-				assert.equal(this.onEnter1.callCount, 1);
-				assert.equal(this.onUpdate1.callCount, 1);
-				assert.equal(this.onUpdate2.callCount, 1);
-				assert.equal(this.onExit1.callCount, 1);
-				assert.equal(this.onExit2.callCount, 1);
-				assert.equal(this.onExit3.callCount, 1);
-				assert.equal(this.onEnterTrans1.callCount, 1);
-				assert.equal(this.onEnterTrans2.callCount, 1);
-				assert.equal(this.onEnterTrans3.callCount, 1);
-				assert.equal(this.onUpdateTrans1.callCount, 1);
-				assert.equal(this.onUpdateTrans2.callCount, 1);
-				assert.equal(this.onExitTrans1.callCount, 1);
-			});
-			test("invokes all event handlers in the context of the corresponding 'lifecycle selection'", function() {
-				var entering, updating, exiting;
-				this.layer.draw([]);
-
-				// Alias lifecycle selections
-				entering = this.insert.returnValues[0];
-				updating = this.dataBind.returnValues[0];
-				exiting = updating.exit.returnValues[0];
-
-				assert(this.onEnter1.calledOn(entering));
-				assert(this.onUpdate1.calledOn(updating));
-				assert(this.onExit1.calledOn(exiting));
-				assert(this.onEnterTrans1.calledOn(entering.transition.returnValues[0]));
-				assert(this.onUpdateTrans1.calledOn(updating.transition.returnValues[0]));
-				assert(this.onExitTrans1.calledOn(exiting.transition.returnValues[0]));
+				this.onEnter1 = sinon.spy();
+				this.onUpdate1 = sinon.spy();
+				this.onExit1 = sinon.spy();
+				this.onEnterTrans1 = sinon.spy();
+				this.onUpdateTrans1 = sinon.spy();
+				this.onExitTrans1 = sinon.spy();
 			});
 
+			suite("bound in constructor", function() {
+				setup(function() {
+					this.layer = this.base.layer({
+						dataBind: this.dataBind,
+						insert: this.insert,
+						events : {
+							"enter" : this.onEnter1,
+							"update" : this.onUpdate1,
+							"exit" : this.onExit1,
+							"enter:transition" : this.onEnterTrans1,
+							"update:transition" : this.onUpdateTrans1,
+							"exit:transition" : this.onExitTrans1
+						}
+					});
+				});
+				test("invokes all event handlers exactly once", function() {
+					this.layer.draw([]);
+
+					assert.equal(this.onEnter1.callCount, 1);
+					assert.equal(this.onUpdate1.callCount, 1);
+					assert.equal(this.onExit1.callCount, 1);
+					assert.equal(this.onEnterTrans1.callCount, 1);
+					assert.equal(this.onUpdateTrans1.callCount, 1);
+					assert.equal(this.onExitTrans1.callCount, 1);
+				});
+				test("invokes all event handlers in the context of the corresponding 'lifecycle selection'", function() {
+					var entering, updating, exiting;
+					this.layer.draw([]);
+
+					// Alias lifecycle selections
+					entering = this.insert.returnValues[0];
+					updating = this.dataBind.returnValues[0];
+					exiting = updating.exit.returnValues[0];
+
+					assert(this.onEnter1.calledOn(entering));
+					assert(this.onUpdate1.calledOn(updating));
+					assert(this.onExit1.calledOn(exiting));
+					assert(this.onEnterTrans1.calledOn(entering.transition.returnValues[0]));
+					assert(this.onUpdateTrans1.calledOn(updating.transition.returnValues[0]));
+					assert(this.onExitTrans1.calledOn(exiting.transition.returnValues[0]));
+				});
+
+			});
+
+			suite("bound with `on`", function() {
+				setup(function() {
+					
+					this.onUpdate2 = sinon.spy();
+					this.onExit2 = sinon.spy();
+					this.onExit3 = sinon.spy();
+					this.onEnterTrans2 = sinon.spy();
+					this.onEnterTrans3 = sinon.spy();
+					this.onUpdateTrans2 = sinon.spy();
+
+					this.layer.on("enter", this.onEnter1);
+					this.layer.on("update", this.onUpdate1);
+					this.layer.on("update", this.onUpdate2);
+					this.layer.on("exit", this.onExit1);
+					this.layer.on("exit", this.onExit2);
+					this.layer.on("exit", this.onExit3);
+					this.layer.on("enter:transition", this.onEnterTrans1);
+					this.layer.on("enter:transition", this.onEnterTrans2);
+					this.layer.on("enter:transition", this.onEnterTrans3);
+					this.layer.on("update:transition", this.onUpdateTrans1);
+					this.layer.on("update:transition", this.onUpdateTrans2);
+					this.layer.on("exit:transition", this.onExitTrans1);
+				});
+				test("invokes all event handlers exactly once", function() {
+					this.layer.draw([]);
+
+					assert.equal(this.onEnter1.callCount, 1);
+					assert.equal(this.onUpdate1.callCount, 1);
+					assert.equal(this.onUpdate2.callCount, 1);
+					assert.equal(this.onExit1.callCount, 1);
+					assert.equal(this.onExit2.callCount, 1);
+					assert.equal(this.onExit3.callCount, 1);
+					assert.equal(this.onEnterTrans1.callCount, 1);
+					assert.equal(this.onEnterTrans2.callCount, 1);
+					assert.equal(this.onEnterTrans3.callCount, 1);
+					assert.equal(this.onUpdateTrans1.callCount, 1);
+					assert.equal(this.onUpdateTrans2.callCount, 1);
+					assert.equal(this.onExitTrans1.callCount, 1);
+				});
+				test("invokes all event handlers in the context of the corresponding 'lifecycle selection'", function() {
+					var entering, updating, exiting;
+					this.layer.draw([]);
+
+					// Alias lifecycle selections
+					entering = this.insert.returnValues[0];
+					updating = this.dataBind.returnValues[0];
+					exiting = updating.exit.returnValues[0];
+
+					assert(this.onEnter1.calledOn(entering));
+					assert(this.onUpdate1.calledOn(updating));
+					assert(this.onExit1.calledOn(exiting));
+					assert(this.onEnterTrans1.calledOn(entering.transition.returnValues[0]));
+					assert(this.onUpdateTrans1.calledOn(updating.transition.returnValues[0]));
+					assert(this.onExitTrans1.calledOn(exiting.transition.returnValues[0]));
+				});
+
+			});
 		});
 	});
 });
