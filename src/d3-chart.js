@@ -53,6 +53,7 @@
 
 		this.base = selection;
 		this._layers = {};
+		this._layersList = [];
 		var mixins = this._mixins = [];
 
 		initCascade.call(this, this, Array.prototype.slice.call(arguments, 1));
@@ -60,7 +61,7 @@
 
 	Chart.prototype.unlayer = function(name) {
 		var layer = this.layer(name);
-		var idx = this,_layerList.indexOf(layer);
+		var idx = this._layerList.indexOf(layer);
 
 		delete this._layers[name];
 		this._layerList.splice(idx, 1);

@@ -25,15 +25,6 @@ suite("d3.chart", function() {
 
 			assert.equal(myChart.base, selection);
 		});
-		test("defines the instance's `layers` property as an empty object", function() {
-			var myChart, selection;
-			d3.chart("test", {});
-			selection = d3.select("#test");
-
-			myChart = selection.chart("test");
-
-			assert.deepEqual(myChart.layers, {});
-		});
 
 		suite("`initialize` method invocation", function() {
 			setup(function() {
@@ -133,8 +124,9 @@ suite("d3.chart", function() {
 			d3.chart("test", {});
 			this.myChart = myChart = d3.select("#test").chart("test");
 			myChart.transform = transform;
-			myChart.layers.one = layer1;
-			myChart.layers.two = layer2;
+			myChart._layers.one = layer1;
+			myChart._layers.two = layer2;
+			myChart._layerList = [layer1, layer2];
 			this.mixin1 = mixin1 = myChart.mixin(d3.select("#test"), "test");
 			this.mixin2 = mixin2 = myChart.mixin(d3.select("#test"), "test");
 			sinon.stub(mixin1, "draw");
