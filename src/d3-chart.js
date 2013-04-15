@@ -58,6 +58,17 @@
 		initCascade.call(this, this, Array.prototype.slice.call(arguments, 1));
 	};
 
+	Chart.prototype.unlayer = function(name) {
+		var layer = this.layer(name);
+		var idx = this,_layerList.indexOf(layer);
+
+		delete this._layers[name];
+		this._layerList.splice(idx, 1);
+		return this;
+	};
+
+	// TODO: Accept special options: `before` or `after`. These are names of
+	// layers in relation to which the new layer should be inserted.
 	Chart.prototype.layer = function(name, selection, options) {
 		var layer;
 
@@ -68,6 +79,8 @@
 		layer = selection.layer(options);
 
 		this._layers[name] = layer;
+		this._layersList.push(layer);
+
 		selection._chart = this;
 
 		return layer;
