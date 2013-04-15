@@ -52,10 +52,25 @@
 		var mixin, mixinNs;
 
 		this.base = selection;
-		this.layers = {};
+		this._layers = {};
 		var mixins = this._mixins = [];
 
 		initCascade.call(this, this, Array.prototype.slice.call(arguments, 1));
+	};
+
+	Chart.prototype.layer = function(name, selection, options) {
+		var layer;
+
+		if (arguments.length === 1) {
+			return this._layers[name];
+		}
+
+		layer = selection.layer(options);
+
+		this._layers[name] = layer;
+		selection._chart = this;
+
+		return layer;
 	};
 
 	Chart.prototype.initialize = function() {};
@@ -80,8 +95,8 @@
 
 		data = this.transform(data);
 
-		for (layerName in this.layers) {
-			this.layers[layerName].draw(data);
+		for (layerName in this._layers) {
+			this._layers[layerName].draw(data);
 		}
 
 		for (mixinName in this._mixins) {
@@ -136,6 +151,11 @@
 	};
 
 	d3.selection.prototype.chart = function(chartName) {
+		// Without an argument, attempt to resolve the current selection's
+		// containing d3.chart.
+		if (arguments.length === 0) {
+			return this._chart;
+		}
 		var chartArgs = Array.prototype.slice.call(arguments, 1);
 		chartArgs.unshift(this);
 		var ChartCtor = Chart[chartName];
