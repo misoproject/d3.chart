@@ -115,18 +115,21 @@ suite("d3.chart", function() {
 				myChart;
 			this.transformedData = transformedData = {};
 			this.transform = transform = sinon.stub().returns(transformedData);
-			this.layer1 = layer1 = {
-				draw: sinon.spy()
-			};
-			this.layer2 = layer2 = {
-				draw: sinon.spy()
-			};
 			d3.chart("test", {});
 			this.myChart = myChart = d3.select("#test").chart("test");
 			myChart.transform = transform;
-			myChart._layers.one = layer1;
-			myChart._layers.two = layer2;
-			myChart._layerList = [layer1, layer2];
+
+			this.layer1 = layer1 = myChart.layer("layer1", myChart.base.append("g"), {
+				dataBind: function(data) { return this.data(data); },
+				insert: function() {}
+			});
+			sinon.spy(layer1, "draw");
+			this.layer2 = layer2 = myChart.layer("layer2", myChart.base.append("g"), {
+				dataBind: function(data) { return this.data(data); },
+				insert: function() {}
+			});
+			sinon.spy(layer2, "draw");
+
 			this.mixin1 = mixin1 = myChart.mixin(d3.select("#test"), "test");
 			this.mixin2 = mixin2 = myChart.mixin(d3.select("#test"), "test");
 			sinon.stub(mixin1, "draw");
