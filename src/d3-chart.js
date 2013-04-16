@@ -52,6 +52,7 @@
 		this.base = selection;
 		this._layers = {};
 		this._mixins = [];
+		this._events = {};
 
 		initCascade.call(this, this, Array.prototype.slice.call(arguments, 1));
 	};
@@ -112,6 +113,71 @@
 		for (mixinName in this._mixins) {
 			this._mixins[mixinName].draw(data);
 		}
+	};
+
+	Chart.prototype.on = function(name, callback, context) {
+		var events = this._events[name] || (this._events[name] = []);
+		events.push({
+			callback: callback,
+			context: context || this,
+			_chart: this
+		});
+		return this;
+	};
+
+	Chart.prototype.once = function(name, callback, context) {
+		var self = this;
+		var once = function() {
+			self.off(name, once);
+			callback.apply(this, arguments);
+		};
+		return this.on(name, once, context);
+	};
+
+	Chart.prototype.off = function(name, callback, context) {
+		// remove all events
+		if (arguments.length === 0) {
+			this._events = {};
+			return this;
+		}
+
+		// remove all events for a specific name
+		if (arguments.length === 1) {
+			this._events[name] = [];
+			return this;
+		}
+
+		// remove all events that match whatever combination of name, context and callback.
+		var names, n, events, ev, i, j, retain = [];
+
+		names = name ? [name] : Object.keys(this._events);
+		for (i = 0; i < names.length; i++) {
+			n = names[i];
+			events = this._events[n];
+			retain = [];
+			for (j = 0; j < events.length; j++) {
+				ev = events[j];
+				if ((callback && callback !== ev.callback) ||
+						(context && context != ev.context)) {
+					retain.push(ev);
+				}
+			}
+			this._events[n] = retain;
+		}
+
+		return this;
+	};
+
+	Chart.prototype.trigger = function(name) {
+		var args = Array.prototype.slice.call(arguments, 1);
+		var events = this._events[name];
+		var i, ev;
+
+		for (i = 0; i < events.length; i++) {
+			ev = events[i];
+			ev.callback.apply(ev.context, args);
+		}
+		return this;
 	};
 
 	Chart.extend = function(name, protoProps, staticProps) {

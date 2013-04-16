@@ -213,4 +213,129 @@ suite("d3.chart", function() {
 			assert.typeOf(this.layer.off, "function");
 		});
 	});
+
+	suite("events", function() {
+		setup(function() {
+			var base = this.base = d3.select("#test");
+			var chart = this.chart = this.base.chart("test");
+
+			var e1callback = this.e1callback = sinon.spy(function() {
+				return this;
+			});
+			var e1callback2 = this.e1callback2 = sinon.spy(function() {
+				return this.ctx;
+			});
+			var e2callback = this.e2callback = sinon.spy(function() {
+				return this.ctx;
+			});
+
+
+			var e1ctx = this.e1ctx = { ctx : "ctx1" };
+			var e2ctx = this.e2ctx = { ctx : "ctx2" };
+
+			chart.on("e1", e1callback);
+			chart.on("e1", e1callback2, e1ctx);
+			chart.on("e2", e2callback, e2ctx);
+		});
+
+		suite("#trigger", function() {
+			test("executes callbacks", function() {
+				this.chart.trigger("e1");
+				assert.equal(this.e1callback.callCount, 1);
+				assert.equal(this.e1callback2.callCount, 1);
+				assert.equal(this.e2callback.callCount, 0);
+
+				this.chart.trigger("e2");
+
+				assert.equal(this.e2callback.callCount, 1);
+			});
+
+			test("executes callbacks with correct context", function() {
+				this.chart.trigger("e1");
+				this.chart.trigger("e2");
+
+				assert.equal(this.e1callback.returnValues[0], this.chart);
+				assert.equal(this.e1callback2.returnValues[0], this.e1ctx.ctx);
+				assert.equal(this.e2callback.returnValues[0], this.e2ctx.ctx);
+			});
+
+			test("passes parameters correctly", function() {
+				this.chart.trigger("e1", 1, 2, 3);
+
+				this.e1callback.calledWith(1,2,3);
+			});
+		});
+
+		suite("#once", function() {
+			test("executes a callback bound only once", function() {
+				var e1oncecallback = sinon.spy();
+
+				this.chart.once("e1", e1oncecallback);
+
+				this.chart.trigger("e1");
+				this.chart.trigger("e1");
+
+				assert.equal(this.e1callback.callCount, 2);
+				assert.equal(this.e1callback2.callCount, 2);
+				assert.equal(e1oncecallback.callCount, 1);
+			});
+		});
+
+		suite("#off", function() {
+
+			test("removes all events when called without parameters", function() {
+				this.chart.off("e1");
+				this.chart.off("e2");
+
+				this.chart.trigger("e1");
+				this.chart.trigger("e2");
+
+				assert.equal(this.e1callback.callCount, 0);
+				assert.equal(this.e1callback2.callCount, 0);
+				assert.equal(this.e2callback.callCount, 0);
+			});
+
+			test("removes only event with specific callback", function() {
+				this.chart.off("e1", this.e1callback2);
+
+				this.chart.trigger("e1");
+				this.chart.trigger("e2");
+
+				assert.equal(this.e1callback.callCount, 1);
+				assert.equal(this.e1callback2.callCount, 0);
+				assert.equal(this.e2callback.callCount, 1);
+			});
+
+			test("removes only event with specific context", function() {
+				this.chart.off("e1", undefined, this.e1ctx);
+
+				this.chart.trigger("e1");
+				this.chart.trigger("e2");
+
+				assert.equal(this.e1callback.callCount, 1);
+				assert.equal(this.e1callback2.callCount, 0);
+				assert.equal(this.e2callback.callCount, 1);
+			});
+
+			test("removes all events with a certain context regardless of names", function() {
+				var e1callback3 = sinon.spy(function() {
+					return this.ctx;
+				});
+
+				this.chart.on("e1", e1callback3, this.e1ctx);
+
+				this.chart.trigger("e1");
+
+				assert.equal(this.e1callback.callCount, 1);
+				assert.equal(this.e1callback2.callCount, 1);
+				assert.equal(e1callback3.callCount, 1);
+
+				this.chart.off(undefined, undefined, this.e1ctx);
+
+				assert.equal(this.e1callback.callCount, 1);
+				assert.equal(this.e1callback2.callCount, 1);
+				assert.equal(e1callback3.callCount, 1);
+			});
+		});
+	});
 });
