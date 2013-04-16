@@ -65,6 +65,11 @@ module.exports = function(grunt) {
         files: {
           "dist/d3.chart.js": "<%= meta.srcFiles %>"
         }
+      },
+      release: {
+        files: {
+          "d3.chart.js": "<%= meta.srcFiles %>"
+        }
       }
     },
     uglify: {
@@ -76,6 +81,11 @@ module.exports = function(grunt) {
         files: {
           "dist/d3.chart.min.js": "dist/d3.chart.js"
         }
+      },
+      release: {
+        files: {
+          "d3.chart.min.js": "dist/d3.chart.js"
+        }
       }
     }
   });
@@ -85,5 +95,6 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks("grunt-contrib-uglify");
   grunt.loadNpmTasks("grunt-contrib-watch");
 
-  grunt.registerTask("default", ["jshint", "concat", "uglify"]);
+  grunt.registerTask("default", ["jshint", "concat:dist", "uglify:dist"]);
+  grunt.registerTask("release", ["jshint", "concat", "uglify"]);
 };
