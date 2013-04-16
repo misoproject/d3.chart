@@ -1,0 +1,7 @@
+.chart rect {
+  fill: steelblue;
+  stroke: white;
+}
+.wacky {
+  border: dashed 3px #a00;
+}
