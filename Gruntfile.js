@@ -10,6 +10,12 @@ module.exports = function(grunt) {
         "src/d3-chart.js"
       ]
     },
+    watch: {
+      scripts: {
+        files: ["src/**/*.js", "test/tests/*.js"],
+        tasks: ["jshint"]
+      }
+    },
     jshint: {
       options: {
         curly: true,
@@ -77,6 +83,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks("grunt-contrib-jshint");
   grunt.loadNpmTasks("grunt-contrib-concat");
   grunt.loadNpmTasks("grunt-contrib-uglify");
+  grunt.loadNpmTasks("grunt-contrib-watch");
 
   grunt.registerTask("default", ["jshint", "concat", "uglify"]);
 };
