@@ -49,11 +49,9 @@
 
 	var Chart = function(selection) {
 
-		var mixin, mixinNs;
-
 		this.base = selection;
 		this._layers = {};
-		var mixins = this._mixins = [];
+		this._mixins = [];
 
 		initCascade.call(this, this, Array.prototype.slice.call(arguments, 1));
 	};
