@@ -53,7 +53,6 @@
 
 		this.base = selection;
 		this._layers = {};
-		this._layersList = [];
 		var mixins = this._mixins = [];
 
 		initCascade.call(this, this, Array.prototype.slice.call(arguments, 1));
@@ -80,7 +79,6 @@
 		layer = selection.layer(options);
 
 		this._layers[name] = layer;
-		this._layersList.push(layer);
 
 		selection._chart = this;
 
