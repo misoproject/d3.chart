@@ -186,40 +186,31 @@ suite("d3.chart", function() {
 
 	suite("#layer", function() {
 
+		setup(function() {
+			var base = this.base = d3.select("#test");
+			var chart = this.chart = base.chart("test");
+			var layerbase = this.layerbase = base.append("g").classed("layer1", true);
+			this.layer = chart.layer("testlayer", layerbase, {});
+		});
+
 		test("creates a layer with the same selection", function() {
-			var base = d3.select("#test");
-			var layerbase = base.append("g");
-			var chart = base.chart("test");
-			var layer = chart.layer("testlayer", layerbase, {});
-			assert.equal(layer, layerbase);
+			assert.equal(this.layer, this.layerbase);
 		});
 
 		test("returns a layer", function() {
-			var base = d3.select("#test");
-			var chart = base.chart("test");
-			var layer = chart.layer("testlayer", base.append("g"), {});
-			assert.equal(chart.layer("testlayer"), layer);
+			assert.equal(this.chart.layer("testlayer"), this.layer);
 		});
 
 		test("extends the selection with a `draw` method", function() {
-			var base = d3.select("#test");
-			var chart = base.chart("test");
-			var layer = chart.layer("testlayer", base.append("g"), {});
-			assert.typeOf(layer.draw, "function");
+			assert.typeOf(this.layer.draw, "function");
 		});
 
 		test("extends the selection with an `on` method", function() {
-			var base = d3.select("#test");
-			var chart = base.chart("test");
-			var layer = chart.layer("testlayer", base.append("g"), {});
-			assert.typeOf(layer.on, "function");
+			assert.typeOf(this.layer.on, "function");
 		});
 
 		test("extends the selection with an `off` method", function() {
-			var base = d3.select("#test");
-			var chart = base.chart("test");
-			var layer = chart.layer("testlayer", base.append("g"), {});
-			assert.typeOf(layer.off, "function");
+			assert.typeOf(this.layer.off, "function");
 		});
 	});
 });
