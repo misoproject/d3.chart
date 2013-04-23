@@ -65,18 +65,26 @@
 	// Bind the data to the layer, make lifecycle selections, and invoke all
 	// relevant handlers.
 	Layer.prototype.draw = function(data) {
-		var bound, selections, selection, handlers, eventName, idx, len;
+		var chart = this.base._chart;
+		var bound, boundEnter, boundExit, selections, selection, handlers, eventName, idx, len;
 
 		bound = this.dataBind.call(this.base, data);
+		boundEnter = bound.enter();
+
+		bound._chart = boundEnter._chart = chart;
 
 		selections = {
-			enter: this.insert.call(bound.enter()),
-			update: bound,
-			exit: bound.exit()
+			enter: this.insert.call(boundEnter),
+			update: bound
 		};
+
+		boundExit = bound.exit();
+		boundExit._chart = chart;
+		selections.exit = boundExit;
 
 		for (eventName in selections) {
 			selection = selections[eventName];
+			selection._chart = chart;
 			handlers = this._handlers[eventName];
 
 			if (handlers) {
@@ -89,11 +97,19 @@
 
 			if (handlers && handlers.length) {
 				selection = selection.transition();
+				selection._chart = chart;
 				for (idx = 0, len = handlers.length; idx < len; ++idx) {
 					selection.call(handlers[idx]);
 				}
 			}
+
+			delete selection._chart;
 		}
+
+		delete bound._chart;
+		delete boundEnter._chart;
+		delete boundExit._chart;
+
 	};
 
 	d3.selection.prototype.layer = function(options) {
