@@ -97,6 +97,7 @@
 
 			if (handlers && handlers.length) {
 				selection = selection.transition();
+				selection._chart = chart;
 				for (idx = 0, len = handlers.length; idx < len; ++idx) {
 					selection.call(handlers[idx]);
 				}

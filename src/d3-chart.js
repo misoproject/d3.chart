@@ -242,4 +242,8 @@
 		return this._chart;
 	};
 
+	d3.transition.prototype.chart = function() {
+		return this._chart;
+	};
+
 }(this));
