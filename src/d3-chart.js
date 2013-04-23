@@ -173,10 +173,13 @@
 		var events = this._events[name];
 		var i, ev;
 
-		for (i = 0; i < events.length; i++) {
-			ev = events[i];
-			ev.callback.apply(ev.context, args);
+		if (events) {
+			for (i = 0; i < events.length; i++) {
+				ev = events[i];
+				ev.callback.apply(ev.context, args);
+			}
 		}
+
 		return this;
 	};
 
