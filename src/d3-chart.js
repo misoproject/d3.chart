@@ -66,8 +66,6 @@
 		return this;
 	};
 
-	// TODO: Accept special options: `before` or `after`. These are names of
-	// layers in relation to which the new layer should be inserted.
 	Chart.prototype.layer = function(name, selection, options) {
 		var layer;
 
