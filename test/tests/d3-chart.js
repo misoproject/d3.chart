@@ -283,7 +283,18 @@ suite("d3.chart", function() {
 
 		suite("#off", function() {
 
-			test("removes all events when called without parameters", function() {
+			test("removes all events when invoked without arguments", function() {
+				this.chart.off();
+
+				this.chart.trigger("e1");
+				this.chart.trigger("e2");
+
+				assert.equal(this.e1callback.callCount, 0);
+				assert.equal(this.e1callback2.callCount, 0);
+				assert.equal(this.e2callback.callCount, 0);
+			});
+
+			test("removes all events with the specified name", function() {
 				this.chart.off("e1");
 				this.chart.off("e2");
 
