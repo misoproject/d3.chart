@@ -133,35 +133,39 @@
 	};
 
 	Chart.prototype.off = function(name, callback, context) {
+		var names, n, events, event, i, j;
+
 		// remove all events
 		if (arguments.length === 0) {
-			this._events = {};
+			for (name in this._events) {
+				this._events[name].length = 0;
+			}
 			return this;
 		}
 
 		// remove all events for a specific name
 		if (arguments.length === 1) {
-			this._events[name] = [];
+			events = this._events[name];
+			if (events) {
+				events.length = 0;
+			}
 			return this;
 		}
 
 		// remove all events that match whatever combination of name, context
 		// and callback.
-		var names, n, events, ev, i, j, retain = [];
-
 		names = name ? [name] : Object.keys(this._events);
 		for (i = 0; i < names.length; i++) {
 			n = names[i];
 			events = this._events[n];
-			retain = [];
-			for (j = 0; j < events.length; j++) {
-				ev = events[j];
-				if ((callback && callback !== ev.callback) ||
-						(context && context != ev.context)) {
-					retain.push(ev);
+			j = events.length;
+			while (j--) {
+				event = events[j];
+				if ((callback && callback === event.callback) ||
+						(context && context === event.context)) {
+					events.splice(j, 1);
 				}
 			}
-			this._events[n] = retain;
 		}
 
 		return this;
@@ -172,13 +176,10 @@
 		var events = this._events[name];
 		var i, ev;
 
-		if (events) {
-			for (i = 0; i < events.length; i++) {
-				ev = events[i];
-				ev.callback.apply(ev.context, args);
-			}
+		for (i = 0; i < events.length; i++) {
+			ev = events[i];
+			ev.callback.apply(ev.context, args);
 		}
-
 		return this;
 	};
 
