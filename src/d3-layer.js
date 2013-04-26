@@ -69,6 +69,11 @@
 			len;
 
 		bound = this.dataBind.call(this.base, data);
+
+		if (!(bound instanceof d3.selection)) {
+			throw new Error('Invalid selection defined by `dataBind` method.');
+		}
+
 		entering = bound.enter();
 		entering._chart = this.base._chart;
 
@@ -80,6 +85,11 @@
 
 		for (eventName in selections) {
 			selection = selections[eventName];
+
+			if (!(selection instanceof d3.selection)) {
+				throw new Error('Invalid selection defined for "' + eventName +
+					"' lifecycle event.");
+			}
 
 			// Attach a reference to the parent chart so the selection's
 			// `chart` method will function correctly.

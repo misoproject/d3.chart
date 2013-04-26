@@ -50,6 +50,29 @@ suite("d3.layer", function() {
 				insert: insert
 			});
 		});
+		test("throws an error when `dataBind` does not return a selection", function() {
+			var layer = this.base.layer({
+				dataBind: function() {
+					return {};
+				},
+				insert: this.insert
+			});
+			var draw = function() {
+				layer.draw([]);
+			};
+			assert.throws(draw);
+		});
+
+		test("throws an error when `insert` does not return a selection", function() {
+			var layer = this.base.layer({
+				dataBind: this.dataBind,
+				insert: function() { return {}; }
+			});
+			var draw = function() {
+				layer.draw([]);
+			};
+			assert.throws(draw);
+		});
 		test("invokes the provided `dataBind` method exactly once", function() {
 			assert.equal(this.dataBind.callCount, 0);
 			this.layer.draw([]);

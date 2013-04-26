@@ -121,12 +121,12 @@ suite("d3.chart", function() {
 
 			this.layer1 = layer1 = myChart.layer("layer1", myChart.base.append("g"), {
 				dataBind: function(data) { return this.data(data); },
-				insert: function() {}
+				insert: function() { return this.append("g"); }
 			});
 			sinon.spy(layer1, "draw");
 			this.layer2 = layer2 = myChart.layer("layer2", myChart.base.append("g"), {
 				dataBind: function(data) { return this.data(data); },
-				insert: function() {}
+				insert: function() { return this.append("g"); }
 			});
 			sinon.spy(layer2, "draw");
 
