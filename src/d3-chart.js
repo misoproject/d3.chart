@@ -145,7 +145,8 @@
 			return this;
 		}
 
-		// remove all events that match whatever combination of name, context and callback.
+		// remove all events that match whatever combination of name, context
+		// and callback.
 		var names, n, events, ev, i, j, retain = [];
 
 		names = name ? [name] : Object.keys(this._events);
@@ -185,9 +186,9 @@
 		var parent = this;
 		var child;
 
-		// The constructor function for the new subclass is either defined by you
-		// (the "constructor" property in your `extend` definition), or defaulted
-		// by us to simply call the parent's constructor.
+		// The constructor function for the new subclass is either defined by
+		// you (the "constructor" property in your `extend` definition), or
+		// defaulted by us to simply call the parent's constructor.
 		if (protoProps && Object.hasOwnProperty.call(protoProps, "constructor")) {
 			child = protoProps.constructor;
 		} else {
