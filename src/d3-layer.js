@@ -65,18 +65,26 @@
 	// Bind the data to the layer, make lifecycle selections, and invoke all
 	// relevant handlers.
 	Layer.prototype.draw = function(data) {
-		var bound, selections, selection, handlers, eventName, idx, len;
+		var bound, entering, selections, selection, handlers, eventName, idx,
+			len;
 
 		bound = this.dataBind.call(this.base, data);
+		entering = bound.enter();
+		entering._chart = this.base._chart;
 
 		selections = {
-			enter: this.insert.call(bound.enter()),
+			enter: this.insert.call(entering),
 			update: bound,
 			exit: bound.exit()
 		};
 
 		for (eventName in selections) {
 			selection = selections[eventName];
+
+			// Attach a reference to the parent chart so the selection's
+			// `chart` method will function correctly.
+			selection._chart = this.base._chart;
+
 			handlers = this._handlers[eventName];
 
 			if (handlers) {
@@ -89,6 +97,7 @@
 
 			if (handlers && handlers.length) {
 				selection = selection.transition();
+				selection._chart = this.base._chart;
 				for (idx = 0, len = handlers.length; idx < len; ++idx) {
 					selection.call(handlers[idx]);
 				}

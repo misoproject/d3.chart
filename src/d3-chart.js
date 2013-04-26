@@ -239,4 +239,10 @@
 		return variadicNew(ChartCtor, chartArgs);
 	};
 
+	d3.selection.enter.prototype.chart = function() {
+		return this._chart;
+	};
+
+	d3.transition.prototype.chart = d3.selection.enter.prototype.chart;
+
 }(this));
