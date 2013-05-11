@@ -65,8 +65,7 @@
 	// Bind the data to the layer, make lifecycle selections, and invoke all
 	// relevant handlers.
 	Layer.prototype.draw = function(data) {
-		var bound, entering, selections, selection, handlers, eventName, idx,
-			len;
+		var bound, entering, events, selection, handlers, eventName, idx, len;
 
 		bound = this.dataBind.call(this.base, data);
 
@@ -77,14 +76,38 @@
 		entering = bound.enter();
 		entering._chart = this.base._chart;
 
-		selections = {
-			enter: this.insert.call(entering),
-			update: bound,
-			exit: bound.exit()
-		};
+		events = [
+			{
+				name: 'update',
+				selection: bound
+			},
+			{
+				name: 'enter',
+				// Defer invocation of the `insert` method so that the previous
+				// `update` selection does not contain the new nodes.
+				selection: this.insert.bind(entering)
+			},
+			{
+				name: 'merge',
+				// This selection will be modified when the previous selection
+				// is made.
+				selection: bound
+			},
+			{
+				name: 'exit',
+				selection: bound.exit.bind(bound)
+			}
+		];
 
-		for (eventName in selections) {
-			selection = selections[eventName];
+		for (var i = 0, l = events.length; i < l; ++i) {
+			eventName = events[i].name;
+			selection = events[i].selection;
+
+			// Some lifecycle selections are expressed as functions so that
+			// they may be delayed.
+			if (typeof selection === 'function') {
+				selection = selection();
+			}
 
 			if (!(selection instanceof d3.selection)) {
 				throw new Error('Invalid selection defined for "' + eventName +

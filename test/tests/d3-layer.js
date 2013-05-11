@@ -27,7 +27,7 @@ suite("d3.layer", function() {
 	suite('#draw', function() {
 		setup(function() {
 			var dataBind = this.dataBind = sinon.spy(function(data) {
-				var updating = this.data(data);
+				var updating = this.data(data, function(d) { return d; });
 				sinon.spy(updating, "enter");
 				sinon.spy(updating, "transition");
 				var exitSelection = updating.exit.bind(updating);
@@ -103,9 +103,11 @@ suite("d3.layer", function() {
 			setup(function() {
 				this.onEnter1 = sinon.spy();
 				this.onUpdate1 = sinon.spy();
+				this.onMerge1 = sinon.spy();
 				this.onExit1 = sinon.spy();
 				this.onEnterTrans1 = sinon.spy();
 				this.onUpdateTrans1 = sinon.spy();
+				this.onMergeTrans1 = sinon.spy();
 				this.onExitTrans1 = sinon.spy();
 			});
 
@@ -117,9 +119,11 @@ suite("d3.layer", function() {
 						events: {
 							"enter": this.onEnter1,
 							"update": this.onUpdate1,
+							"merge": this.onMerge1,
 							"exit": this.onExit1,
 							"enter:transition": this.onEnterTrans1,
 							"update:transition": this.onUpdateTrans1,
+							"merge:transition": this.onMergeTrans1,
 							"exit:transition": this.onExitTrans1
 						}
 					});
@@ -129,9 +133,11 @@ suite("d3.layer", function() {
 
 					assert.equal(this.onEnter1.callCount, 1);
 					assert.equal(this.onUpdate1.callCount, 1);
+					assert.equal(this.onMerge1.callCount, 1);
 					assert.equal(this.onExit1.callCount, 1);
 					assert.equal(this.onEnterTrans1.callCount, 1);
 					assert.equal(this.onUpdateTrans1.callCount, 1);
+					assert.equal(this.onMergeTrans1.callCount, 1);
 					assert.equal(this.onExitTrans1.callCount, 1);
 				});
 				test("invokes all event handlers in the context of the corresponding 'lifecycle selection'", function() {
@@ -145,10 +151,53 @@ suite("d3.layer", function() {
 
 					assert(this.onEnter1.calledOn(entering));
 					assert(this.onUpdate1.calledOn(updating));
+					assert(this.onMerge1.calledOn(updating));
 					assert(this.onExit1.calledOn(exiting));
 					assert(this.onEnterTrans1.calledOn(entering.transition.returnValues[0]));
 					assert(this.onUpdateTrans1.calledOn(updating.transition.returnValues[0]));
+					assert(this.onMergeTrans1.calledOn(updating.transition.returnValues[1]));
 					assert(this.onExitTrans1.calledOn(exiting.transition.returnValues[0]));
+				});
+
+				test("invokes event handlers with the correct selection", function() {
+					var layer = this.base.append("g").layer({
+						insert: function() {
+							return this.append("g");
+						},
+						dataBind: function(data) {
+							return this.selectAll("g").data(data, function(d) { return d; });
+						}
+					});
+					// Wrap each assertion in a spy so we can ensure that each actually
+					// runs.
+					var updateSpy = sinon.spy(function() {
+						assert.sameMembers(this.data(), [3, 4]);
+					});
+					var enterSpy = sinon.spy(function() {
+						assert.sameMembers(this.data(), [5, 6]);
+					});
+					var mergeSpy = sinon.spy(function() {
+						assert.sameMembers(this.data(), [3, 4, 5, 6]);
+					});
+					var exitSpy = sinon.spy(function() {
+						assert.sameMembers(this.data(), [1, 2]);
+					});
+					layer.draw([1, 2, 3, 4]);
+
+					// Bind the spies
+					layer.on("update", updateSpy);
+					layer.on("enter", enterSpy);
+					layer.on("merge", mergeSpy);
+					layer.on("exit", exitSpy);
+
+					layer.draw([3, 4, 5, 6]);
+
+					assert.equal(updateSpy.callCount, 1);
+					assert.equal(enterSpy.callCount, 1);
+					assert.equal(mergeSpy.callCount, 1);
+					assert.equal(exitSpy.callCount, 1);
+
+					layer.remove();
 				});
 
 			});
@@ -157,15 +206,20 @@ suite("d3.layer", function() {
 				setup(function() {
 					
 					this.onUpdate2 = sinon.spy();
+					this.onMerge2 = sinon.spy();
 					this.onExit2 = sinon.spy();
 					this.onExit3 = sinon.spy();
 					this.onEnterTrans2 = sinon.spy();
 					this.onEnterTrans3 = sinon.spy();
 					this.onUpdateTrans2 = sinon.spy();
+					this.onMergeTrans2 = sinon.spy();
+					this.onMergeTrans3 = sinon.spy();
 
 					this.layer.on("enter", this.onEnter1);
 					this.layer.on("update", this.onUpdate1);
 					this.layer.on("update", this.onUpdate2);
+					this.layer.on("merge", this.onMerge1);
+					this.layer.on("merge", this.onMerge2);
 					this.layer.on("exit", this.onExit1);
 					this.layer.on("exit", this.onExit2);
 					this.layer.on("exit", this.onExit3);
@@ -174,6 +228,9 @@ suite("d3.layer", function() {
 					this.layer.on("enter:transition", this.onEnterTrans3);
 					this.layer.on("update:transition", this.onUpdateTrans1);
 					this.layer.on("update:transition", this.onUpdateTrans2);
+					this.layer.on("merge:transition", this.onMergeTrans1);
+					this.layer.on("merge:transition", this.onMergeTrans2);
+					this.layer.on("merge:transition", this.onMergeTrans3);
 					this.layer.on("exit:transition", this.onExitTrans1);
 				});
 				test("invokes all event handlers exactly once", function() {
@@ -182,6 +239,8 @@ suite("d3.layer", function() {
 					assert.equal(this.onEnter1.callCount, 1);
 					assert.equal(this.onUpdate1.callCount, 1);
 					assert.equal(this.onUpdate2.callCount, 1);
+					assert.equal(this.onMerge1.callCount, 1);
+					assert.equal(this.onMerge2.callCount, 1);
 					assert.equal(this.onExit1.callCount, 1);
 					assert.equal(this.onExit2.callCount, 1);
 					assert.equal(this.onExit3.callCount, 1);
@@ -190,6 +249,9 @@ suite("d3.layer", function() {
 					assert.equal(this.onEnterTrans3.callCount, 1);
 					assert.equal(this.onUpdateTrans1.callCount, 1);
 					assert.equal(this.onUpdateTrans2.callCount, 1);
+					assert.equal(this.onMergeTrans1.callCount, 1);
+					assert.equal(this.onMergeTrans2.callCount, 1);
+					assert.equal(this.onMergeTrans3.callCount, 1);
 					assert.equal(this.onExitTrans1.callCount, 1);
 				});
 				test("invokes all event handlers in the context of the corresponding 'lifecycle selection'", function() {
@@ -203,9 +265,11 @@ suite("d3.layer", function() {
 
 					assert(this.onEnter1.calledOn(entering));
 					assert(this.onUpdate1.calledOn(updating));
+					assert(this.onMerge1.calledOn(updating));
 					assert(this.onExit1.calledOn(exiting));
 					assert(this.onEnterTrans1.calledOn(entering.transition.returnValues[0]));
 					assert(this.onUpdateTrans1.calledOn(updating.transition.returnValues[0]));
+					assert(this.onMergeTrans1.calledOn(updating.transition.returnValues[1]));
 					assert(this.onExitTrans1.calledOn(exiting.transition.returnValues[0]));
 				});
 
