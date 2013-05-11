@@ -114,13 +114,13 @@ suite("d3.layer", function() {
 					this.layer = this.base.layer({
 						dataBind: this.dataBind,
 						insert: this.insert,
-						events : {
-							"enter" : this.onEnter1,
-							"update" : this.onUpdate1,
-							"exit" : this.onExit1,
-							"enter:transition" : this.onEnterTrans1,
-							"update:transition" : this.onUpdateTrans1,
-							"exit:transition" : this.onExitTrans1
+						events: {
+							"enter": this.onEnter1,
+							"update": this.onUpdate1,
+							"exit": this.onExit1,
+							"enter:transition": this.onEnterTrans1,
+							"update:transition": this.onUpdateTrans1,
+							"exit:transition": this.onExitTrans1
 						}
 					});
 				});
