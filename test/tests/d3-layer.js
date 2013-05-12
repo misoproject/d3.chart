@@ -111,6 +111,47 @@ suite("d3.layer", function() {
 				this.onExitTrans1 = sinon.spy();
 			});
 
+			test("invokes event handlers with the correct selection", function() {
+				var layer = this.base.append("g").layer({
+					insert: function() {
+						return this.append("g");
+					},
+					dataBind: function(data) {
+						return this.selectAll("g").data(data, function(d) { return d; });
+					}
+				});
+				// Wrap each assertion in a spy so we can ensure that each actually
+				// runs.
+				var updateSpy = sinon.spy(function() {
+					assert.sameMembers(this.data(), [3, 4]);
+				});
+				var enterSpy = sinon.spy(function() {
+					assert.sameMembers(this.data(), [5, 6]);
+				});
+				var mergeSpy = sinon.spy(function() {
+					assert.sameMembers(this.data(), [3, 4, 5, 6]);
+				});
+				var exitSpy = sinon.spy(function() {
+					assert.sameMembers(this.data(), [1, 2]);
+				});
+				layer.draw([1, 2, 3, 4]);
+
+				// Bind the spies
+				layer.on("update", updateSpy);
+				layer.on("enter", enterSpy);
+				layer.on("merge", mergeSpy);
+				layer.on("exit", exitSpy);
+
+				layer.draw([3, 4, 5, 6]);
+
+				assert.equal(updateSpy.callCount, 1);
+				assert.equal(enterSpy.callCount, 1);
+				assert.equal(mergeSpy.callCount, 1);
+				assert.equal(exitSpy.callCount, 1);
+
+				layer.remove();
+			});
+
 			suite("bound in constructor", function() {
 				setup(function() {
 					this.layer = this.base.layer({
@@ -157,47 +198,6 @@ suite("d3.layer", function() {
 					assert(this.onUpdateTrans1.calledOn(updating.transition.returnValues[0]));
 					assert(this.onMergeTrans1.calledOn(updating.transition.returnValues[1]));
 					assert(this.onExitTrans1.calledOn(exiting.transition.returnValues[0]));
-				});
-
-				test("invokes event handlers with the correct selection", function() {
-					var layer = this.base.append("g").layer({
-						insert: function() {
-							return this.append("g");
-						},
-						dataBind: function(data) {
-							return this.selectAll("g").data(data, function(d) { return d; });
-						}
-					});
-					// Wrap each assertion in a spy so we can ensure that each actually
-					// runs.
-					var updateSpy = sinon.spy(function() {
-						assert.sameMembers(this.data(), [3, 4]);
-					});
-					var enterSpy = sinon.spy(function() {
-						assert.sameMembers(this.data(), [5, 6]);
-					});
-					var mergeSpy = sinon.spy(function() {
-						assert.sameMembers(this.data(), [3, 4, 5, 6]);
-					});
-					var exitSpy = sinon.spy(function() {
-						assert.sameMembers(this.data(), [1, 2]);
-					});
-					layer.draw([1, 2, 3, 4]);
-
-					// Bind the spies
-					layer.on("update", updateSpy);
-					layer.on("enter", enterSpy);
-					layer.on("merge", mergeSpy);
-					layer.on("exit", exitSpy);
-
-					layer.draw([3, 4, 5, 6]);
-
-					assert.equal(updateSpy.callCount, 1);
-					assert.equal(enterSpy.callCount, 1);
-					assert.equal(mergeSpy.callCount, 1);
-					assert.equal(exitSpy.callCount, 1);
-
-					layer.remove();
 				});
 
 			});
