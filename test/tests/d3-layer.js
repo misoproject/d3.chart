@@ -28,14 +28,20 @@ suite("d3.layer", function() {
 		setup(function() {
 			var dataBind = this.dataBind = sinon.spy(function(data) {
 				var updating = this.data(data, function(d) { return d; });
+				// Cache `exit` method so it can be invoked from its stub
+				// without provoking infinite recursion.
+				var originalExit = updating.exit;
+
 				sinon.spy(updating, "enter");
 				sinon.spy(updating, "transition");
-				var exitSelection = updating.exit.bind(updating);
+				// Stub the `exit` method so that we can spy on the generated
+				// selections `transition` method.
 				sinon.stub(updating, "exit", function() {
-					var exiting = exitSelection();
+					var exiting = originalExit.apply(this, arguments);
 					sinon.spy(exiting, "transition");
 					return exiting;
 				});
+
 				return updating;
 			});
 			var insert = this.insert = sinon.spy(function() {
