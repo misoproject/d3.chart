@@ -158,6 +158,38 @@ suite("d3.layer", function() {
 				layer.remove();
 			});
 
+			test("does not make transition selections if related handlers are not bound", function() {
+				var layer = this.base.append("g").layer({
+					insert: this.insert,
+					dataBind: this.dataBind
+				});
+				var spies = {
+					update: sinon.spy(),
+					enter: sinon.spy(),
+					merge: sinon.spy(),
+					exit: sinon.spy()
+				};
+				layer.on("update", spies.update);
+				layer.on("enter", spies.enter);
+				layer.on("merge", spies.merge);
+				layer.on("exit", spies.exit);
+
+				layer.draw([]);
+
+				assert.equal(spies.update.callCount, 1);
+				assert.equal(spies.update.thisValues[0].transition.callCount,
+					0);
+				assert.equal(spies.enter.callCount, 1);
+				assert.equal(spies.enter.thisValues[0].transition.callCount,
+					0);
+				assert.equal(spies.merge.callCount, 1);
+				assert.equal(spies.merge.thisValues[0].transition.callCount,
+					0);
+				assert.equal(spies.exit.callCount, 1);
+				assert.equal(spies.exit.thisValues[0].transition.callCount,
+					0);
+			});
+
 			suite("bound in constructor", function() {
 				setup(function() {
 					this.layer = this.base.layer({
