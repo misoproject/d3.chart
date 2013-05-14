@@ -15,11 +15,10 @@ d3.chart("BarChart", {
       .attr("class", "chart");
 
     function onEnter() {
-      var length = 0;
-      this.attr("x", function() { ++length; });
+      var length = this.data().length;
       this.attr("x", function(d, i) { return chart.x(i + 1) - .5; })
           .attr("y", function(d) { return chart.h - chart.y(d.value) - .5; })
-          .attr("width", chart.w / length)
+          .attr("width", chart.width() / length)
           .attr("height", function(d) { return chart.y(d.value); });
     }
 
@@ -49,15 +48,15 @@ d3.chart("BarChart", {
       return this.insert("rect", "line");
     }
 
-    this.layers.bars = this.base.layer({
+    this.layer("bars", this.base.append("g"), {
       dataBind: dataBind,
       insert: insert
     });
 
-    this.layers.bars.on("enter", onEnter);
-    this.layers.bars.on("enter:transition", onEnterTrans);
-    this.layers.bars.on("update:transition", onTrans);
-    this.layers.bars.on("exit:transition", onExitTrans);
+    this.layer("bars").on("enter", onEnter);
+    this.layer("bars").on("enter:transition", onEnterTrans);
+    this.layer("bars").on("update:transition", onTrans);
+    this.layer("bars").on("exit:transition", onExitTrans);
     this.width(options.width || 600);
     this.height(options.height || 80);
 
