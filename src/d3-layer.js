@@ -30,11 +30,15 @@
 
 	// on
 	// Attach the specified handler to the specified event type.
-	Layer.prototype.on = function(eventName, handler) {
+	Layer.prototype.on = function(eventName, handler, options) {
+		options = options || {};
 		if (!(eventName in this._handlers)) {
 			this._handlers[eventName] = [];
 		}
-		this._handlers[eventName].push(handler);
+		this._handlers[eventName].push({
+			callback: handler,
+			chart : options.chart || null
+		});
 	};
 
 	// off
@@ -65,7 +69,8 @@
 	// Bind the data to the layer, make lifecycle selections, and invoke all
 	// relevant handlers.
 	Layer.prototype.draw = function(data) {
-		var bound, entering, events, selection, handlers, eventName, idx, len;
+		var bound, entering, events, selection, handlers, eventName, idx, len,
+			callback, chart;
 
 		bound = this.dataBind.call(this.base, data);
 
@@ -114,15 +119,14 @@
 					"' lifecycle event.");
 			}
 
-			// Attach a reference to the parent chart so the selection's
-			// `chart` method will function correctly.
-			selection._chart = this.base._chart;
-
 			handlers = this._handlers[eventName];
 
 			if (handlers) {
 				for (idx = 0, len = handlers.length; idx < len; ++idx) {
-					selection.call(handlers[idx]);
+					// Attach a reference to the parent chart so the selection"s
+					// `chart` method will function correctly.
+					selection._chart = handlers[idx].chart || this.base._chart;
+					selection.call(handlers[idx].callback);
 				}
 			}
 
@@ -130,9 +134,9 @@
 
 			if (handlers && handlers.length) {
 				selection = selection.transition();
-				selection._chart = this.base._chart;
 				for (idx = 0, len = handlers.length; idx < len; ++idx) {
-					selection.call(handlers[idx]);
+					selection._chart = handlers[idx].chart || this.base._chart;
+					selection.call(handlers[idx].callback);
 				}
 			}
 		}

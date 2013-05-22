@@ -29,8 +29,8 @@ d3.chart("Hybrid", {
       this.attr("x", null);
       this.attr("width", 0);
     });
-    bc.layer("bars").on("enter:transition", this.transformBars);
-    bc.layer("bars").on("update:transition", this.transformBars);
+    bc.layer("bars").on("enter:transition", this.transformBars, { chart : this });
+    bc.layer("bars").on("update:transition", this.transformBars, { chart : this });
   },
 
   radius: 200,
@@ -41,17 +41,18 @@ d3.chart("Hybrid", {
 
   transformBars: function() {
     var length = 0;
+    var chart = this.chart();
+
     // Cannot use `this.chart()` here, because it returns the BarChart mixin,
     // not the "hybrid" chart. This behavior should not be overridden
     // (otherwise, using a chart as a mixin will break that chart), but there
     // needs to be a way to access the higher-level chart from an event handler
     // on the mixin.
-    var radius = 200;
-    var barHeight = radius / 3;
+    var barHeight = chart.barHeight();
     this.attr("x", function() { length++; });
     this.attr("x", null);
     this.attr("transform", function(d, i) {
-      return "rotate(" + (-360*i/length) + ",0," + (barHeight-radius) + ")";
+      return "rotate(" + (-360*i/length) + ",0," + (barHeight - chart.radius) + ")";
     });
   }
 
