@@ -69,8 +69,7 @@
 	// Bind the data to the layer, make lifecycle selections, and invoke all
 	// relevant handlers.
 	Layer.prototype.draw = function(data) {
-		var bound, entering, events, selection, handlers, eventName, idx, len,
-			callback, chart;
+		var bound, entering, events, selection, handlers, eventName, idx, len;
 
 		bound = this.dataBind.call(this.base, data);
 
