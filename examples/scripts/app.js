@@ -26,11 +26,13 @@
   var dataSrc2 = new DataSrc();
   var myCustomBarChart = d3.select("body")
     .append("svg").chart("BarChart");
-  myCustomBarChart.layers.bars.on("update:transition", function() {
+  var fadeOut = function() {
     this.attr("opacity", function(d, i) {
       return i / dataSrc2.data.length;
     });
-  });
+  };
+  myCustomBarChart.layer("bars").on("enter:transition", fadeOut);
+  myCustomBarChart.layer("bars").on("update:transition", fadeOut);
   myCustomBarChart.draw(dataSrc2);
   setInterval(function() {
     dataSrc2.fetch();
@@ -53,7 +55,7 @@
   var colors = ["#000000", "#FFDD89", "#957244", "#F26224"];
   var myCustomChord = d3.select("body")
     .append("svg").chart("Chord");
-  myCustomChord.layers.ticks.on("enter", function() {
+  myCustomChord.layer("ticks").on("enter", function() {
     this.each(function(data, idx, group) {
       d3.select(this)
         .style("font-weight", "bold")

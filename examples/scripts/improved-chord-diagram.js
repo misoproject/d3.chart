@@ -5,7 +5,7 @@ d3.chart("Chord").extend("ImprovedChord", {
     var chart = this;
     this.colors = ["#000000", "#FFDD89", "#957244", "#F26224"];
 
-    this.layers.ticks.on("enter", function() {
+    this.layer("ticks").on("enter", function() {
       this.each(function(data, idx, group) {
         d3.select(this)
           .style("font-weight", "bold")

@@ -1,15 +1,15 @@
 d3.chart("BarChart").extend("FadingBarChart", {
   initialize: function(options) {
 
-    var chart = this;
+    this.layer("bars").on("enter:transition", this.fadeOut);
+    this.layer("bars").on("update:transition", this.fadeOut);
 
-    this.layers.bars.on("update:transition", function() {
-      var length = 0;
-      this.attr("opacity", function() { length++; });
-      this.attr("opacity", function(d, i) {
-        return i / length;
-      });
+  },
+  fadeOut: function() {
+    var length = 0;
+    this.attr("opacity", function() { length++; });
+    this.attr("opacity", function(d, i) {
+      return i / length;
     });
-
   }
 });
