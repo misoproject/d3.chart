@@ -59,7 +59,7 @@
 		}
 
 		for (idx = 0, len = handlers.length; idx < len; ++idx) {
-			if (handlers[idx] === handler) {
+			if (handlers[idx].callback === handler) {
 				handlers.splice(idx, 1);
 			}
 		}
