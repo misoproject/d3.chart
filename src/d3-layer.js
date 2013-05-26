@@ -14,7 +14,7 @@
 		if (!base) {
 			throw errors.noBase;
 		}
-		this.base = base;
+		this._base = base;
 		this._handlers = {};
 	};
 
@@ -71,14 +71,14 @@
 	Layer.prototype.draw = function(data) {
 		var bound, entering, events, selection, handlers, eventName, idx, len;
 
-		bound = this.dataBind.call(this.base, data);
+		bound = this.dataBind.call(this._base, data);
 
 		if (!(bound instanceof d3.selection)) {
 			throw new Error('Invalid selection defined by `dataBind` method.');
 		}
 
 		entering = bound.enter();
-		entering._chart = this.base._chart;
+		entering._chart = this._base._chart;
 
 		events = [
 			{
@@ -124,7 +124,7 @@
 				for (idx = 0, len = handlers.length; idx < len; ++idx) {
 					// Attach a reference to the parent chart so the selection"s
 					// `chart` method will function correctly.
-					selection._chart = handlers[idx].chart || this.base._chart;
+					selection._chart = handlers[idx].chart || this._base._chart;
 					selection.call(handlers[idx].callback);
 				}
 			}
@@ -134,7 +134,7 @@
 			if (handlers && handlers.length) {
 				selection = selection.transition();
 				for (idx = 0, len = handlers.length; idx < len; ++idx) {
-					selection._chart = handlers[idx].chart || this.base._chart;
+					selection._chart = handlers[idx].chart || this._base._chart;
 					selection.call(handlers[idx].callback);
 				}
 			}
