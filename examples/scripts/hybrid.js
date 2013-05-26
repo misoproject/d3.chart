@@ -4,8 +4,8 @@ d3.chart("Hybrid", {
     var barHeight = this.barHeight();
     var barWidth = this.radius * 2;
 
-    var chord = this.chord = this.mixin(this.base.append("g"), "ImprovedChord");
-    var bc = this.bc = this.mixin(this.base.append("g"), "FadingBarChart");
+    var chord = this.chord = this.mixin("ImprovedChord", this.base.append("g"));
+    var bc = this.bc = this.mixin("FadingBarChart", this.base.append("g"));
     chord.transform = function(data) {
       return d3.chart("Chord").prototype.transform(data.series2);
     };
