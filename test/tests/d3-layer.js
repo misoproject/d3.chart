@@ -158,6 +158,38 @@ suite("d3.layer", function() {
 				layer.remove();
 			});
 
+			suite("Layer#off", function() {
+				setup(function() {
+					this.onEnter2 = sinon.spy();
+					this.layer = this.base.append("g").layer({
+						insert: this.insert,
+						dataBind: this.dataBind
+					});
+					this.layer.on("enter", this.onEnter1);
+					this.layer.on("enter", this.onEnter2);
+					this.layer.on("update", this.onUpdate1);
+				});
+				teardown(function() {
+					this.layer.remove();
+				});
+				test("unbinds only the specified handler", function() {
+					this.layer.off("enter", this.onEnter1);
+					this.layer.draw([]);
+
+					assert.equal(this.onEnter1.callCount, 0);
+					assert.equal(this.onEnter2.callCount, 1);
+					assert.equal(this.onUpdate1.callCount, 1);
+				});
+				test("unbindes only the handlers for the specified lifecycle selection", function() {
+					this.layer.off("enter");
+					this.layer.draw([]);
+
+					assert.equal(this.onEnter1.callCount, 0);
+					assert.equal(this.onEnter2.callCount, 0);
+					assert.equal(this.onUpdate1.callCount, 1);
+				});
+			});
+
 			test("does not make transition selections if related handlers are not bound", function() {
 				var layer = this.base.append("g").layer({
 					insert: this.insert,
@@ -309,6 +341,107 @@ suite("d3.layer", function() {
 					assert(this.onUpdateTrans1.calledOn(updating.transition.returnValues[0]));
 					assert(this.onMergeTrans1.calledOn(updating.transition.returnValues[1]));
 					assert(this.onExitTrans1.calledOn(exiting.transition.returnValues[0]));
+				});
+
+				suite("`chart' context specified in the `options` argument", function() {
+					setup(function() {
+						var chartVal = this.chartVal = {};
+						this.handler = sinon.spy(function() {
+							window.MIKE && console.log("@#", this.chart());
+						});
+					});
+
+					test("`enter`", function() {
+						this.layer.on("enter", this.handler, {
+							chart: this.chartVal
+						});
+						this.layer.draw([]);
+
+						assert.equal(this.handler.thisValues[0].chart(),
+							this.chartVal);
+					});
+
+					test("`enter:transition`", function() {
+						this.layer.on("enter:transition", this.handler, {
+							chart: this.chartVal
+						});
+						this.layer.draw([]);
+
+						assert.equal(this.handler.thisValues[0].chart(),
+							this.chartVal);
+					});
+
+					// Because the test setup functionality has been
+					// overloaded, there is some state leakage that prevents
+					// consistent usage of the Sinon.spy API in this test. (The
+					// selection's internal `_chart` attribute is being
+					// over-written by an unused handler for the `merge`
+					// lifecycle event, so inspecting the return value of the
+					// `Layer#chart` method after `Layer#draw` has finished
+					// executing yeilds `undefined`.
+					// TODO: Re-factor test setup to avoid this.
+					test("`update`", function() {
+						var chartVal = this.chartVal;
+						var handler = sinon.spy(function() {
+							assert.equal(this.chart(), chartVal);
+						});
+						this.layer.on("update", handler, {
+							chart: this.chartVal
+						});
+						this.layer.draw([]);
+
+						assert.equal(handler.callCount, 1);
+					});
+
+					test("`update:transition`", function() {
+						this.layer.on("update:transition", this.handler, {
+							chart: this.chartVal
+						});
+						this.layer.draw([]);
+
+						assert.equal(this.handler.thisValues[0].chart(),
+							this.chartVal);
+					});
+
+					test("`merge`", function() {
+						this.layer.on("merge", this.handler, {
+							chart: this.chartVal
+						});
+						this.layer.draw([]);
+
+						assert.equal(this.handler.thisValues[0].chart(),
+							this.chartVal);
+					});
+
+					test("`merge:transition`", function() {
+						this.layer.on("merge:transition", this.handler, {
+							chart: this.chartVal
+						});
+						this.layer.draw([]);
+
+						assert.equal(this.handler.thisValues[0].chart(),
+							this.chartVal);
+					});
+
+					test("`exit`", function() {
+						this.layer.on("exit", this.handler, {
+							chart: this.chartVal
+						});
+						this.layer.draw([]);
+
+						assert.equal(this.handler.thisValues[0].chart(),
+							this.chartVal);
+					});
+
+					test("`exit:transition`", function() {
+						this.layer.on("exit:transition", this.handler, {
+							chart: this.chartVal
+						});
+						this.layer.draw([]);
+
+						assert.equal(this.handler.thisValues[0].chart(),
+							this.chartVal);
+					});
 				});
 
 			});

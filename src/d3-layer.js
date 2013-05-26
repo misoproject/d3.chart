@@ -30,11 +30,15 @@
 
 	// on
 	// Attach the specified handler to the specified event type.
-	Layer.prototype.on = function(eventName, handler) {
+	Layer.prototype.on = function(eventName, handler, options) {
+		options = options || {};
 		if (!(eventName in this._handlers)) {
 			this._handlers[eventName] = [];
 		}
-		this._handlers[eventName].push(handler);
+		this._handlers[eventName].push({
+			callback: handler,
+			chart : options.chart || null
+		});
 	};
 
 	// off
@@ -43,7 +47,7 @@
 	Layer.prototype.off = function(eventName, handler) {
 
 		var handlers = this._handlers[eventName];
-		var idx, len;
+		var idx;
 
 		if (!handlers) {
 			return;
@@ -54,8 +58,8 @@
 			return;
 		}
 
-		for (idx = 0, len = handlers.length; idx < len; ++idx) {
-			if (handlers[idx] === handler) {
+		for (idx = handlers.length - 1; idx > -1; --idx) {
+			if (handlers[idx].callback === handler) {
 				handlers.splice(idx, 1);
 			}
 		}
@@ -114,15 +118,14 @@
 					"' lifecycle event.");
 			}
 
-			// Attach a reference to the parent chart so the selection's
-			// `chart` method will function correctly.
-			selection._chart = this.base._chart;
-
 			handlers = this._handlers[eventName];
 
 			if (handlers) {
 				for (idx = 0, len = handlers.length; idx < len; ++idx) {
-					selection.call(handlers[idx]);
+					// Attach a reference to the parent chart so the selection"s
+					// `chart` method will function correctly.
+					selection._chart = handlers[idx].chart || this.base._chart;
+					selection.call(handlers[idx].callback);
 				}
 			}
 
@@ -130,9 +133,9 @@
 
 			if (handlers && handlers.length) {
 				selection = selection.transition();
-				selection._chart = this.base._chart;
 				for (idx = 0, len = handlers.length; idx < len; ++idx) {
-					selection.call(handlers[idx]);
+					selection._chart = handlers[idx].chart || this.base._chart;
+					selection.call(handlers[idx].callback);
 				}
 			}
 		}

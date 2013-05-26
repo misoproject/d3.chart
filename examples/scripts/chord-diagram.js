@@ -53,7 +53,7 @@ d3.chart("Chord", {
           .style("opacity", 1);
     }
 
-    this.layers.handles = base.append("g").layer({
+    this.layer("handles", base.append("g"), {
       dataBind: function(chord) {
         return this.selectAll("path").data(chord.groups);
       },
@@ -61,9 +61,9 @@ d3.chart("Chord", {
         return this.append("path");
       }
     });
-    this.layers.handles.on("enter", onEnterHandles);
+    this.layer("handles").on("enter", onEnterHandles);
 
-    this.layers.ticks = base.append("g").layer({
+    this.layer("ticks", base.append("g"), {
       dataBind: function(chord) {
         return this.append("g").selectAll("g")
             .data(chord.groups)
@@ -74,9 +74,9 @@ d3.chart("Chord", {
         return this.append("g");
       }
     });
-    this.layers.ticks.on("enter", onEnterTicks);
+    this.layer("ticks").on("enter", onEnterTicks);
 
-    this.layers.chords = base.append("g").attr("class", "chord").layer({
+    this.layer("chords", base.append("g").attr("class", "chord"), {
       dataBind: function(chord) {
         return this.selectAll("path").data(chord.chords);
       },
@@ -84,7 +84,7 @@ d3.chart("Chord", {
         return this.append("path");
       }
     });
-    this.layers.chords.on("enter", onEnterChords);
+    this.layer("chords").on("enter", onEnterChords);
 
     function chord(matrix) {
 
