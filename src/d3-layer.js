@@ -47,7 +47,7 @@
 	Layer.prototype.off = function(eventName, handler) {
 
 		var handlers = this._handlers[eventName];
-		var idx, len;
+		var idx;
 
 		if (!handlers) {
 			return;
@@ -58,7 +58,7 @@
 			return;
 		}
 
-		for (idx = 0, len = handlers.length; idx < len; ++idx) {
+		for (idx = handlers.length - 1; idx > -1; --idx) {
 			if (handlers[idx].callback === handler) {
 				handlers.splice(idx, 1);
 			}

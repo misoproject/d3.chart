@@ -158,6 +158,38 @@ suite("d3.layer", function() {
 				layer.remove();
 			});
 
+			suite("Layer#off", function() {
+				setup(function() {
+					this.onEnter2 = sinon.spy();
+					this.layer = this.base.append("g").layer({
+						insert: this.insert,
+						dataBind: this.dataBind
+					});
+					this.layer.on("enter", this.onEnter1);
+					this.layer.on("enter", this.onEnter2);
+					this.layer.on("update", this.onUpdate1);
+				});
+				teardown(function() {
+					this.layer.remove();
+				});
+				test("unbinds only the specified handler", function() {
+					this.layer.off("enter", this.onEnter1);
+					this.layer.draw([]);
+
+					assert.equal(this.onEnter1.callCount, 0);
+					assert.equal(this.onEnter2.callCount, 1);
+					assert.equal(this.onUpdate1.callCount, 1);
+				});
+				test("unbindes only the handlers for the specified lifecycle selection", function() {
+					this.layer.off("enter");
+					this.layer.draw([]);
+
+					assert.equal(this.onEnter1.callCount, 0);
+					assert.equal(this.onEnter2.callCount, 0);
+					assert.equal(this.onUpdate1.callCount, 1);
+				});
+			});
+
 			test("does not make transition selections if related handlers are not bound", function() {
 				var layer = this.base.append("g").layer({
 					insert: this.insert,
