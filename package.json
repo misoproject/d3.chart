@@ -11,7 +11,10 @@
     "visualization",
     "svg"
   ],
-  "author": "Mike Pennisi",
+  "author": {
+    "name": "The Miso Project team",
+    "uri": "https://github.com/misoproject/d3.chart/blob/master/AUTHORS.txt"
+  },
   "license": "MIT Expat",
   "devDependencies": {
     "grunt": "~0.4.0",

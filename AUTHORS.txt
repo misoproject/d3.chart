@@ -1,0 +1,4 @@
+# Authors ordered by first contribution.
+
+Mike Pennisi <mike@mikepennisi.com>
+Irene Ros <imirene@gmail.com>
