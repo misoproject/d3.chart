@@ -65,7 +65,7 @@ d3.chart("Chord", {
 
     this.layer("ticks", base.append("g"), {
       dataBind: function(chord) {
-        return this.append("g").selectAll("g")
+        return this.selectAll("g")
             .data(chord.groups)
           .enter().append("g").selectAll("g")
             .data(groupTicks);
