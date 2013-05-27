@@ -346,9 +346,7 @@ suite("d3.layer", function() {
 				suite("`chart' context specified in the `options` argument", function() {
 					setup(function() {
 						var chartVal = this.chartVal = {};
-						this.handler = sinon.spy(function() {
-							window.MIKE && console.log("@#", this.chart());
-						});
+						this.handler = sinon.spy();
 					});
 
 					test("`enter`", function() {
