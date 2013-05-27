@@ -95,16 +95,16 @@ suite("d3.chart", function() {
 			this.myChart = d3.select("#test").chart("test");
 		});
 		test("instantiates the specified chart", function() {
-			var mixin = this.myChart.mixin(d3.select("body"), "test2", 1, 2, 45);
+			var mixin = this.myChart.mixin("test2", d3.select("body"), 1, 2, 45);
 			assert.instanceOf(mixin, d3.chart("test2"));
 		});
 		test("instantiates with the correct arguments", function() {
-			var mixin = this.myChart.mixin(d3.select("body"), "test2", 1, 2, 45);
+			var mixin = this.myChart.mixin("test2", d3.select("body"), 1, 2, 45);
 			assert.deepEqual(mixin.initialize.args[0], [1, 2, 45]);
 		});
 		test("correctly sets the `base` attribute of the mixin", function() {
 			var mixinBase = d3.select("body");
-			var mixin = this.myChart.mixin(mixinBase, "test2");
+			var mixin = this.myChart.mixin("test2", mixinBase);
 			assert.equal(mixin.base, mixinBase);
 		});
 	});
@@ -130,8 +130,8 @@ suite("d3.chart", function() {
 			});
 			sinon.spy(layer2, "draw");
 
-			this.mixin1 = mixin1 = myChart.mixin(d3.select("#test"), "test");
-			this.mixin2 = mixin2 = myChart.mixin(d3.select("#test"), "test");
+			this.mixin1 = mixin1 = myChart.mixin("test", d3.select("#test"));
+			this.mixin2 = mixin2 = myChart.mixin("test", d3.select("#test"));
 			sinon.stub(mixin1, "draw");
 			sinon.stub(mixin2, "draw");
 		});

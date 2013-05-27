@@ -88,7 +88,7 @@
 		return data;
 	};
 
-	Chart.prototype.mixin = function(selection, chartName) {
+	Chart.prototype.mixin = function(chartName, selection) {
 		var args = Array.prototype.slice.call(arguments, 2);
 		args.unshift(selection);
 		var ctor = Chart[chartName];
