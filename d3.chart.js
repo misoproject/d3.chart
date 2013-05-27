@@ -1,6 +1,6 @@
-/*! d3.chart - v0.0.1
+/*! d3.chart - v0.1.0
  *  License: MIT Expat
- *  Date: 2013-04-16
+ *  Date: 2013-05-27
  */
 (function(window, undefined) {
 
@@ -18,7 +18,7 @@
 		if (!base) {
 			throw errors.noBase;
 		}
-		this.base = base;
+		this._base = base;
 		this._handlers = {};
 	};
 
@@ -34,11 +34,15 @@
 
 	// on
 	// Attach the specified handler to the specified event type.
-	Layer.prototype.on = function(eventName, handler) {
+	Layer.prototype.on = function(eventName, handler, options) {
+		options = options || {};
 		if (!(eventName in this._handlers)) {
 			this._handlers[eventName] = [];
 		}
-		this._handlers[eventName].push(handler);
+		this._handlers[eventName].push({
+			callback: handler,
+			chart : options.chart || null
+		});
 	};
 
 	// off
@@ -47,7 +51,7 @@
 	Layer.prototype.off = function(eventName, handler) {
 
 		var handlers = this._handlers[eventName];
-		var idx, len;
+		var idx;
 
 		if (!handlers) {
 			return;
@@ -58,8 +62,8 @@
 			return;
 		}
 
-		for (idx = 0, len = handlers.length; idx < len; ++idx) {
-			if (handlers[idx] === handler) {
+		for (idx = handlers.length - 1; idx > -1; --idx) {
+			if (handlers[idx].callback === handler) {
 				handlers.splice(idx, 1);
 			}
 		}
@@ -69,23 +73,63 @@
 	// Bind the data to the layer, make lifecycle selections, and invoke all
 	// relevant handlers.
 	Layer.prototype.draw = function(data) {
-		var bound, selections, selection, handlers, eventName, idx, len;
+		var bound, entering, events, selection, handlers, eventName, idx, len;
 
-		bound = this.dataBind.call(this.base, data);
+		bound = this.dataBind.call(this._base, data);
 
-		selections = {
-			enter: this.insert.call(bound.enter()),
-			update: bound,
-			exit: bound.exit()
-		};
+		if (!(bound instanceof d3.selection)) {
+			throw new Error('Invalid selection defined by `dataBind` method.');
+		}
 
-		for (eventName in selections) {
-			selection = selections[eventName];
+		entering = bound.enter();
+		entering._chart = this._base._chart;
+
+		events = [
+			{
+				name: 'update',
+				selection: bound
+			},
+			{
+				name: 'enter',
+				// Defer invocation of the `insert` method so that the previous
+				// `update` selection does not contain the new nodes.
+				selection: this.insert.bind(entering)
+			},
+			{
+				name: 'merge',
+				// This selection will be modified when the previous selection
+				// is made.
+				selection: bound
+			},
+			{
+				name: 'exit',
+				selection: bound.exit.bind(bound)
+			}
+		];
+
+		for (var i = 0, l = events.length; i < l; ++i) {
+			eventName = events[i].name;
+			selection = events[i].selection;
+
+			// Some lifecycle selections are expressed as functions so that
+			// they may be delayed.
+			if (typeof selection === 'function') {
+				selection = selection();
+			}
+
+			if (!(selection instanceof d3.selection)) {
+				throw new Error('Invalid selection defined for "' + eventName +
+					"' lifecycle event.");
+			}
+
 			handlers = this._handlers[eventName];
 
 			if (handlers) {
 				for (idx = 0, len = handlers.length; idx < len; ++idx) {
-					selection.call(handlers[idx]);
+					// Attach a reference to the parent chart so the selection"s
+					// `chart` method will function correctly.
+					selection._chart = handlers[idx].chart || this._base._chart;
+					selection.call(handlers[idx].callback);
 				}
 			}
 
@@ -94,7 +138,8 @@
 			if (handlers && handlers.length) {
 				selection = selection.transition();
 				for (idx = 0, len = handlers.length; idx < len; ++idx) {
-					selection.call(handlers[idx]);
+					selection._chart = handlers[idx].chart || this._base._chart;
+					selection.call(handlers[idx].callback);
 				}
 			}
 		}
@@ -167,7 +212,7 @@
 		if (sup) {
 			initCascade.call(sup, instance, args);
 		}
-		// Do not invoke the `initialize` method on classers further up the
+		// Do not invoke the `initialize` method on classes further up the
 		// prototype chain.
 		if (Object.hasOwnProperty.call(this.constructor.prototype, "initialize")) {
 			this.initialize.apply(instance, args);
@@ -193,8 +238,6 @@
 		return this;
 	};
 
-	// TODO: Accept special options: `before` or `after`. These are names of
-	// layers in relation to which the new layer should be inserted.
 	Chart.prototype.layer = function(name, selection, options) {
 		var layer;
 
@@ -217,7 +260,7 @@
 		return data;
 	};
 
-	Chart.prototype.mixin = function(selection, chartName) {
+	Chart.prototype.mixin = function(chartName, selection) {
 		var args = Array.prototype.slice.call(arguments, 2);
 		args.unshift(selection);
 		var ctor = Chart[chartName];
@@ -262,34 +305,39 @@
 	};
 
 	Chart.prototype.off = function(name, callback, context) {
+		var names, n, events, event, i, j;
+
 		// remove all events
 		if (arguments.length === 0) {
-			this._events = {};
+			for (name in this._events) {
+				this._events[name].length = 0;
+			}
 			return this;
 		}
 
 		// remove all events for a specific name
 		if (arguments.length === 1) {
-			this._events[name] = [];
+			events = this._events[name];
+			if (events) {
+				events.length = 0;
+			}
 			return this;
 		}
 
-		// remove all events that match whatever combination of name, context and callback.
-		var names, n, events, ev, i, j, retain = [];
-
+		// remove all events that match whatever combination of name, context
+		// and callback.
 		names = name ? [name] : Object.keys(this._events);
 		for (i = 0; i < names.length; i++) {
 			n = names[i];
 			events = this._events[n];
-			retain = [];
-			for (j = 0; j < events.length; j++) {
-				ev = events[j];
-				if ((callback && callback !== ev.callback) ||
-						(context && context != ev.context)) {
-					retain.push(ev);
+			j = events.length;
+			while (j--) {
+				event = events[j];
+				if ((callback && callback === event.callback) ||
+						(context && context === event.context)) {
+					events.splice(j, 1);
 				}
 			}
-			this._events[n] = retain;
 		}
 
 		return this;
@@ -311,9 +359,9 @@
 		var parent = this;
 		var child;
 
-		// The constructor function for the new subclass is either defined by you
-		// (the "constructor" property in your `extend` definition), or defaulted
-		// by us to simply call the parent's constructor.
+		// The constructor function for the new subclass is either defined by
+		// you (the "constructor" property in your `extend` definition), or
+		// defaulted by us to simply call the parent's constructor.
 		if (protoProps && Object.hasOwnProperty.call(protoProps, "constructor")) {
 			child = protoProps.constructor;
 		} else {
@@ -364,5 +412,11 @@
 		var ChartCtor = Chart[chartName];
 		return variadicNew(ChartCtor, chartArgs);
 	};
+
+	d3.selection.enter.prototype.chart = function() {
+		return this._chart;
+	};
+
+	d3.transition.prototype.chart = d3.selection.enter.prototype.chart;
 
 }(this));
