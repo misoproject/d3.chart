@@ -264,6 +264,13 @@ suite("d3.chart", function() {
 
 				this.e1callback.calledWith(1,2,3);
 			});
+
+			test("doesn't fail when there are no callbacks", function() {
+				var context = this;
+				assert.doesNotThrow(function() {
+					context.chart.trigger("non_existing_event", 12);
+				}, Error);
+			});
 		});
 
 		suite("#once", function() {
