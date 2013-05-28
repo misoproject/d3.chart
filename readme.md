@@ -2,6 +2,13 @@
 
 A framework for creating reusable charts with [D3.js](http://d3js.org).
 
+To get started you can:
+
+* Read about reusability in d3 [here](http://weblog.bocoup.com/reusability-with-d3/)
+* Read our introduction post to d3.chart [here](http://weblog.bocoup.com/introducing-d3-chart/)
+* Dive right into the [wiki](http://github.com/misoproject/d3.chart/wiki), which is full of instructions and guides.
+* Check out the [Miso Project website](http://misoproject.com/d3-chart) which has some live coding examples 
+
 ## Requirements
 
 `d3.chart` depends on D3.js version 3, so include it only *after* D3.js has been
