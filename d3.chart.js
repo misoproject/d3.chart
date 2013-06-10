@@ -1,6 +1,6 @@
-/*! d3.chart - v0.1.0
+/*! d3.chart - v0.1.1
  *  License: MIT Expat
- *  Date: 2013-05-27
+ *  Date: 2013-06-10
  */
 (function(window, undefined) {
 
@@ -348,10 +348,13 @@
 		var events = this._events[name];
 		var i, ev;
 
-		for (i = 0; i < events.length; i++) {
-			ev = events[i];
-			ev.callback.apply(ev.context, args);
+		if (events !== undefined) {
+			for (i = 0; i < events.length; i++) {
+				ev = events[i];
+				ev.callback.apply(ev.context, args);
+			}
 		}
+
 		return this;
 	};
 
