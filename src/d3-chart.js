@@ -3,6 +3,7 @@
 	"use strict";
 
 	var d3 = window.d3;
+	var hasOwnProp = Object.hasOwnProperty;
 
 	var Surrogate = function(ctor) { this.constructor = ctor; };
 	var variadicNew = function(Ctor, args) {
@@ -42,7 +43,7 @@
 		}
 		// Do not invoke the `initialize` method on classes further up the
 		// prototype chain.
-		if (Object.hasOwnProperty.call(this.constructor.prototype, "initialize")) {
+		if (hasOwnProp.call(this.constructor.prototype, "initialize")) {
 			this.initialize.apply(instance, args);
 		}
 	};
@@ -193,7 +194,7 @@
 		// The constructor function for the new subclass is either defined by
 		// you (the "constructor" property in your `extend` definition), or
 		// defaulted by us to simply call the parent's constructor.
-		if (protoProps && Object.hasOwnProperty.call(protoProps, "constructor")) {
+		if (protoProps && hasOwnProp.call(protoProps, "constructor")) {
 			child = protoProps.constructor;
 		} else {
 			child = function(){ return parent.apply(this, arguments); };
