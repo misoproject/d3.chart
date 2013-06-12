@@ -37,7 +37,7 @@
 		}
 		this._handlers[eventName].push({
 			callback: handler,
-			chart : options.chart || null
+			chart: options.chart || null
 		});
 	};
 
@@ -74,7 +74,7 @@
 		bound = this.dataBind.call(this._base, data);
 
 		if (!(bound instanceof d3.selection)) {
-			throw new Error('Invalid selection defined by `dataBind` method.');
+			throw new Error("Invalid selection defined by `dataBind` method.");
 		}
 
 		entering = bound.enter();
@@ -82,23 +82,23 @@
 
 		events = [
 			{
-				name: 'update',
+				name: "update",
 				selection: bound
 			},
 			{
-				name: 'enter',
+				name: "enter",
 				// Defer invocation of the `insert` method so that the previous
 				// `update` selection does not contain the new nodes.
 				selection: this.insert.bind(entering)
 			},
 			{
-				name: 'merge',
+				name: "merge",
 				// This selection will be modified when the previous selection
 				// is made.
 				selection: bound
 			},
 			{
-				name: 'exit',
+				name: "exit",
 				selection: bound.exit.bind(bound)
 			}
 		];
@@ -109,12 +109,12 @@
 
 			// Some lifecycle selections are expressed as functions so that
 			// they may be delayed.
-			if (typeof selection === 'function') {
+			if (typeof selection === "function") {
 				selection = selection();
 			}
 
 			if (!(selection instanceof d3.selection)) {
-				throw new Error('Invalid selection defined for "' + eventName +
+				throw new Error("Invalid selection defined for '" + eventName +
 					"' lifecycle event.");
 			}
 
