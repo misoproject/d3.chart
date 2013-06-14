@@ -6,8 +6,8 @@ module.exports = function(grunt) {
     meta: {
       pkg: grunt.file.readJSON("package.json"),
       srcFiles: [
-        "src/d3-layer.js",
-        "src/d3-chart.js"
+        "src/layer.js",
+        "src/chart.js"
       ]
     },
     watch: {
