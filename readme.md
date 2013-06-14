@@ -16,7 +16,7 @@ defined in the document, e.g.
 
 ```html
 <script src="scripts/lib/d3.v3.min.js"></script>
-<script src="scripts/lib/d3-chart.min.js"></script>
+<script src="scripts/lib/d3.chart.min.js"></script>
 ```
 
 ## Build Instructions
