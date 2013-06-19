@@ -101,7 +101,7 @@
 
 	Chart.prototype.draw = function(data) {
 
-		var layerName, mixinName;
+		var layerName, idx, len;
 
 		data = this.transform(data);
 
@@ -109,8 +109,8 @@
 			this._layers[layerName].draw(data);
 		}
 
-		for (mixinName in this._mixins) {
-			this._mixins[mixinName].draw(data);
+		for (idx = 0, len = this._mixins.length; idx < len; idx++) {
+			this._mixins[idx].draw(data);
 		}
 	};
 
