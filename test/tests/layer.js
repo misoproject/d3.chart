@@ -171,7 +171,7 @@ suite("d3.layer", function() {
 					assert.equal(this.onEnter2.callCount, 1);
 					assert.equal(this.onUpdate.callCount, 1);
 				});
-				test("unbindes only the handlers for the specified lifecycle selection", function() {
+				test("unbinds only the handlers for the specified lifecycle selection", function() {
 					this.layer.off("enter");
 					this.layer.draw([]);
 
