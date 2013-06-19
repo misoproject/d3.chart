@@ -324,6 +324,16 @@ suite("d3.layer", function() {
 					assert.equal(this.onMergeTrans3.callCount, 1);
 					assert.equal(this.onExitTrans1.callCount, 1);
 				});
+				test("invokes event handlers in the order they were bound", function() {
+					this.layer.on("exit", this.onExit1);
+					this.layer.on("exit", this.onExit2);
+					this.layer.on("exit", this.onExit3);
+
+					this.layer.draw([]);
+
+					assert(this.onExit1.calledBefore(this.onExit2));
+					assert(this.onExit2.calledBefore(this.onExit3));
+				});
 				test("invokes all event handlers in the context of the corresponding 'lifecycle selection'", function() {
 					var entering, updating, exiting;
 					this.layer.on("enter", this.onEnter1);
