@@ -106,17 +106,6 @@ suite("d3.layer", function() {
 		});
 		
 		suite("event triggering", function() {
-			setup(function() {
-				this.onEnter1 = sinon.spy();
-				this.onUpdate1 = sinon.spy();
-				this.onMerge1 = sinon.spy();
-				this.onExit1 = sinon.spy();
-				this.onEnterTrans1 = sinon.spy();
-				this.onUpdateTrans1 = sinon.spy();
-				this.onMergeTrans1 = sinon.spy();
-				this.onExitTrans1 = sinon.spy();
-			});
-
 			test("invokes event handlers with the correct selection", function() {
 				var layer = this.base.append("g").layer({
 					insert: function() {
@@ -160,14 +149,16 @@ suite("d3.layer", function() {
 
 			suite("Layer#off", function() {
 				setup(function() {
+					this.onEnter1 = sinon.spy();
 					this.onEnter2 = sinon.spy();
+					this.onUpdate = sinon.spy();
 					this.layer = this.base.append("g").layer({
 						insert: this.insert,
 						dataBind: this.dataBind
 					});
 					this.layer.on("enter", this.onEnter1);
 					this.layer.on("enter", this.onEnter2);
-					this.layer.on("update", this.onUpdate1);
+					this.layer.on("update", this.onUpdate);
 				});
 				teardown(function() {
 					this.layer.remove();
@@ -178,7 +169,7 @@ suite("d3.layer", function() {
 
 					assert.equal(this.onEnter1.callCount, 0);
 					assert.equal(this.onEnter2.callCount, 1);
-					assert.equal(this.onUpdate1.callCount, 1);
+					assert.equal(this.onUpdate.callCount, 1);
 				});
 				test("unbindes only the handlers for the specified lifecycle selection", function() {
 					this.layer.off("enter");
@@ -186,7 +177,7 @@ suite("d3.layer", function() {
 
 					assert.equal(this.onEnter1.callCount, 0);
 					assert.equal(this.onEnter2.callCount, 0);
-					assert.equal(this.onUpdate1.callCount, 1);
+					assert.equal(this.onUpdate.callCount, 1);
 				});
 			});
 
@@ -224,32 +215,33 @@ suite("d3.layer", function() {
 
 			suite("bound in constructor", function() {
 				setup(function() {
+					this.spies = {
+						"enter": sinon.spy(),
+						"update": sinon.spy(),
+						"merge": sinon.spy(),
+						"exit": sinon.spy(),
+						"enter:transition": sinon.spy(),
+						"update:transition": sinon.spy(),
+						"merge:transition": sinon.spy(),
+						"exit:transition": sinon.spy()
+					};
 					this.layer = this.base.layer({
 						dataBind: this.dataBind,
 						insert: this.insert,
-						events: {
-							"enter": this.onEnter1,
-							"update": this.onUpdate1,
-							"merge": this.onMerge1,
-							"exit": this.onExit1,
-							"enter:transition": this.onEnterTrans1,
-							"update:transition": this.onUpdateTrans1,
-							"merge:transition": this.onMergeTrans1,
-							"exit:transition": this.onExitTrans1
-						}
+						events: this.spies
 					});
 				});
 				test("invokes all event handlers exactly once", function() {
 					this.layer.draw([]);
 
-					assert.equal(this.onEnter1.callCount, 1);
-					assert.equal(this.onUpdate1.callCount, 1);
-					assert.equal(this.onMerge1.callCount, 1);
-					assert.equal(this.onExit1.callCount, 1);
-					assert.equal(this.onEnterTrans1.callCount, 1);
-					assert.equal(this.onUpdateTrans1.callCount, 1);
-					assert.equal(this.onMergeTrans1.callCount, 1);
-					assert.equal(this.onExitTrans1.callCount, 1);
+					assert.equal(this.spies.enter.callCount, 1);
+					assert.equal(this.spies.update.callCount, 1);
+					assert.equal(this.spies.merge.callCount, 1);
+					assert.equal(this.spies.exit.callCount, 1);
+					assert.equal(this.spies["enter:transition"].callCount, 1);
+					assert.equal(this.spies["update:transition"].callCount, 1);
+					assert.equal(this.spies["merge:transition"].callCount, 1);
+					assert.equal(this.spies["exit:transition"].callCount, 1);
 				});
 				test("invokes all event handlers in the context of the corresponding 'lifecycle selection'", function() {
 					var entering, updating, exiting;
@@ -260,21 +252,28 @@ suite("d3.layer", function() {
 					updating = this.dataBind.returnValues[0];
 					exiting = updating.exit.returnValues[0];
 
-					assert(this.onEnter1.calledOn(entering));
-					assert(this.onUpdate1.calledOn(updating));
-					assert(this.onMerge1.calledOn(updating));
-					assert(this.onExit1.calledOn(exiting));
-					assert(this.onEnterTrans1.calledOn(entering.transition.returnValues[0]));
-					assert(this.onUpdateTrans1.calledOn(updating.transition.returnValues[0]));
-					assert(this.onMergeTrans1.calledOn(updating.transition.returnValues[1]));
-					assert(this.onExitTrans1.calledOn(exiting.transition.returnValues[0]));
+					assert(this.spies.enter.calledOn(entering));
+					assert(this.spies.update.calledOn(updating));
+					assert(this.spies.merge.calledOn(updating));
+					assert(this.spies.exit.calledOn(exiting));
+					assert(this.spies["enter:transition"].calledOn(entering.transition.returnValues[0]));
+					assert(this.spies["update:transition"].calledOn(updating.transition.returnValues[0]));
+					assert(this.spies["merge:transition"].calledOn(updating.transition.returnValues[1]));
+					assert(this.spies["exit:transition"].calledOn(exiting.transition.returnValues[0]));
 				});
 
 			});
 
 			suite("bound with `on`", function() {
 				setup(function() {
-					
+					this.onEnter1 = sinon.spy();
+					this.onUpdate1 = sinon.spy();
+					this.onMerge1 = sinon.spy();
+					this.onExit1 = sinon.spy();
+					this.onEnterTrans1 = sinon.spy();
+					this.onUpdateTrans1 = sinon.spy();
+					this.onMergeTrans1 = sinon.spy();
+					this.onExitTrans1 = sinon.spy();
 					this.onUpdate2 = sinon.spy();
 					this.onMerge2 = sinon.spy();
 					this.onExit2 = sinon.spy();
@@ -285,6 +284,8 @@ suite("d3.layer", function() {
 					this.onMergeTrans2 = sinon.spy();
 					this.onMergeTrans3 = sinon.spy();
 
+				});
+				test("invokes all event handlers exactly once", function() {
 					this.layer.on("enter", this.onEnter1);
 					this.layer.on("update", this.onUpdate1);
 					this.layer.on("update", this.onUpdate2);
@@ -302,8 +303,7 @@ suite("d3.layer", function() {
 					this.layer.on("merge:transition", this.onMergeTrans2);
 					this.layer.on("merge:transition", this.onMergeTrans3);
 					this.layer.on("exit:transition", this.onExitTrans1);
-				});
-				test("invokes all event handlers exactly once", function() {
+
 					this.layer.draw([]);
 
 					assert.equal(this.onEnter1.callCount, 1);
@@ -326,6 +326,15 @@ suite("d3.layer", function() {
 				});
 				test("invokes all event handlers in the context of the corresponding 'lifecycle selection'", function() {
 					var entering, updating, exiting;
+					this.layer.on("enter", this.onEnter1);
+					this.layer.on("update", this.onUpdate1);
+					this.layer.on("merge", this.onMerge1);
+					this.layer.on("exit", this.onExit1);
+					this.layer.on("enter:transition", this.onEnterTrans1);
+					this.layer.on("update:transition", this.onUpdateTrans1);
+					this.layer.on("merge:transition", this.onMergeTrans1);
+					this.layer.on("exit:transition", this.onExitTrans1);
+
 					this.layer.draw([]);
 
 					// Alias lifecycle selections
@@ -369,26 +378,14 @@ suite("d3.layer", function() {
 							this.chartVal);
 					});
 
-					// Because the test setup functionality has been
-					// overloaded, there is some state leakage that prevents
-					// consistent usage of the Sinon.spy API in this test. (The
-					// selection's internal `_chart` attribute is being
-					// over-written by an unused handler for the `merge`
-					// lifecycle event, so inspecting the return value of the
-					// `Layer#chart` method after `Layer#draw` has finished
-					// executing yeilds `undefined`.
-					// TODO: Re-factor test setup to avoid this.
 					test("`update`", function() {
-						var chartVal = this.chartVal;
-						var handler = sinon.spy(function() {
-							assert.equal(this.chart(), chartVal);
-						});
-						this.layer.on("update", handler, {
+						this.layer.on("update", this.handler, {
 							chart: this.chartVal
 						});
 						this.layer.draw([]);
 
-						assert.equal(handler.callCount, 1);
+						assert.equal(this.handler.thisValues[0].chart(),
+							this.chartVal);
 					});
 
 					test("`update:transition`", function() {
