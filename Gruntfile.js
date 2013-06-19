@@ -62,11 +62,6 @@ module.exports = function(grunt) {
           " *  Date: <%= grunt.template.today('yyyy-mm-dd') %>\n" +
           " */\n"
       },
-      dist: {
-        files: {
-          "dist/d3.chart.js": "<%= meta.srcFiles %>"
-        }
-      },
       release: {
         files: {
           "d3.chart.js": "<%= meta.srcFiles %>"
@@ -78,14 +73,9 @@ module.exports = function(grunt) {
         // Preserve banner
         preserveComments: "some"
       },
-      dist: {
-        files: {
-          "dist/d3.chart.min.js": "dist/d3.chart.js"
-        }
-      },
       release: {
         files: {
-          "d3.chart.min.js": "dist/d3.chart.js"
+          "d3.chart.min.js": "d3.chart.js"
         }
       }
     }
@@ -96,6 +86,6 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks("grunt-contrib-uglify");
   grunt.loadNpmTasks("grunt-contrib-watch");
 
-  grunt.registerTask("default", ["jshint", "concat:dist", "uglify:dist"]);
-  grunt.registerTask("release", ["jshint", "concat", "uglify"]);
+  grunt.registerTask("default", ["jshint"]);
+  grunt.registerTask("release", ["default", "concat", "uglify"]);
 };
