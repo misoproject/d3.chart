@@ -239,9 +239,15 @@
 		if (arguments.length === 0) {
 			return this._chart;
 		}
-		var chartArgs = Array.prototype.slice.call(arguments, 1);
-		chartArgs.unshift(this);
 		var ChartCtor = Chart[chartName];
+		var chartArgs;
+		if (!ChartCtor) {
+			throw new Error('d3.chart: No chart registered with name "' +
+				chartName + '"');
+		}
+
+		chartArgs = Array.prototype.slice.call(arguments, 1);
+		chartArgs.unshift(this);
 		return variadicNew(ChartCtor, chartArgs);
 	};
 
