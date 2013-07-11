@@ -82,7 +82,7 @@ suite("d3.chart", function() {
 			d3.chart("test").extend("test2");
 			chart = d3.select("#test").chart("test2");
 
-			assert.instanceOf(chart, d3.chart("test"));
+			assert(chart instanceof d3.chart("test"));
 		});
 	});
 
@@ -96,7 +96,7 @@ suite("d3.chart", function() {
 		});
 		test("instantiates the specified chart", function() {
 			var mixin = this.myChart.mixin("test2", d3.select("body"), 1, 2, 45);
-			assert.instanceOf(mixin, d3.chart("test2"));
+			assert(mixin instanceof d3.chart("test2"));
 		});
 		test("instantiates with the correct arguments", function() {
 			var mixin = this.myChart.mixin("test2", d3.select("body"), 1, 2, 45);
@@ -202,15 +202,15 @@ suite("d3.chart", function() {
 		});
 
 		test("extends the selection with a `draw` method", function() {
-			assert.typeOf(this.layer.draw, "function");
+			assert.equal(typeof this.layer.draw, "function");
 		});
 
 		test("extends the selection with an `on` method", function() {
-			assert.typeOf(this.layer.on, "function");
+			assert.equal(typeof this.layer.on, "function");
 		});
 
 		test("extends the selection with an `off` method", function() {
-			assert.typeOf(this.layer.off, "function");
+			assert.equal(typeof this.layer.off, "function");
 		});
 	});
 

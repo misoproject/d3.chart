@@ -2,30 +2,23 @@
 
 	"use strict";
 
+	var d3Chart = window.d3Chart;
 	var d3 = window.d3;
 
-	var errors = {
-		noBase: new Error("d3.layer must be initialized with a base"),
-		noDataBind: new Error("d3.layer must specify a `dataBind` method."),
-		noInsert: new Error("d3.layer must specify an `insert` method.")
-	};
-
 	var Layer = function(base) {
-		if (!base) {
-			throw errors.noBase;
-		}
+		d3Chart.assert(base, "Layers must be initialized with a base.");
 		this._base = base;
 		this._handlers = {};
 	};
 
 	// dataBind
 	Layer.prototype.dataBind = function() {
-		throw errors.noDataBind;
+		d3Chart.assert(false, "Layers must specify a `dataBind` method.");
 	};
 
 	// insert
 	Layer.prototype.insert = function() {
-		throw errors.noInsert;
+		d3Chart.assert(false, "Layers must specify an `insert` method.");
 	};
 
 	// on
@@ -73,9 +66,11 @@
 
 		bound = this.dataBind.call(this._base, data);
 
-		if (!(bound instanceof d3.selection)) {
-			throw new Error("Invalid selection defined by `dataBind` method.");
-		}
+		// Although `bound instanceof d3.selection` is more explicit, it fails
+		// in IE8, so we use duck typing to maintain compatability.
+		d3Chart.assert(bound && bound.call === d3.selection.prototype.call,
+			"Invalid selection defined by `Layer#dataBind` method.");
+		d3Chart.assert(bound.enter, "Layer selection not properly bound.");
 
 		entering = bound.enter();
 		entering._chart = this._base._chart;
@@ -113,10 +108,13 @@
 				selection = selection();
 			}
 
-			if (!(selection instanceof d3.selection)) {
-				throw new Error("Invalid selection defined for '" + eventName +
-					"' lifecycle event.");
-			}
+			// Although `selection instanceof d3.selection` is more explicit,
+			// it fails in IE8, so we use duck typing to maintain
+			// compatability.
+			d3Chart.assert(selection &&
+				selection.call === d3.selection.prototype.call,
+				"Invalid selection defined for '" + eventName +
+				"' lifecycle event.");
 
 			handlers = this._handlers[eventName];
 

@@ -2,6 +2,7 @@
 
 	"use strict";
 
+	var d3Chart = window.d3Chart;
 	var d3 = window.d3;
 	var hasOwnProp = Object.hasOwnProperty;
 
@@ -241,10 +242,8 @@
 		}
 		var ChartCtor = Chart[chartName];
 		var chartArgs;
-		if (!ChartCtor) {
-			throw new Error('d3.chart: No chart registered with name "' +
-				chartName + '"');
-		}
+		d3Chart.assert(ChartCtor, "No chart registered with name '" +
+			chartName + "'");
 
 		chartArgs = Array.prototype.slice.call(arguments, 1);
 		chartArgs.unshift(this);
