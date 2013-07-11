@@ -35,8 +35,8 @@ module.exports = function(grunt) {
           globals: {
             d3: true,
             assert: true,
-            chai: true,
             setup: true,
+            suiteSetup: true,
             teardown: true,
             suite: true,
             test: true,
