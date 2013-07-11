@@ -6,6 +6,7 @@ module.exports = function(grunt) {
     meta: {
       pkg: grunt.file.readJSON("package.json"),
       srcFiles: [
+        "src/init.js",
         "src/layer.js",
         "src/chart.js"
       ]

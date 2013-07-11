@@ -10,17 +10,17 @@ suite("d3.layer", function() {
 		test("extends the selection with a `draw` method", function() {
 			var base = d3.select("#test");
 			var inst = base.layer({});
-			assert.typeOf(inst.draw, "function");
+			assert.equal(typeof inst.draw, "function");
 		});
 		test("extends the selection with an `on` method", function() {
 			var base = d3.select("#test");
 			var inst = base.layer({});
-			assert.typeOf(inst.on, "function");
+			assert.equal(typeof inst.on, "function");
 		});
 		test("extends the selection with an `off` method", function() {
 			var base = d3.select("#test");
 			var inst = base.layer({});
-			assert.typeOf(inst.off, "function");
+			assert.equal(typeof inst.off, "function");
 		});
 	});
 
@@ -56,29 +56,7 @@ suite("d3.layer", function() {
 				insert: insert
 			});
 		});
-		test("throws an error when `dataBind` does not return a selection", function() {
-			var layer = this.base.layer({
-				dataBind: function() {
-					return {};
-				},
-				insert: this.insert
-			});
-			var draw = function() {
-				layer.draw([]);
-			};
-			assert.throws(draw);
-		});
 
-		test("throws an error when `insert` does not return a selection", function() {
-			var layer = this.base.layer({
-				dataBind: this.dataBind,
-				insert: function() { return {}; }
-			});
-			var draw = function() {
-				layer.draw([]);
-			};
-			assert.throws(draw);
-		});
 		test("invokes the provided `dataBind` method exactly once", function() {
 			assert.equal(this.dataBind.callCount, 0);
 			this.layer.draw([]);
@@ -118,16 +96,21 @@ suite("d3.layer", function() {
 				// Wrap each assertion in a spy so we can ensure that each actually
 				// runs.
 				var updateSpy = sinon.spy(function() {
-					assert.sameMembers(this.data(), [3, 4]);
+					assert.deepEqual(this.data(), [3, 4], "update handler");
 				});
 				var enterSpy = sinon.spy(function() {
-					assert.sameMembers(this.data(), [5, 6]);
+					// Build the expected sparse array to pass lint and avoid
+					// failures due to browser implementation differences
+					var expected = [];
+					expected[2] = 5;
+					expected[3] = 6;
+					assert.deepEqual(this.data(), expected, "enter handler");
 				});
 				var mergeSpy = sinon.spy(function() {
-					assert.sameMembers(this.data(), [3, 4, 5, 6]);
+					assert.deepEqual(this.data(), [3, 4, 5, 6], "merge handler");
 				});
 				var exitSpy = sinon.spy(function() {
-					assert.sameMembers(this.data(), [1, 2]);
+					assert.deepEqual(this.data(), [1, 2], "exit handler");
 				});
 				layer.draw([1, 2, 3, 4]);
 
