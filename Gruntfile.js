@@ -88,7 +88,8 @@ module.exports = function(grunt) {
     uglify: {
       options: {
         // Preserve banner
-        preserveComments: "some"
+        preserveComments: "some",
+        sourceMap: "d3.chart.min.map"
       },
       release: {
         files: {
