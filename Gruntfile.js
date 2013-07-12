@@ -8,7 +8,9 @@ module.exports = function(grunt) {
       srcFiles: [
         "src/init.js",
         "src/layer.js",
-        "src/chart.js"
+        "src/layer-extensions.js",
+        "src/chart.js",
+        "src/chart-extensions.js"
       ]
     },
     watch: {
@@ -32,7 +34,10 @@ module.exports = function(grunt) {
           globals: {
             hasOwnProp: true,
             d3: true,
-            d3cAssert: true
+            d3cAssert: true,
+            Layer: true,
+            Chart: true,
+            variadicNew: true
           }
         },
         files: {
