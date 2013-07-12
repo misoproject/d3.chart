@@ -1,24 +1,19 @@
-(function(window, undefined) {
-
 	"use strict";
 
-	var d3Chart = window.d3Chart;
-	var d3 = window.d3;
-
 	var Layer = function(base) {
-		d3Chart.assert(base, "Layers must be initialized with a base.");
+		d3cAssert(base, "Layers must be initialized with a base.");
 		this._base = base;
 		this._handlers = {};
 	};
 
 	// dataBind
 	Layer.prototype.dataBind = function() {
-		d3Chart.assert(false, "Layers must specify a `dataBind` method.");
+		d3cAssert(false, "Layers must specify a `dataBind` method.");
 	};
 
 	// insert
 	Layer.prototype.insert = function() {
-		d3Chart.assert(false, "Layers must specify an `insert` method.");
+		d3cAssert(false, "Layers must specify an `insert` method.");
 	};
 
 	// on
@@ -70,9 +65,9 @@
 
 		// Although `bound instanceof d3.selection` is more explicit, it fails
 		// in IE8, so we use duck typing to maintain compatability.
-		d3Chart.assert(bound && bound.call === d3.selection.prototype.call,
+		d3cAssert(bound && bound.call === d3.selection.prototype.call,
 			"Invalid selection defined by `Layer#dataBind` method.");
-		d3Chart.assert(bound.enter, "Layer selection not properly bound.");
+		d3cAssert(bound.enter, "Layer selection not properly bound.");
 
 		entering = bound.enter();
 		entering._chart = this._base._chart;
@@ -113,7 +108,7 @@
 			// Although `selection instanceof d3.selection` is more explicit,
 			// it fails in IE8, so we use duck typing to maintain
 			// compatability.
-			d3Chart.assert(selection &&
+			d3cAssert(selection &&
 				selection.call === d3.selection.prototype.call,
 				"Invalid selection defined for '" + eventName +
 				"' lifecycle event.");
@@ -163,5 +158,3 @@
 
 		return this;
 	};
-
-}(this));
