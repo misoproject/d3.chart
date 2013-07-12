@@ -1,14 +1,5 @@
 	"use strict";
 
-	var Surrogate = function(ctor) { this.constructor = ctor; };
-	var variadicNew = function(Ctor, args) {
-		var inst;
-		Surrogate.prototype = Ctor.prototype;
-		inst = new Surrogate(Ctor);
-		Ctor.apply(inst, args);
-		return inst;
-	};
-
 	// Determine if the current environment satisfies d3.chart's requirements
 	// for ECMAScript 5 compliance.
 	var isES5 = (function() {
@@ -330,37 +321,3 @@
 		Chart[name] = child;
 		return child;
 	};
-
-	// d3.chart
-	// A factory for creating chart constructors
-	d3.chart = function(name) {
-		if (arguments.length === 0) {
-			return Chart;
-		} else if (arguments.length === 1) {
-			return Chart[name];
-		}
-
-		return Chart.extend.apply(Chart, arguments);
-	};
-
-	d3.selection.prototype.chart = function(chartName) {
-		// Without an argument, attempt to resolve the current selection's
-		// containing d3.chart.
-		if (arguments.length === 0) {
-			return this._chart;
-		}
-		var ChartCtor = Chart[chartName];
-		var chartArgs;
-		d3Chart.assert(ChartCtor, "No chart registered with name '" +
-			chartName + "'");
-
-		chartArgs = Array.prototype.slice.call(arguments, 1);
-		chartArgs.unshift(this);
-		return variadicNew(ChartCtor, chartArgs);
-	};
-
-	d3.selection.enter.prototype.chart = function() {
-		return this._chart;
-	};
-
-	d3.transition.prototype.chart = d3.selection.enter.prototype.chart;
