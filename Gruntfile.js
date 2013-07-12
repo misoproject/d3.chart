@@ -24,7 +24,13 @@ module.exports = function(grunt) {
       },
       chart: {
         options: {
-          browser: true
+          browser: true,
+          globalstrict: true,
+          globals: {
+            hasOwnProp: true,
+            d3: true,
+            d3Chart: true
+          }
         },
         files: {
           src: "<%= meta.srcFiles %>"
@@ -61,7 +67,8 @@ module.exports = function(grunt) {
         banner: "/*! <%= meta.pkg.name %> - v<%= meta.pkg.version %>\n" +
           " *  License: <%= meta.pkg.license %>\n" +
           " *  Date: <%= grunt.template.today('yyyy-mm-dd') %>\n" +
-          " */\n"
+          " */\n(function(window) {\n",
+        footer: "})(this);"
       },
       release: {
         files: {

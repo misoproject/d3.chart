@@ -1,9 +1,4 @@
-(function(window, undefined) {
-
 	"use strict";
-
-	var d3Chart = window.d3Chart;
-	var d3 = window.d3;
 
 	var Layer = function(base) {
 		d3Chart.assert(base, "Layers must be initialized with a base.");
@@ -161,5 +156,3 @@
 
 		return this;
 	};
-
-}(this));
