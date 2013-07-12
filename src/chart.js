@@ -1,10 +1,4 @@
-(function(window, undefined) {
-
 	"use strict";
-
-	var d3Chart = window.d3Chart;
-	var d3 = window.d3;
-	var hasOwnProp = Object.hasOwnProperty;
 
 	var Surrogate = function(ctor) { this.constructor = ctor; };
 	var variadicNew = function(Ctor, args) {
@@ -85,7 +79,7 @@
 				return this._layers[name];
 			
 			} else {
-				d3Chart.assert(false, "When reattaching a layer, the second argument "+
+				d3cAssert(false, "When reattaching a layer, the second argument "+
 					"must be a d3.chart layer");
 			}
 		}
@@ -257,7 +251,7 @@
 		}
 		var ChartCtor = Chart[chartName];
 		var chartArgs;
-		d3Chart.assert(ChartCtor, "No chart registered with name '" +
+		d3cAssert(ChartCtor, "No chart registered with name '" +
 			chartName + "'");
 
 		chartArgs = Array.prototype.slice.call(arguments, 1);
@@ -270,5 +264,3 @@
 	};
 
 	d3.transition.prototype.chart = d3.selection.enter.prototype.chart;
-
-}(this));
