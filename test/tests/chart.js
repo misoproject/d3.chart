@@ -144,6 +144,30 @@ suite("d3.chart", function() {
 			assert.equal(this.transform.callCount, 1);
 			assert.equal(this.transform.args[0][0], data);
 		});
+
+		test("transform cascading", function() {
+			var grandpaTransform = sinon.spy(function(d) { return d * 2; });
+			var paTransform = sinon.spy(function(d) { return d * 3; });
+			var instanceTransform = sinon.spy(function(d) { return d * 5; });
+
+			d3.chart("TestTransformGrandpa", {
+				transform: grandpaTransform
+			});
+			d3.chart("TestTransformGrandpa").extend("TestTransformPa", {
+				transform: paTransform
+			});
+
+			var chart = d3.select("#test").chart("TestTransformPa");
+			chart.transform = instanceTransform;
+
+			chart.draw(7);
+
+			sinon.assert.calledWith(instanceTransform, 7);
+			sinon.assert.calledWith(paTransform, 35);
+			sinon.assert.calledWith(grandpaTransform, 105);
+
+		});
+
 		test("invokes the `draw` method of each of its layers", function() {
 			assert.equal(this.layer1.draw.callCount, 0);
 			assert.equal(this.layer2.draw.callCount, 0);

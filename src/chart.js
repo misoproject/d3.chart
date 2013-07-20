@@ -21,17 +21,47 @@ function extend(object) {
 
 // initCascade
 // Call the initialize method up the inheritance chain, starting with the
-// base class and continuing "downward".
+// base class and continuing "upward".
 var initCascade = function(instance, args) {
-	var sup = this.constructor.__super__;
+	var ctor = this.constructor;
+	var sup = ctor.__super__;
 	if (sup) {
 		initCascade.call(sup, instance, args);
 	}
+
 	// Do not invoke the `initialize` method on classes further up the
-	// prototype chain.
-	if (hasOwnProp.call(this.constructor.prototype, "initialize")) {
+	// prototype chain (again).
+	if (hasOwnProp.call(ctor.prototype, "initialize")) {
 		this.initialize.apply(instance, args);
 	}
+};
+
+// transformCascade
+// Call the `transform` method down the inheritance chain, starting with the
+// instance and continuing "downward". The result of each transformation should
+// be supplied as input to the next.
+var transformCascade = function(instance, data) {
+	var ctor = this.constructor;
+	var sup = ctor.__super__;
+
+	// Unlike `initialize`, the `transform` method has significance when
+	// attached directly to a chart instance. Ensure that this transform takes
+	// first but is not invoked on later recursions.
+	if (this === instance && hasOwnProp.call(this, "transform")) {
+		data = this.transform(data);
+	}
+
+	// Do not invoke the `transform` method on classes further up the prototype
+	// chain (yet).
+	if (hasOwnProp.call(ctor.prototype, "transform")) {
+		data = ctor.prototype.transform.call(instance, data);
+	}
+
+	if (sup) {
+		data = transformCascade.call(sup, instance, data);
+	}
+
+	return data;
 };
 
 var Chart = function(selection) {
@@ -86,10 +116,6 @@ Chart.prototype.layer = function(name, selection, options) {
 
 Chart.prototype.initialize = function() {};
 
-Chart.prototype.transform = function(data) {
-	return data;
-};
-
 Chart.prototype.mixin = function(chartName) {
 	var args = Array.prototype.slice.call(arguments, 1);
 	var ctor = Chart[chartName];
@@ -103,7 +129,7 @@ Chart.prototype.draw = function(data) {
 
 	var layerName, idx, len;
 
-	data = this.transform(data);
+	data = transformCascade.call(this, this, data);
 
 	for (layerName in this._layers) {
 		this._layers[layerName].draw(data);
