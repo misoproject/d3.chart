@@ -311,10 +311,15 @@ Chart.extend = function(name, protoProps, staticProps) {
 	// Set a convenience property in case the parent's prototype is needed
 	// later.
 	child.__super__ = parent.prototype;
+
 	// Inherit chart data attributes. This allows charts that derive from
 	// other charts to use the same attributes for data without
 	// compromising their ability to add additional attributes.
-	dataAttrs = child.prototype.dataAttrs || [];
+	if (hasOwnProp.call(child.prototype, "dataAttrs")) {
+		dataAttrs = child.prototype.dataAttrs;
+	} else {
+		dataAttrs = [];
+	}
 	dataAttrs.push.apply(dataAttrs, parent.prototype.dataAttrs || []);
 	child.prototype.dataAttrs = dataAttrs;
 

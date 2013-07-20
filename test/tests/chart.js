@@ -169,24 +169,45 @@ suite("d3.chart", function() {
 					chart.draw([{ attr4: 23 }]);
 				});
 
-				test("names are properly inherited", function(done) {
-					d3.chart("DataAttrTestChart")
-						.extend("ExtendedDataAttrTestChart", {
-							dataAttrs: ["attr4"]
-						});
+				suite("name inheritance", function() {
 
-					var chart = d3.select("#test")
-						.chart("ExtendedDataAttrTestChart");
-					chart.transform = function(wrappedData) {
-						assert.ok(wrappedData[0].attr1);
-						assert.ok(wrappedData[0].attr2);
-						assert.ok(wrappedData[0].attr3);
-						assert.ok(wrappedData[0].attr4);
+					test("names are properly inherited", function(done) {
+						d3.chart("DataAttrTestChart")
+							.extend("ExtendedDataAttrTestChart", {
+								dataAttrs: ["attr4"]
+							});
 
-						done();
-					};
+						var chart = d3.select("#test")
+							.chart("ExtendedDataAttrTestChart");
+						chart.transform = function(wrappedData) {
+							assert.ok(wrappedData[0].attr1);
+							assert.ok(wrappedData[0].attr2);
+							assert.ok(wrappedData[0].attr3);
+							assert.ok(wrappedData[0].attr4);
 
-					chart.draw([{ attr1: 1, attr2: 2, attr3: 3, attr4: 4 }]);
+							done();
+						};
+
+						chart.draw([
+							{ attr1: 1, attr2: 2, attr3: 3, attr4: 4 }
+						]);
+					});
+
+					test("names are inherited from parent charts", function(done) {
+						d3.chart("DataAttrTestChart")
+							.extend("ExtendedDataAttrTestChart", {});
+						var chart = d3.select("#test")
+							.chart("ExtendedDataAttrTestChart");
+						chart.transform = function(wrappedData) {
+							assert.ok(wrappedData[0].attr1);
+							assert.ok(wrappedData[0].attr2);
+							assert.ok(wrappedData[0].attr3);
+
+							done();
+						};
+
+						chart.draw([{ attr1: 1, attr2: 2, attr3: 3 }]);
+					});
 				});
 
 				test("opting out with `dataMapping: false`", function(done) {
