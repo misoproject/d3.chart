@@ -1,0 +1,14 @@
+{
+  "name": "d3.chart",
+  "main": "d3.chart.js",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "d3": "~3.3.2"
+  }
+}
