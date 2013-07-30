@@ -1,5 +1,10 @@
 # d3.chart change log
 
+### 0.1.2 (07.30.2013)
+
+- Implement support for Internet Explorer
+- Throw custom error when Chart lookup fails
+
 ### 0.1.1 (06.10.2013)
 
 - Fix bug in event triggering

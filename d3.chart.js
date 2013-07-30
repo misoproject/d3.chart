@@ -1,35 +1,54 @@
-/*! d3.chart - v0.1.1
+/*! d3.chart - v0.1.2
  *  License: MIT Expat
- *  Date: 2013-06-10
+ *  Date: 2013-07-30
  */
+(function(window, undefined) {
+
+"use strict";
+
+var previousD3Chart = window.d3Chart;
+var d3Chart = window.d3Chart = {};
+var d3 = window.d3;
+
+d3Chart.noConflict = function() {
+	window.d3Chart = previousD3Chart;
+	return d3Chart;
+};
+
+d3Chart.assert = function(test, message) {
+	if (test) {
+		return;
+	}
+	throw new Error("[d3.chart] " + message);
+};
+
+d3Chart.assert(d3, "d3.js is required");
+d3Chart.assert(typeof d3.version === "string" && d3.version.match(/^3/),
+	"d3.js version 3 is required");
+
+}(this));
+
 (function(window, undefined) {
 
 	"use strict";
 
+	var d3Chart = window.d3Chart;
 	var d3 = window.d3;
 
-	var errors = {
-		noBase: new Error("d3.layer must be initialized with a base"),
-		noDataBind: new Error("d3.layer must specify a `dataBind` method."),
-		noInsert: new Error("d3.layer must specify an `insert` method.")
-	};
-
 	var Layer = function(base) {
-		if (!base) {
-			throw errors.noBase;
-		}
+		d3Chart.assert(base, "Layers must be initialized with a base.");
 		this._base = base;
 		this._handlers = {};
 	};
 
 	// dataBind
 	Layer.prototype.dataBind = function() {
-		throw errors.noDataBind;
+		d3Chart.assert(false, "Layers must specify a `dataBind` method.");
 	};
 
 	// insert
 	Layer.prototype.insert = function() {
-		throw errors.noInsert;
+		d3Chart.assert(false, "Layers must specify an `insert` method.");
 	};
 
 	// on
@@ -41,7 +60,7 @@
 		}
 		this._handlers[eventName].push({
 			callback: handler,
-			chart : options.chart || null
+			chart: options.chart || null
 		});
 	};
 
@@ -77,32 +96,34 @@
 
 		bound = this.dataBind.call(this._base, data);
 
-		if (!(bound instanceof d3.selection)) {
-			throw new Error('Invalid selection defined by `dataBind` method.');
-		}
+		// Although `bound instanceof d3.selection` is more explicit, it fails
+		// in IE8, so we use duck typing to maintain compatability.
+		d3Chart.assert(bound && bound.call === d3.selection.prototype.call,
+			"Invalid selection defined by `Layer#dataBind` method.");
+		d3Chart.assert(bound.enter, "Layer selection not properly bound.");
 
 		entering = bound.enter();
 		entering._chart = this._base._chart;
 
 		events = [
 			{
-				name: 'update',
+				name: "update",
 				selection: bound
 			},
 			{
-				name: 'enter',
+				name: "enter",
 				// Defer invocation of the `insert` method so that the previous
 				// `update` selection does not contain the new nodes.
 				selection: this.insert.bind(entering)
 			},
 			{
-				name: 'merge',
+				name: "merge",
 				// This selection will be modified when the previous selection
 				// is made.
 				selection: bound
 			},
 			{
-				name: 'exit',
+				name: "exit",
 				selection: bound.exit.bind(bound)
 			}
 		];
@@ -113,14 +134,17 @@
 
 			// Some lifecycle selections are expressed as functions so that
 			// they may be delayed.
-			if (typeof selection === 'function') {
+			if (typeof selection === "function") {
 				selection = selection();
 			}
 
-			if (!(selection instanceof d3.selection)) {
-				throw new Error('Invalid selection defined for "' + eventName +
-					"' lifecycle event.");
-			}
+			// Although `selection instanceof d3.selection` is more explicit,
+			// it fails in IE8, so we use duck typing to maintain
+			// compatability.
+			d3Chart.assert(selection &&
+				selection.call === d3.selection.prototype.call,
+				"Invalid selection defined for '" + eventName +
+				"' lifecycle event.");
 
 			handlers = this._handlers[eventName];
 
@@ -174,7 +198,9 @@
 
 	"use strict";
 
+	var d3Chart = window.d3Chart;
 	var d3 = window.d3;
+	var hasOwnProp = Object.hasOwnProperty;
 
 	var Surrogate = function(ctor) { this.constructor = ctor; };
 	var variadicNew = function(Ctor, args) {
@@ -214,7 +240,7 @@
 		}
 		// Do not invoke the `initialize` method on classes further up the
 		// prototype chain.
-		if (Object.hasOwnProperty.call(this.constructor.prototype, "initialize")) {
+		if (hasOwnProp.call(this.constructor.prototype, "initialize")) {
 			this.initialize.apply(instance, args);
 		}
 	};
@@ -272,7 +298,7 @@
 
 	Chart.prototype.draw = function(data) {
 
-		var layerName, mixinName;
+		var layerName, idx, len;
 
 		data = this.transform(data);
 
@@ -280,8 +306,8 @@
 			this._layers[layerName].draw(data);
 		}
 
-		for (mixinName in this._mixins) {
-			this._mixins[mixinName].draw(data);
+		for (idx = 0, len = this._mixins.length; idx < len; idx++) {
+			this._mixins[idx].draw(data);
 		}
 	};
 
@@ -365,7 +391,7 @@
 		// The constructor function for the new subclass is either defined by
 		// you (the "constructor" property in your `extend` definition), or
 		// defaulted by us to simply call the parent's constructor.
-		if (protoProps && Object.hasOwnProperty.call(protoProps, "constructor")) {
+		if (protoProps && hasOwnProp.call(protoProps, "constructor")) {
 			child = protoProps.constructor;
 		} else {
 			child = function(){ return parent.apply(this, arguments); };
@@ -410,9 +436,13 @@
 		if (arguments.length === 0) {
 			return this._chart;
 		}
-		var chartArgs = Array.prototype.slice.call(arguments, 1);
-		chartArgs.unshift(this);
 		var ChartCtor = Chart[chartName];
+		var chartArgs;
+		d3Chart.assert(ChartCtor, "No chart registered with name '" +
+			chartName + "'");
+
+		chartArgs = Array.prototype.slice.call(arguments, 1);
+		chartArgs.unshift(this);
 		return variadicNew(ChartCtor, chartArgs);
 	};
 
