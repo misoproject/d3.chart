@@ -212,6 +212,16 @@ suite("d3.chart", function() {
 		test("extends the selection with an `off` method", function() {
 			assert.equal(typeof this.layer.off, "function");
 		});
+
+		test("unlayers a layer", function() {
+			assert.equal(this.chart.unlayer("testlayer"), this.layer);
+			assert.equal(this.chart.layer("testlayer"), null);
+		});
+
+		test("relayer a layer", function() {
+			assert.equal(this.chart.relayer("testlayer", this.layer), this.layer);
+			assert.equal(this.chart.layer("testlayer"), this.layer);
+		});
 	});
 
 	suite("events", function() {

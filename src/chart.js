@@ -61,11 +61,16 @@
 
 	Chart.prototype.unlayer = function(name) {
 		var layer = this.layer(name);
-		var idx = this._layerList.indexOf(layer);
 
 		delete this._layers[name];
-		this._layerList.splice(idx, 1);
-		return this;
+
+		return layer;
+	};
+
+	Chart.prototype.relayer = function(name, layer) {
+		this._layers[name] = layer;
+
+		return layer;
 	};
 
 	Chart.prototype.layer = function(name, selection, options) {
