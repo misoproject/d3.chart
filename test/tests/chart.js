@@ -212,10 +212,6 @@ suite("d3.chart", function() {
 		test("extends the selection with an `off` method", function() {
 			assert.equal(typeof this.layer.off, "function");
 		});
-
-		test("extends the chart with an `unlayer` method", function() {
-			assert.equal(typeof this.chart.unlayer, "function");
-		});
 	});
 
 	suite("events", function() {
