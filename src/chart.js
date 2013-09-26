@@ -63,12 +63,7 @@
 		var layer = this.layer(name);
 
 		delete this._layers[name];
-
-		return layer;
-	};
-
-	Chart.prototype.relayer = function(name, layer) {
-		this._layers[name] = layer;
+		delete layer._chart;
 
 		return layer;
 	};
@@ -77,6 +72,15 @@
 		var layer;
 
 		if (arguments.length === 1) {
+			return this._layers[name];
+		}
+
+		// we are reattaching a previous layer, which the
+		// selection argument is now set to.
+		if (arguments.length === 2) {
+			selection._chart = this;
+			this._layers[name] = selection;
+
 			return this._layers[name];
 		}
 

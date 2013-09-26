@@ -73,5 +73,37 @@ suite("integration", function() {
 					this.myChart);
 			});
 		});
+
+		suite("Layer attaching and detaching", function() {
+
+			setup(function() {
+				this.myChart.layer("testLayer", this.myChart.base.append("g"), {});
+				this.layer = this.myChart.unlayer("testLayer");
+			});
+
+			suite("Disjoins child from parent", function() {
+				test("`unlayer` detaches layer from chart", function() {
+					assert.equal(typeof this.myChart.layer("testLayer"), "undefined");
+				});
+
+				test("detached layer does not have reference to parent chart", function() {
+					assert.equal(typeof this.layer.chart(), "undefined");
+				});
+			});
+
+			suite("Reattaches child to parent", function() {
+				setup(function() {
+					this.reattachedLayer = this.myChart.layer("anotherLayer", this.layer);
+				});
+
+				test("`layer` reattaches a detached layer to a chart", function() {
+					assert.equal(this.reattachedLayer, this.myChart.layer("anotherLayer"));
+				});
+
+				test("reattached layer has a reference to parent chart", function() {
+					assert.equal(this.reattachedLayer.chart(), this.myChart);
+				});
+			});
+		});
 	});
 });

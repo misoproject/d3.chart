@@ -213,14 +213,8 @@ suite("d3.chart", function() {
 			assert.equal(typeof this.layer.off, "function");
 		});
 
-		test("unlayers a layer", function() {
-			assert.equal(this.chart.unlayer("testlayer"), this.layer);
-			assert.equal(this.chart.layer("testlayer"), null);
-		});
-
-		test("relayer a layer", function() {
-			assert.equal(this.chart.relayer("testlayer", this.layer), this.layer);
-			assert.equal(this.chart.layer("testlayer"), this.layer);
+		test("extends the chart with an `unlayer` method", function() {
+			assert.equal(typeof this.chart.unlayer, "function");
 		});
 	});
 
