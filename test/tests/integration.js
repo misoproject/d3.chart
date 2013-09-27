@@ -103,6 +103,15 @@ suite("integration", function() {
 				test("reattached layer has a reference to parent chart", function() {
 					assert.equal(this.reattachedLayer.chart(), this.myChart);
 				});
+
+				test("attempting to reattach anything other than a layer fails", function() {
+					assert.throws(function() {
+							this.myChart.layer("notalayer", {});
+						},
+						Error,
+						"[d3.chart] When reattaching a layer, the second argument must be a d3.chart layer");
+					assert.equal(typeof this.myChart.layer("notalayer"), "undefined");
+				});
 			});
 		});
 	});

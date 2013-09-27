@@ -78,10 +78,16 @@
 		// we are reattaching a previous layer, which the
 		// selection argument is now set to.
 		if (arguments.length === 2) {
-			selection._chart = this;
-			this._layers[name] = selection;
 
-			return this._layers[name];
+			if (typeof selection.draw === "function") {
+				selection._chart = this;
+				this._layers[name] = selection;
+				return this._layers[name];
+			
+			} else {
+				d3Chart.assert(false, "When reattaching a layer, the second argument "+
+					"must be a d3.chart layer");
+			}
 		}
 
 		layer = selection.layer(options);
