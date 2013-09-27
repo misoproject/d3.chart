@@ -1,6 +1,6 @@
 /*! d3.chart - v0.1.2
  *  License: MIT Expat
- *  Date: 2013-07-30
+ *  Date: 2013-09-27
  */
 (function(window, undefined) {
 
@@ -257,11 +257,11 @@ d3Chart.assert(typeof d3.version === "string" && d3.version.match(/^3/),
 
 	Chart.prototype.unlayer = function(name) {
 		var layer = this.layer(name);
-		var idx = this._layerList.indexOf(layer);
 
 		delete this._layers[name];
-		this._layerList.splice(idx, 1);
-		return this;
+		delete layer._chart;
+
+		return layer;
 	};
 
 	Chart.prototype.layer = function(name, selection, options) {
@@ -269,6 +269,21 @@ d3Chart.assert(typeof d3.version === "string" && d3.version.match(/^3/),
 
 		if (arguments.length === 1) {
 			return this._layers[name];
+		}
+
+		// we are reattaching a previous layer, which the
+		// selection argument is now set to.
+		if (arguments.length === 2) {
+
+			if (typeof selection.draw === "function") {
+				selection._chart = this;
+				this._layers[name] = selection;
+				return this._layers[name];
+			
+			} else {
+				d3Chart.assert(false, "When reattaching a layer, the second argument "+
+					"must be a d3.chart layer");
+			}
 		}
 
 		layer = selection.layer(options);
