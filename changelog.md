@@ -1,5 +1,10 @@
 # d3.chart change log
 
+### 0.1.3 (10.07.2013)
+
+- Fix bug in Chart#unlayer
+- Extend Chart#layer to accept existing layers
+
 ### 0.1.2 (07.30.2013)
 
 - Implement support for Internet Explorer
