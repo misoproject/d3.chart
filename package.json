@@ -4,7 +4,7 @@
   "description": "A framework for creating reusable charts with D3.js",
   "repository": {
     "type": "git",
-    "url": "git://github.com/jugglinmike/d3-experiments.git"
+    "url": "git://github.com/misoproject/d3.chart.git"
   },
   "keywords": [
     "d3.js",
