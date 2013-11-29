@@ -3,9 +3,7 @@
 	<head>
 		<meta charset="utf-8">
 		<meta http-equiv="X-UA-Compatible" content="IE=Edge">
-		<!--[if lt IE 9]>
 		<script src="lib/aight.js"></script>
-		<![endif]-->
 		<script src="lib/mocha.js"></script>
 		<script src="lib/assert.js"></script>
 		<script src="lib/sinon.js"></script>
@@ -28,7 +26,9 @@
 		<div id="mocha"></div>
 		<div id="test"></div>
 		<script>
-			mocha.run();
+			if (navigator.userAgent.indexOf('PhantomJS') === -1) {
+				mocha.run();
+			}
 		</script>
 	</body>
 </html>

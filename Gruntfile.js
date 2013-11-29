@@ -56,6 +56,12 @@ module.exports = function(grunt) {
         }
       }
     },
+    mocha: {
+      options: {
+        run: true
+      },
+      src: ["test/index.html"]
+    },
     concat: {
       options: {
         banner: "/*! <%= meta.pkg.name %> - v<%= meta.pkg.version %>\n" +
@@ -86,7 +92,9 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks("grunt-contrib-concat");
   grunt.loadNpmTasks("grunt-contrib-uglify");
   grunt.loadNpmTasks("grunt-contrib-watch");
+  grunt.loadNpmTasks("grunt-mocha");
 
-  grunt.registerTask("default", ["jshint"]);
+  grunt.registerTask("test", ["mocha"]);
+  grunt.registerTask("default", ["jshint", "test"]);
   grunt.registerTask("release", ["default", "concat", "uglify"]);
 };
