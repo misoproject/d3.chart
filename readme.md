@@ -2,6 +2,8 @@
 
 A framework for creating reusable charts with [D3.js](http://d3js.org).
 
+[![Build Status](https://travis-ci.org/misoproject/d3.chart.png)](https://travis-ci.org/misoproject/d3.chart)
+
 To get started you can:
 
 * Read about reusability in d3 [here](http://weblog.bocoup.com/reusability-with-d3/)

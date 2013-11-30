@@ -25,6 +25,7 @@
     "grunt-contrib-uglify": "~0.1.1",
     "grunt-contrib-jshint": "~0.1.1",
     "grunt-contrib-watch": "~0.3.1",
-    "grunt-mocha": "~0.4.6"
+    "grunt-mocha": "~0.4.6",
+    "grunt-cli": "~0.1.11"
   }
 }
