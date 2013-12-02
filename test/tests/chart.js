@@ -271,6 +271,15 @@ suite("d3.chart", function() {
 					context.chart.trigger("non_existing_event", 12);
 				}, Error);
 			});
+			test("returns the chart instance (chains)", function() {
+				assert.equal(this.chart.trigger("e1"), this.chart);
+			});
+		});
+
+		suite("#on", function () {
+			test("returns the chart instance (chains)", function() {
+				assert.equal(this.chart.on("e1"), this.chart);
+			});
 		});
 
 		suite("#once", function() {
@@ -285,6 +294,9 @@ suite("d3.chart", function() {
 				assert.equal(this.e1callback.callCount, 2);
 				assert.equal(this.e1callback2.callCount, 2);
 				assert.equal(e1oncecallback.callCount, 1);
+			});
+			test("returns the chart instance (chains)", function() {
+				assert.equal(this.chart.once("e1"), this.chart);
 			});
 		});
 
@@ -353,6 +365,9 @@ suite("d3.chart", function() {
 				assert.equal(this.e1callback.callCount, 1);
 				assert.equal(this.e1callback2.callCount, 1);
 				assert.equal(e1callback3.callCount, 1);
+			});
+			test("returns the chart instance (chains)", function() {
+				assert.equal(this.chart.off("e1"), this.chart);
 			});
 		});
 	});

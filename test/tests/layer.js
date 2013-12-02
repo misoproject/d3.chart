@@ -435,4 +435,20 @@ suite("d3.layer", function() {
 			});
 		});
 	});
+	suite("events", function () {
+		setup(function () {
+			var base = this.base = d3.select("#test");
+			this.layer = new base.layer({});
+		});
+		suite("#on", function () {
+			test("returns the layer instance (chains)", function() {
+				assert.equal(this.layer.on("e1"), this.layer);
+			});
+		});
+		suite("#off", function () {
+			test("returns the layer instance (chains)", function() {
+				assert.equal(this.layer.off("e1"), this.layer);
+			});
+		});
+	});
 });
