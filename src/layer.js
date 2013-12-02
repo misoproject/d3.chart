@@ -32,6 +32,7 @@
 			callback: handler,
 			chart: options.chart || null
 		});
+		return this._base;
 	};
 
 	// off
@@ -43,12 +44,12 @@
 		var idx;
 
 		if (!handlers) {
-			return;
+			return this._base;
 		}
 
 		if (arguments.length === 1) {
 			handlers.length = 0;
-			return;
+			return this._base;
 		}
 
 		for (idx = handlers.length - 1; idx > -1; --idx) {
@@ -56,6 +57,7 @@
 				handlers.splice(idx, 1);
 			}
 		}
+		return this._base;
 	};
 
 	// draw
