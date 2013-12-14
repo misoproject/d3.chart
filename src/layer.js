@@ -1,23 +1,52 @@
 "use strict";
 
+/**
+ * Create a layer using the provided `base`. The layer instance is *not*
+ * exposed to d3.chart users. Instead, its instance methods are mixed in to the
+ * `base` selection it describes; users interact with the instance via these
+ * bound methods.
+ *
+ * @private
+ * @constructor
+ *
+ * @param {d3.selection} base The containing DOM node for the layer.
+ */
 var Layer = function(base) {
 	d3cAssert(base, "Layers must be initialized with a base.");
 	this._base = base;
 	this._handlers = {};
 };
 
-// dataBind
+/**
+ * Invoked by {@link Layer#draw} to join data with this layer's DOM nodes. This
+ * implementation is "virtual"--it *must* be overridden by Layer instances.
+ *
+ * @param {Array} data Value passed to {@link Layer#draw}
+ */
 Layer.prototype.dataBind = function() {
 	d3cAssert(false, "Layers must specify a `dataBind` method.");
 };
 
-// insert
+/**
+ * Invoked by {@link Layer#draw} in order to insert new DOM nodes into this
+ * layer's `base`. This implementation is "virtual"--it *must* be overridden by
+ * Layer instances.
+ */
 Layer.prototype.insert = function() {
 	d3cAssert(false, "Layers must specify an `insert` method.");
 };
 
-// on
-// Attach the specified handler to the specified event type.
+/**
+ * Subscribe a handler to a "lifecycle event". These events (and only these
+ * events) are triggered when {@link Layer#draw} is invoked--see that method
+ * for more details on lifecycle events.
+ *
+ * @param {String} eventName Identifier for the lifecycle event for which to
+ *        subscribe.
+ * @param {Function} handler Callback function
+ *
+ * @returns {d3.selection} Reference to the layer's base.
+ */
 Layer.prototype.on = function(eventName, handler, options) {
 	options = options || {};
 	if (!(eventName in this._handlers)) {
@@ -30,9 +59,16 @@ Layer.prototype.on = function(eventName, handler, options) {
 	return this._base;
 };
 
-// off
-// Remove the specified handler. If no handler is supplied, remove *all*
-// handlers from the specified event type.
+/**
+ * Unsubscribe the specified handler from the specified event. If no handler is
+ * supplied, remove *all* handlers from the event.
+ *
+ * @param {String} eventName Identifier for event from which to remove
+ *        unsubscribe
+ * @param {Function} handler Callback to remove from the specified event
+ *
+ * @returns {d3.selection} Reference to the layer's base.
+ */
 Layer.prototype.off = function(eventName, handler) {
 
 	var handlers = this._handlers[eventName];
@@ -55,9 +91,21 @@ Layer.prototype.off = function(eventName, handler) {
 	return this._base;
 };
 
-// draw
-// Bind the data to the layer, make lifecycle selections, and invoke all
-// relevant handlers.
+/**
+ * Render the layer according to the input data: Bind the data to the layer
+ * (according to {@link Layer#dataBind}, insert new elements (according to
+ * {@link Layer#insert}, make lifecycle selections, and invoke all relevant
+ * handlers (as attached via {@link Layer#on}) with the lifecycle selections.
+ *
+ * - update
+ * - update:transition
+ * - enter
+ * - enter:transition
+ * - exit
+ * - exit:transition
+ *
+ * @param {Array} data Data to drive the rendering.
+ */
 Layer.prototype.draw = function(data) {
 	var bound, entering, events, selection, handlers, eventName, idx, len;
 
