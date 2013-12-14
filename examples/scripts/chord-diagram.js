@@ -1,5 +1,7 @@
 d3.chart("Chord", {
 
+  dataAttrs: [0, 1, 2, 3],
+
   initialize: function(options) {
 
     options = options || {};

@@ -1,5 +1,7 @@
 d3.chart("BarChart", {
 
+  dataAttrs: ['value', 'time'],
+
   initialize: function(options) {
 
     options = options || {};
@@ -83,7 +85,6 @@ d3.chart("BarChart", {
   },
 
   transform: function(data) {
-    data = data.data;
     this.x.domain([0, data.length]);
     return data;
   }
