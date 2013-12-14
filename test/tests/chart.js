@@ -89,26 +89,66 @@ suite("d3.chart", function() {
 		});
 	});
 
-	suite("#mixin", function() {
+	suite("Mixins", function() {
 		setup(function() {
 			d3.chart("test", {});
 			this.myChart = d3.select("#test").chart("test");
 			var mixinChart = this.mixinChart = d3.select("body").chart("test");
 			sinon.spy(mixinChart, "draw");
 		});
-		test("returns the requested mixin", function() {
-			this.myChart.mixin("myMixin", this.mixinChart);
+		suite("#mixin", function() {
+			test("returns the requested mixin", function() {
+				this.myChart.mixin("myMixin", this.mixinChart);
 
-			assert.equal(this.myChart.mixin("myMixin"), this.mixinChart);
+				assert.equal(this.myChart.mixin("myMixin"), this.mixinChart);
+			});
+			test("connects the specified chart", function() {
+				var data = [23, 45];
+				this.myChart.mixin("myMixin", this.mixinChart);
+				this.myChart.draw(data);
+
+				assert.equal(this.mixinChart.draw.callCount, 1);
+				assert.equal(this.mixinChart.draw.args[0].length, 1);
+				assert.deepEqual(this.mixinChart.draw.args[0][0], data);
+			});
 		});
-		test("connects the specified chart", function() {
-			var data = [23, 45];
-			this.myChart.mixin("myMixin", this.mixinChart);
-			this.myChart.draw(data);
 
-			assert.equal(this.mixinChart.draw.callCount, 1);
-			assert.equal(this.mixinChart.draw.args[0].length, 1);
-			assert.deepEqual(this.mixinChart.draw.args[0][0], data);
+		suite("#demux", function() {
+			var data = {
+				series1: [1, 2, 3],
+				series2: [4, 5, 6]
+			};
+			setup(function() {
+				this.mixinChart2 = d3.select("body").chart("test");
+				sinon.spy(this.mixinChart2, "draw");
+				this.myChart.mixin("mixin1", this.mixinChart);
+				this.myChart.mixin("mixin2", this.mixinChart2);
+			});
+			test("uses provided function to demultiplex data", function() {
+				this.myChart.demux = function(mixinName, data) {
+					if (mixinName === "mixin1") {
+						return data.series1;
+					}
+					return data;
+				};
+				this.myChart.draw(data);
+
+				assert.deepEqual(
+					this.mixinChart.draw.args,
+					[[[1, 2, 3]]],
+					"Demuxes data passed to charts with registered function"
+				);
+				assert.deepEqual(
+					this.mixinChart2.draw.args[0][0].series1,
+					data.series1,
+					"Unmodified data passes through to mixins directly"
+				);
+				assert.deepEqual(
+					this.mixinChart2.draw.args[0][0].series2,
+					data.series2,
+					"Unmodified data passes through to mixins directly"
+				);
+			});
 		});
 	});
 

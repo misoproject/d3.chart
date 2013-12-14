@@ -127,7 +127,7 @@ Chart.prototype.mixin = function(mixinName, chart) {
 
 Chart.prototype.draw = function(data) {
 
-	var layerName, mixinName;
+	var layerName, mixinName, mixinData;
 
 	data = transformCascade.call(this, this, data);
 
@@ -136,7 +136,12 @@ Chart.prototype.draw = function(data) {
 	}
 
 	for (mixinName in this._mixins) {
-		this._mixins[mixinName].draw(data);
+		if (this.demux) {
+			mixinData = this.demux(mixinName, data);
+		} else {
+			mixinData = data;
+		}
+		this._mixins[mixinName].draw(mixinData);
 	}
 };
 
