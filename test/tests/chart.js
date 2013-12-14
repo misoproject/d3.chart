@@ -216,7 +216,7 @@ suite("d3.chart", function() {
 
 	suite("events", function() {
 		setup(function() {
-			var base = this.base = d3.select("#test");
+			this.base = d3.select("#test");
 			var chart = this.chart = this.base.chart("test");
 
 			var e1callback = this.e1callback = sinon.spy(function() {
