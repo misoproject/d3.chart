@@ -92,33 +92,29 @@ suite("d3.chart", function() {
 	suite("#mixin", function() {
 		setup(function() {
 			d3.chart("test", {});
-			d3.chart("test2", {
-				initialize: sinon.spy()
-			});
 			this.myChart = d3.select("#test").chart("test");
+			var mixinChart = this.mixinChart = d3.select("body").chart("test");
+			sinon.spy(mixinChart, "draw");
 		});
-		test("instantiates the specified chart", function() {
-			var mixin = this.myChart.mixin("test2", d3.select("body"));
-			assert(mixin instanceof d3.chart("test2"));
+		test("returns the requested mixin", function() {
+			this.myChart.mixin("myMixin", this.mixinChart);
+
+			assert.equal(this.myChart.mixin("myMixin"), this.mixinChart);
 		});
-		test("instantiates with the correct arguments", function() {
-			var options = {};
-			var mixin = this.myChart.mixin("test2", d3.select("body"), options);
-			assert.equal(mixin.initialize.callCount, 1);
-			assert.equal(mixin.initialize.args[0].length, 1);
-			assert.strictEqual(mixin.initialize.args[0][0], options);
-		});
-		test("correctly sets the `base` attribute of the mixin", function() {
-			var mixinBase = d3.select("body");
-			var mixin = this.myChart.mixin("test2", mixinBase);
-			assert.equal(mixin.base, mixinBase);
+		test("connects the specified chart", function() {
+			var data = [23, 45];
+			this.myChart.mixin("myMixin", this.mixinChart);
+			this.myChart.draw(data);
+
+			assert.equal(this.mixinChart.draw.callCount, 1);
+			assert.equal(this.mixinChart.draw.args[0].length, 1);
+			assert.deepEqual(this.mixinChart.draw.args[0][0], data);
 		});
 	});
 
 	suite("#draw", function() {
 		setup(function() {
-			var layer1, layer2, mixin1, mixin2, transform, transformedData,
-				myChart;
+			var layer1, layer2, transform, transformedData, myChart;
 			this.transformedData = transformedData = {};
 			this.transform = transform = sinon.stub().returns(transformedData);
 			d3.chart("test", {});
@@ -136,10 +132,12 @@ suite("d3.chart", function() {
 			});
 			sinon.spy(layer2, "draw");
 
-			this.mixin1 = mixin1 = myChart.mixin("test", d3.select("#test"));
-			this.mixin2 = mixin2 = myChart.mixin("test", d3.select("#test"));
-			sinon.stub(mixin1, "draw");
-			sinon.stub(mixin2, "draw");
+			this.mixin1 = d3.select("#test").chart("test");
+			this.mixin2 = d3.select("#test").chart("test");
+			myChart.mixin("test1", this.mixin1);
+			myChart.mixin("test2", this.mixin2);
+			sinon.stub(this.mixin1, "draw");
+			sinon.stub(this.mixin2, "draw");
 		});
 		test("invokes the transform method once with the specified data", function() {
 			var data = {};
