@@ -69,7 +69,7 @@ var Chart = function(selection, chartOptions) {
 	this.base = selection;
 	this._dataMapping = chartOptions && chartOptions.dataMapping;
 	this._layers = {};
-	this._mixins = [];
+	this._mixins = {};
 	this._events = {};
 
 	initCascade.call(this, this, Array.prototype.slice.call(arguments, 1));
@@ -127,17 +127,18 @@ Chart.prototype.layer = function(name, selection, options) {
 
 Chart.prototype.initialize = function() {};
 
-Chart.prototype.mixin = function(chartName, selection, options) {
-	var Ctor = Chart[chartName];
-	var chart = new Ctor(selection, options);
+Chart.prototype.mixin = function(mixinName, chart) {
+	if (arguments.length === 1) {
+		return this._mixins[mixinName];
+	}
 
-	this._mixins.push(chart);
+	this._mixins[mixinName] = chart;
 	return chart;
 };
 
 Chart.prototype.draw = function(data) {
 
-	var layerName, idx, len;
+	var layerName, mixinName;
 
 	if (this._dataMapping !== false && data) {
 		data = this._datamap.wrap(data);
@@ -149,8 +150,8 @@ Chart.prototype.draw = function(data) {
 		this._layers[layerName].draw(data);
 	}
 
-	for (idx = 0, len = this._mixins.length; idx < len; idx++) {
-		this._mixins[idx].draw(data);
+	for (mixinName in this._mixins) {
+		this._mixins[mixinName].draw(data);
 	}
 };
 
