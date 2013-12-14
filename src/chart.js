@@ -64,14 +64,25 @@ var transformCascade = function(instance, data) {
 	return data;
 };
 
-var Chart = function(selection) {
+var Chart = function(selection, chartOptions) {
 
 	this.base = selection;
+	this._dataMapping = chartOptions && chartOptions.dataMapping;
 	this._layers = {};
 	this._mixins = [];
 	this._events = {};
 
 	initCascade.call(this, this, Array.prototype.slice.call(arguments, 1));
+
+	// Skip data mapping initialization logic if the chart has explicitly
+	// opted out of that functionality (generally for performance reasons)
+	if (this._dataMapping !== false) {
+		this._datamap = new DataMap(this.dataAttrs);
+		if (this._dataMapping) {
+			this._datamap.map(this._dataMapping);
+		}
+	}
+
 };
 
 Chart.prototype.unlayer = function(name) {
@@ -129,6 +140,10 @@ Chart.prototype.mixin = function(chartName, selection) {
 Chart.prototype.draw = function(data) {
 
 	var layerName, idx, len;
+
+	if (this._dataMapping !== false && data) {
+		data = this._datamap.wrap(data);
+	}
 
 	data = transformCascade.call(this, this, data);
 
@@ -216,7 +231,7 @@ Chart.prototype.trigger = function(name) {
 
 Chart.extend = function(name, protoProps, staticProps) {
 	var parent = this;
-	var child;
+	var child, dataAttrs;
 
 	// The constructor function for the new subclass is either defined by
 	// you (the "constructor" property in your `extend` definition), or
@@ -243,6 +258,17 @@ Chart.extend = function(name, protoProps, staticProps) {
 	// Set a convenience property in case the parent's prototype is needed
 	// later.
 	child.__super__ = parent.prototype;
+
+	// Inherit chart data attributes. This allows charts that derive from
+	// other charts to use the same attributes for data without
+	// compromising their ability to add additional attributes.
+	if (hasOwnProp.call(child.prototype, "dataAttrs")) {
+		dataAttrs = child.prototype.dataAttrs;
+	} else {
+		dataAttrs = [];
+	}
+	dataAttrs = dataAttrs.concat(parent.prototype.dataAttrs);
+	child.prototype.dataAttrs = dataAttrs;
 
 	Chart[name] = child;
 	return child;
