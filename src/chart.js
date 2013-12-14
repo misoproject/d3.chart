@@ -64,14 +64,14 @@ var transformCascade = function(instance, data) {
 	return data;
 };
 
-var Chart = function(selection) {
+var Chart = function(selection, chartOptions) {
 
 	this.base = selection;
 	this._layers = {};
 	this._mixins = [];
 	this._events = {};
 
-	initCascade.call(this, this, Array.prototype.slice.call(arguments, 1));
+	initCascade.call(this, this, [chartOptions]);
 };
 
 Chart.prototype.unlayer = function(name) {
@@ -116,10 +116,9 @@ Chart.prototype.layer = function(name, selection, options) {
 
 Chart.prototype.initialize = function() {};
 
-Chart.prototype.mixin = function(chartName) {
-	var args = Array.prototype.slice.call(arguments, 1);
-	var ctor = Chart[chartName];
-	var chart = variadicNew(ctor, args);
+Chart.prototype.mixin = function(chartName, selection, options) {
+	var Ctor = Chart[chartName];
+	var chart = new Ctor(selection, options);
 
 	this._mixins.push(chart);
 	return chart;

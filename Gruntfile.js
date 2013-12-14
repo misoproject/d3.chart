@@ -36,8 +36,7 @@ module.exports = function(grunt) {
             d3: true,
             d3cAssert: true,
             Layer: true,
-            Chart: true,
-            variadicNew: true
+            Chart: true
           }
         },
         files: {
