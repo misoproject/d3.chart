@@ -46,10 +46,13 @@ suite("d3.chart", function() {
 
 				assert.equal(instance, this.init1.thisValues[0]);
 			});
-			test("immediately invoked with the specified arguments", function() {
-				d3.select("#test").chart("test", 1, 2, 3);
+			test("immediately invoked with the specified options", function() {
+				var options = {};
+				d3.select("#test").chart("test", options);
 
-				assert.deepEqual(this.init1.args[0], [1, 2, 3]);
+				assert.equal(this.init1.callCount, 1);
+				assert.equal(this.init1.args[0].length, 1);
+				assert.strictEqual(this.init1.args[0][0], options);
 			});
 			test("recursively invokes parent `initialize` methods (from the topmost, down)", function() {
 				d3.select("#test").chart("test3");
@@ -95,12 +98,15 @@ suite("d3.chart", function() {
 			this.myChart = d3.select("#test").chart("test");
 		});
 		test("instantiates the specified chart", function() {
-			var mixin = this.myChart.mixin("test2", d3.select("body"), 1, 2, 45);
+			var mixin = this.myChart.mixin("test2", d3.select("body"));
 			assert(mixin instanceof d3.chart("test2"));
 		});
 		test("instantiates with the correct arguments", function() {
-			var mixin = this.myChart.mixin("test2", d3.select("body"), 1, 2, 45);
-			assert.deepEqual(mixin.initialize.args[0], [1, 2, 45]);
+			var options = {};
+			var mixin = this.myChart.mixin("test2", d3.select("body"), options);
+			assert.equal(mixin.initialize.callCount, 1);
+			assert.equal(mixin.initialize.args[0].length, 1);
+			assert.strictEqual(mixin.initialize.args[0][0], options);
 		});
 		test("correctly sets the `base` attribute of the mixin", function() {
 			var mixinBase = d3.select("body");

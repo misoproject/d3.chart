@@ -40,8 +40,7 @@ module.exports = function(grunt) {
             d3cAssert: true,
             Layer: true,
             Chart: true,
-            DataMap: true,
-            variadicNew: true
+            DataMap: true
           }
         },
         files: {

@@ -127,11 +127,9 @@ Chart.prototype.layer = function(name, selection, options) {
 
 Chart.prototype.initialize = function() {};
 
-Chart.prototype.mixin = function(chartName, selection) {
-	var args = Array.prototype.slice.call(arguments, 2);
-	args.unshift(selection);
-	var ctor = Chart[chartName];
-	var chart = variadicNew(ctor, args);
+Chart.prototype.mixin = function(chartName, selection, options) {
+	var Ctor = Chart[chartName];
+	var chart = new Ctor(selection, options);
 
 	this._mixins.push(chart);
 	return chart;
