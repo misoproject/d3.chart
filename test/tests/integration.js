@@ -26,7 +26,7 @@ suite("integration", function() {
 				return this.data([]);
 			});
 			this.insert = sinon.spy(function() {
-				return this.append('g');
+				return this.append("g");
 			});
 
 			this.layer = this.myChart.layer("layer1", this.myChart.base.append("g"), {

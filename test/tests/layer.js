@@ -24,7 +24,7 @@ suite("d3.layer", function() {
 		});
 	});
 
-	suite('#draw', function() {
+	suite("#draw", function() {
 		setup(function() {
 			var dataBind = this.dataBind = sinon.spy(function(data) {
 				var updating = this.data(data, function(d) { return d; });

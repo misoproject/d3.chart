@@ -21,7 +21,9 @@ module.exports = function(grunt) {
       options: {
         curly: true,
         unused: true,
-        undef: true
+        undef: true,
+        quotmark: "double",
+        trailing: false
       },
       chart: {
         options: {
