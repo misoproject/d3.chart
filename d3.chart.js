@@ -1,6 +1,6 @@
 /*! d3.chart - v0.1.3
  *  License: MIT Expat
- *  Date: 2013-10-07
+ *  Date: 2013-11-23
  */
 (function(window, undefined) {
 
@@ -315,14 +315,17 @@ d3Chart.assert(typeof d3.version === "string" && d3.version.match(/^3/),
 
 		var layerName, idx, len;
 
-		data = this.transform(data);
+		if (typeof this._data === 'undefined' || this._data !== data) {
+			this._data = data;
+			this._transformedData = this.transform(data);
+		}
 
 		for (layerName in this._layers) {
-			this._layers[layerName].draw(data);
+			this._layers[layerName].draw(this._transformedData);
 		}
 
 		for (idx = 0, len = this._mixins.length; idx < len; idx++) {
-			this._mixins[idx].draw(data);
+			this._mixins[idx].draw(this._transformedData);
 		}
 	};
 
