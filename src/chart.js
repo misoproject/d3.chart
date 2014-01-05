@@ -99,7 +99,7 @@ var Chart = function(selection, chartOptions) {
 	this.base = selection;
 	this._dataMapping = chartOptions && chartOptions.dataMapping;
 	this._layers = {};
-	this._mixins = {};
+	this._attached = {};
 	this._events = {};
 
 	initCascade.call(this, this, Array.prototype.slice.call(arguments, 1));
@@ -200,36 +200,37 @@ Chart.prototype.layer = function(name, selection, options) {
 Chart.prototype.initialize = function() {};
 
 /**
- * Register or retrieve a "mixin" Chart. The "mixin" chart's `draw` method
- * will be invoked whenever the containing chart's `draw` method is invoked.
+ * Register or retrieve an "attachment" Chart. The "attachment" chart's `draw`
+ * method will be invoked whenever the containing chart's `draw` method is
+ * invoked.
  *
- * @param {String} mixinName Name of the mixin
+ * @param {String} attachmentName Name of the attachment
  * @param {Chart} [chart] d3.chart to register as a mix in of this chart. When
- *        unspecified, this method will return the mixin previously registered
- *        with the specified `mixinName` (if any).
+ *        unspecified, this method will return the attachment previously
+ *        registered with the specified `attachmentName` (if any).
  *
  * @returns {Chart} Reference to this chart (chainable).
  */
-Chart.prototype.mixin = function(mixinName, chart) {
+Chart.prototype.attach = function(attachmentName, chart) {
 	if (arguments.length === 1) {
-		return this._mixins[mixinName];
+		return this._attached[attachmentName];
 	}
 
-	this._mixins[mixinName] = chart;
+	this._attached[attachmentName] = chart;
 	return chart;
 };
 
 /**
  * Update the chart's representation in the DOM, drawing all of its layers and
- * any "mixin" charts (as attached via {@link Chart#mixin}).
+ * any "attachment" charts (as attached via {@link Chart#attach}).
  *
  * @param {Object} data Data to pass to the {@link Layer#draw|draw method} of
  *        this cart's {@link Layer|layers} (if any) and the {@link
- *        Chart#draw|draw method} of this chart's mixins (if any).
+ *        Chart#draw|draw method} of this chart's attachments (if any).
  */
 Chart.prototype.draw = function(data) {
 
-	var layerName, mixinName, mixinData;
+	var layerName, attachmentName, attachmentData;
 
 	if (this._dataMapping !== false && data) {
 		data = this._datamap.wrap(data);
@@ -241,13 +242,13 @@ Chart.prototype.draw = function(data) {
 		this._layers[layerName].draw(data);
 	}
 
-	for (mixinName in this._mixins) {
+	for (attachmentName in this._attached) {
 		if (this.demux) {
-			mixinData = this.demux(mixinName, data);
+			attachmentData = this.demux(attachmentName, data);
 		} else {
-			mixinData = data;
+			attachmentData = data;
 		}
-		this._mixins[mixinName].draw(mixinData);
+		this._attached[attachmentName].draw(attachmentData);
 	}
 };
 
