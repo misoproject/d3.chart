@@ -184,7 +184,7 @@ suite("d3.chart", function() {
 			sinon.stub(this.attachment2, "draw");
 		});
 		test("invokes the transform method once with the specified data", function() {
-			var data = {};
+			var data = [1, 2, 3];
 			assert.equal(this.transform.callCount, 0);
 
 			this.myChart.draw(data);
@@ -220,13 +220,13 @@ suite("d3.chart", function() {
 			assert.equal(this.layer1.draw.callCount, 0);
 			assert.equal(this.layer2.draw.callCount, 0);
 
-			this.myChart.draw();
+			this.myChart.draw([]);
 
 			assert.equal(this.layer1.draw.callCount, 1);
 			assert.equal(this.layer2.draw.callCount, 1);
 		});
 		test("invokes the `draw` method of each of its layers with the transformed data", function() {
-			this.myChart.draw({});
+			this.myChart.draw([]);
 
 			assert.equal(this.layer1.draw.args[0][0], this.transformedData);
 			assert.equal(this.layer2.draw.args[0][0], this.transformedData);

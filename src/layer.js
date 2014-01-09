@@ -168,6 +168,10 @@ Layer.prototype.draw = function(data) {
 			selection = selection();
 		}
 
+		if (selection.empty()) {
+			continue;
+		}
+
 		// Although `selection instanceof d3.selection` is more explicit,
 		// it fails in IE8, so we use duck typing to maintain
 		// compatability.

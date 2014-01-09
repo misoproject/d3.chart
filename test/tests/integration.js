@@ -22,8 +22,9 @@ suite("integration", function() {
 				"exit": sinon.spy(),
 				"exit:transition": sinon.spy()
 			};
-			this.dataBind = sinon.spy(function() {
-				return this.data([]);
+			this.dataBind = sinon.spy(function(data) {
+				return this.selectAll("g")
+					.data(data, function(d) { return d; });
 			});
 			this.insert = sinon.spy(function() {
 				return this.append("g");
@@ -36,7 +37,8 @@ suite("integration", function() {
 			});
 			sinon.spy(this.layer, "draw");
 
-			this.myChart.draw();
+			this.myChart.draw([1, 2]);
+			this.myChart.draw([2, 3]);
 		});
 
 		test("`dataBind` selection's `.chart` method returns a reference to the parent chart", function() {
