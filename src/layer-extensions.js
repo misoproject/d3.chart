@@ -1,5 +1,14 @@
 "use strict";
 
+/**
+ * Create a new layer on the d3 selection from which it is called.
+ *
+ * @static
+ *
+ * @param {Object} [options] Options to be forwarded to {@link Layer|the Layer
+ *        constructor}
+ * @returns {d3.selection}
+ */
 d3.selection.prototype.layer = function(options) {
 	var layer = new Layer(this);
 	var eventName;
