@@ -442,12 +442,12 @@ suite("d3.layer", function() {
 		});
 		suite("#on", function () {
 			test("returns the layer instance (chains)", function() {
-				assert.equal(this.layer.on("e1"), this.layer);
+				assert.equal(this.layer.on("enter"), this.layer);
 			});
 		});
 		suite("#off", function () {
 			test("returns the layer instance (chains)", function() {
-				assert.equal(this.layer.off("e1"), this.layer);
+				assert.equal(this.layer.off("enter"), this.layer);
 			});
 		});
 	});

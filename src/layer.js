@@ -1,5 +1,7 @@
 "use strict";
 
+var lifecycleRe = /^(enter|update|merge|exit)(:transition)?$/;
+
 /**
  * Create a layer using the provided `base`. The layer instance is *not*
  * exposed to d3.chart users. Instead, its instance methods are mixed in to the
@@ -49,6 +51,13 @@ Layer.prototype.insert = function() {
  */
 Layer.prototype.on = function(eventName, handler, options) {
 	options = options || {};
+
+	d3cAssert(
+		lifecycleRe.test(eventName),
+		"Unrecognized lifecycle event name specified to `Layer#on`: '" +
+		eventName + "'."
+	);
+
 	if (!(eventName in this._handlers)) {
 		this._handlers[eventName] = [];
 	}
@@ -73,6 +82,12 @@ Layer.prototype.off = function(eventName, handler) {
 
 	var handlers = this._handlers[eventName];
 	var idx;
+
+	d3cAssert(
+		lifecycleRe.test(eventName),
+		"Unrecognized lifecycle event name specified to `Layer#off`: '" +
+		eventName + "'."
+	);
 
 	if (!handlers) {
 		return this._base;
