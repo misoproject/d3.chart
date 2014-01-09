@@ -93,6 +93,18 @@ var Chart = function(selection, chartOptions) {
 };
 
 /**
+ * Set up a chart instance. This method is intended to be overridden by Charts
+ * authored with this library. It will be invoked with a single argument: the
+ * `options` value supplied to the {@link Chart|constructor}.
+ *
+ * For charts that are defined as extensions of other charts using
+ * `Chart.extend`, each chart's `initilize` method will be invoked starting
+ * with the "oldest" ancestor (see the private {@link initCascade} function for
+ * more details).
+ */
+Chart.prototype.initialize = function() {};
+
+/**
  * Remove a layer from the chart.
  *
  * @param {String} name The name of the layer to remove.
@@ -163,18 +175,6 @@ Chart.prototype.layer = function(name, selection, options) {
 
 	return layer;
 };
-
-/**
- * Set up a chart instance. This method is intended to be overridden by Charts
- * authored with this library. It will be invoked with a single argument: the
- * `options` value supplied to the {@link Chart|constructor}.
- *
- * For charts that are defined as extensions of other charts using
- * `Chart.extend`, each chart's `initilize` method will be invoked starting
- * with the "oldest" ancestor (see the private {@link initCascade} function for
- * more details).
- */
-Chart.prototype.initialize = function() {};
 
 /**
  * Register or retrieve an "attachment" Chart. The "attachment" chart's `draw`
