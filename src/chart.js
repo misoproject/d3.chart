@@ -105,9 +105,8 @@
 		return data;
 	};
 
-	Chart.prototype.mixin = function(chartName, selection) {
-		var args = Array.prototype.slice.call(arguments, 2);
-		args.unshift(selection);
+	Chart.prototype.mixin = function(chartName) {
+		var args = Array.prototype.slice.call(arguments, 1);
 		var ctor = Chart[chartName];
 		var chart = variadicNew(ctor, args);
 
