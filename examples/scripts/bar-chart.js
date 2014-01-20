@@ -83,7 +83,6 @@ d3.chart("BarChart", {
   },
 
   transform: function(data) {
-    data = data.data;
     this.x.domain([0, data.length]);
     return data;
   }
