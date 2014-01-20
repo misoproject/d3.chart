@@ -17,10 +17,10 @@
   var dataSrc = new DataSrc();
   var myBarChart = d3.select("body")
     .append("svg").chart("BarChart");
-  myBarChart.draw(dataSrc);
+  myBarChart.draw(dataSrc.data);
   setInterval(function() {
     dataSrc.fetch();
-    myBarChart.draw(dataSrc);
+    myBarChart.draw(dataSrc.data);
   }, 1500);
 
   var dataSrc2 = new DataSrc();
@@ -33,19 +33,19 @@
   };
   myCustomBarChart.layer("bars").on("enter:transition", fadeOut);
   myCustomBarChart.layer("bars").on("update:transition", fadeOut);
-  myCustomBarChart.draw(dataSrc2);
+  myCustomBarChart.draw(dataSrc2.data);
   setInterval(function() {
     dataSrc2.fetch();
-    myCustomBarChart.draw(dataSrc2);
+    myCustomBarChart.draw(dataSrc2.data);
   }, 1500);
 
   var dataSrc3 = new DataSrc();
   var myFadingBarChart = d3.select("body")
     .append("svg").chart("FadingBarChart");
-  myFadingBarChart.draw(dataSrc3);
+  myFadingBarChart.draw(dataSrc3.data);
   setInterval(function() {
     dataSrc3.fetch();
-    myFadingBarChart.draw(dataSrc3);
+    myFadingBarChart.draw(dataSrc3.data);
   }, 1500);
 
   var myChord = d3.select("body")
@@ -72,13 +72,13 @@
   var hybrid = d3.select("body")
     .append("svg").chart("Hybrid");
   hybrid.draw({
-    series1: dataSrc4,
+    series1: dataSrc4.data,
     series2: matrix
   });
   setInterval(function() {
     dataSrc4.fetch();
     hybrid.draw({
-      series1: dataSrc4,
+      series1: dataSrc4.data,
       series2: matrix
     });
   }, 1500);

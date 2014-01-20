@@ -1,5 +1,14 @@
 # d3.chart change log
 
+### 0.2.0 (02.21.2014)
+
+- Introduce more intuitive inheritance behavior for `Chart#transform`
+- Limit Chart constructors to a single "options" parameter
+- Implement `Chart#attach` as a different signature for `Chart#mixin`
+- Implement `Chart#demux`
+- Remove `Chart#mixin`
+- Honor `transform` option specified at Chart initialization time
+
 ### 0.1.3 (10.07.2013)
 
 - Fix bug in Chart#unlayer
