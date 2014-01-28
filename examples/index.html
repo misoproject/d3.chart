@@ -1,19 +1,123 @@
+
 <!DOCTYPE html>
 <html>
 	<head>
 		<meta charset="utf-8">
 		<title>D3.chart examples</title>
+		
+		<link rel="stylesheet" href="styles/index.css"></link>
+		<link rel="stylesheet" href="styles/misoBarChart.css"></link>
+
+		<script src="scripts/lodash.min.js"></script>
 		<script src="scripts/lib/d3.v3.js"></script>
 		<script src="../d3.chart.js"></script>
 		<script src="scripts/datasrc.js"></script>
+		<!--featured-->
+		<script src="scripts/misoBarChart.js"></script>
+		<script src="scripts/misoCircleChart.js"></script>
+		<!--experimental-->
+		<script src="scripts/bar-chart.js"></script>
 		<script src="scripts/bar-chart.js"></script>
 		<script src="scripts/fading-bar-chart.js"></script>
 		<script src="scripts/chord-diagram.js"></script>
 		<script src="scripts/improved-chord-diagram.js"></script>
 		<script src="scripts/hybrid.js"></script>
-		<link rel="stylesheet" href="styles/index.css"></link>
+
+		
 	</head>
 	<body>
+
+		<img src="images/logo.png" />
+		<p>Miso is an open source toolkit designed to expedite the creation of high-quality interactive storytelling and data visualisation content. <a href="http://misoproject.com/">Learn more.</a></p>
+
+		<h2>D3.Chart Examples</h2>
+
+		<h4>Featured</h4>
+		<ol>
+			<li><a href="#miso_bar_chart">Reusable Bar Chart</a></li>
+			<li><a href="#miso_circle_chart">Extending a Circle Chart</a></li>
+		</ol>
+
+		<h4>Experimental</h4>
+		<ol>
+			<li><a href="#bar_chart">Bar Chart</a></li>
+			<li><a href="#custom_bar_chart">Custom Bar Chart</a></li>
+			<li><a href="#fading_bar_chart">Fading Bar Chart</a></li>
+			<li><a href="#chord_diagram">Chord Diagram</a></li>
+			<li><a href="#custom_chord_diagram">Custom Chord Diagram</a></li>
+			<li><a href="#improved_chord_diagram">Improved Chord Diagram</a></li>
+			<li><a href="#hybrid_chart">Hybrid</a></li>
+			<li><a href="misoBarChart.html">Bar Chart (featured on misoproject.com)</a></li>
+			<li><a href="misoCircleChart.html">Circle Chart (featured on misoproject.com)</a></li>
+
+		</ol>
+
+		<p><strong>Featured</strong></p>
+
+		<a name="miso_bar_chart">1. Reusable Bar Chart</a>
+		<ul>
+		<li>description: In this example we create a basic circle chart and then extend it to add labels above the circles showing their exact value.</li>
+		<li>author: <a href="http://misoproject.com/">misoproject.com<a></li>
+		<li>site: <a href="http://misoproject.com/d3-chart/examples/basic.html">link</a></li>
+
+		</ul>
+	
+		<div id="misoBarChart"></div>
+
+		<hr />
+
+		<a name="miso_circle_chart">2. Extending a Circle Chart</a>
+		<ul>
+		<li>description: In this example we create a basic circle chart and then extend it to add labels above the circles showing their exact value.</li>
+		<li>author: <a href="http://misoproject.com/">misoproject.com<a></li>
+		<li>site: <a href="http://misoproject.com/d3-chart/examples/extending.html">link</a></li>
+
+		</ul>
+
+		<div id="misoCircleChart"></div>
+
+		<hr />
+
+		<p><strong>Experimental</strong></p>
+
+		<a name="bar_chart">1. Bar Chart</a>
+		<div id="barChart"></div>
+
+		<hr />
+
+		<a name="custom_bar_chart">2. Custom Bar Chart</a>
+		<div id="barChartCustom"></div>
+
+		<hr />
+
+		<a name="fading_bar_chart">3. Fading Bar Chart ( more modular code base )</a>
+		<div id="barChartFading"></div>
+
+		<hr />
+
+		<a name="chord_diagram">4. Chord Diagram</a>
+		<div id="chordDiagram"></div>
+
+		<hr />
+
+		<a name="custom_chord_diagram">5. Custom Chord Diagram</a>
+		<div id="chordDiagramCustom"></div>
+
+		<hr />
+
+		<a name="improved_chord_diagram">6. Improved Chord Diagrams</a>
+
+		<div id="chordDiagramImproved"></div>
+
+		<hr />
+
+		<a name="hybrid_chart">7. Hybrid</a>
+
+		<div id="hybrid"></div>
+
+		<hr />
+
 		<script src="scripts/app.js"></script>
+
 	</body>
 </html>
