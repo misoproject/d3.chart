@@ -14,8 +14,10 @@
     [ 1013,   990,  940, 6907]
   ];
 
+  // 1. Bar Chart
+
   var dataSrc = new DataSrc();
-  var myBarChart = d3.select("body")
+  var myBarChart = d3.select( document.getElementById("barChart") )
     .append("svg").chart("BarChart");
   myBarChart.draw(dataSrc);
   setInterval(function() {
@@ -23,8 +25,10 @@
     myBarChart.draw(dataSrc);
   }, 1500);
 
+  // 2. Custom Bar Chart
+
   var dataSrc2 = new DataSrc();
-  var myCustomBarChart = d3.select("body")
+  var myCustomBarChart = d3.select( document.getElementById("barChartCustom") )
     .append("svg").chart("BarChart");
   var fadeOut = function() {
     this.attr("opacity", function(d, i) {
@@ -39,8 +43,10 @@
     myCustomBarChart.draw(dataSrc2);
   }, 1500);
 
+  // 3. Fading Bar Chart
+
   var dataSrc3 = new DataSrc();
-  var myFadingBarChart = d3.select("body")
+  var myFadingBarChart = d3.select( document.getElementById("barChartFading") )
     .append("svg").chart("FadingBarChart");
   myFadingBarChart.draw(dataSrc3);
   setInterval(function() {
@@ -48,12 +54,16 @@
     myFadingBarChart.draw(dataSrc3);
   }, 1500);
 
-  var myChord = d3.select("body")
+  // 4. Chord Diagram
+
+  var myChord = d3.select( document.getElementById("chordDiagram") )
     .append("svg").chart("Chord");
   myChord.draw(matrix);
 
+  // 5. Custom Chord Diagram
+
   var colors = ["#000000", "#FFDD89", "#957244", "#F26224"];
-  var myCustomChord = d3.select("body")
+  var myCustomChord = d3.select( document.getElementById("chordDiagramCustom") )
     .append("svg").chart("Chord");
   myCustomChord.layer("ticks").on("enter", function() {
     this.each(function(data, idx, group) {
@@ -64,12 +74,16 @@
   });
   myCustomChord.draw(matrix);
 
-  var myImprovedChord = d3.select("body")
+  // 6. Improved Chord Diagram
+
+  var myImprovedChord = d3.select( document.getElementById("chordDiagramImproved") )
     .append("svg").chart("ImprovedChord");
   myImprovedChord.draw(matrix);
 
+  // 7. Hybrid
+
   var dataSrc4 = new DataSrc();
-  var hybrid = d3.select("body")
+  var hybrid = d3.select( document.getElementById("hybrid") )
     .append("svg").chart("Hybrid");
   hybrid.draw({
     series1: dataSrc4,
