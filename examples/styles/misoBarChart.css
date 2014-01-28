@@ -1,0 +1,28 @@
+<style>
+  
+  text {
+    font-size: 10px;
+    font-family: Helvetica, Arial, sans-serif;
+  }
+
+  .Barchart .label {
+    font-size: 10px;
+    font-family: Helvetica, Arial, sans-serif;
+  }
+  .Barchart .ylabels .tick line {
+    fill: none;
+    stroke: #222;
+    stroke-width: 1px;
+    shape-rendering: crispEdges;
+    font-size: 10px;
+  }
+  .Barchart path.domain {
+    fill: none;
+    stroke: #222;
+    stroke-width: 1px;
+    shape-rendering: crispEdges;
+  }
+  .Barchart .bars rect.bar {
+    fill: #97E8A2;
+  }
+</style>
