@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>D3.chart examples</title>
+		<script src="scripts/lib/d3.v3.js"></script>
+		<script src="../d3.chart.js"></script>
+		<script src="scripts/datasrc.js"></script>
+		<script src="scripts/bar-chart.js"></script>
+		<link rel="stylesheet" href="styles/index.css"></link>
+		<link rel="stylesheet" href="styles/misoBarChart.css"></link>
+
+	</head>
+	<body>
+		<div id="output"></div>
+
+		<script src="scripts/misoBarChart.js"></script>
+		<script>
+			var barchart = d3.select(output)
+			  .append('svg')
+			  .attr('height', 300)
+			  .attr('width', 800)
+			  .chart('MisoBarChart');
+			 
+			barchart.draw([
+			  { name : 'January', value : 29 },
+			  { name : 'February', value : 32 },
+			  { name : 'March', value : 48 },
+			  { name : 'April', value : 49 },
+			  { name : 'May', value : 58 },
+			  { name : 'June', value : 68 },
+			  { name : 'July', value : 74 },
+			  { name : 'August', value : 73 },
+			  { name : 'September', value : 65 },
+			  { name : 'October', value : 54 },
+			  { name : 'November', value : 45 },
+			  { name : 'December', value : 35 }
+			]);
+		</script>
+	</body>
+</html>
