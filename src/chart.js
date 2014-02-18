@@ -89,6 +89,10 @@ var Chart = function(selection, chartOptions) {
 	this._attached = {};
 	this._events = {};
 
+	if (chartOptions && chartOptions.transform) {
+		this.transform = chartOptions.transform;
+	}
+
 	initCascade.call(this, this, [chartOptions]);
 };
 

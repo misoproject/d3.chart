@@ -25,6 +25,17 @@ suite("d3.chart", function() {
 
 			assert.equal(myChart.base, selection);
 		});
+		test("sets the `transform` method as specified to the constructor", function() {
+			var transform = function() {};
+			var myChart;
+			d3.chart("test", {});
+
+			myChart = d3.select("#test").chart("test", {
+				transform: transform
+			});
+
+			assert.equal(myChart.transform, transform);
+		});
 
 		suite("`initialize` method invocation", function() {
 			setup(function() {
