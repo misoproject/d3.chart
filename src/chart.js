@@ -76,9 +76,21 @@ var transformCascade = function(instance, data) {
  * @param {d3.selection} selection The chart's "base" DOM node. This should
  *        contain any nodes that the chart generates.
  * @param {mixed} chartOptions A value for controlling how the chart should be
- *        created. This value will be forwarded to {@link Chart#initialize}, so
- *        charts may define additional properties for consumers to modify their
- *        behavior during initialization.
+ *        created. If this is an object literal, d3.chart will respond to the
+ *        following attributes:
+ *
+ *        - {object} dataMapping A lookup table describing how the chart's
+ *          data attributes should be translated. For example, if the chart
+ *          defines `dataAttrs` as `["time", "space"]`, consumers can "map"
+ *          those attribute names to match the shape of their data:
+ *          {
+ *            time: function() { return this.tiempo; },
+ *            space: function() { return this.espacio; }
+ *          }
+ *
+ *        The `chartOptions` value will be forwarded to {@link
+ *        Chart#initialize}, so charts may define additional properties for
+ *        consumers to modify their behavior during initialization.
  *
  * @constructor
  */
@@ -89,11 +101,21 @@ var Chart = function(selection, chartOptions) {
 	this._attached = {};
 	this._events = {};
 
-	if (chartOptions && chartOptions.transform) {
+	if (chartOptions) {
+		this._dataMapping = chartOptions.dataMapping;
 		this.transform = chartOptions.transform;
 	}
 
 	initCascade.call(this, this, [chartOptions]);
+
+	// Skip data mapping initialization logic if the chart has explicitly
+	// opted out of that functionality (generally for performance reasons)
+	if (this._dataMapping !== false) {
+		this._datamap = new DataMap(this.dataAttrs);
+		if (this._dataMapping) {
+			this._datamap.map(this._dataMapping);
+		}
+	}
 };
 
 /**
@@ -212,6 +234,10 @@ Chart.prototype.attach = function(attachmentName, chart) {
 Chart.prototype.draw = function(data) {
 
 	var layerName, attachmentName, attachmentData;
+
+	if (this._dataMapping !== false && data) {
+		data = this._datamap.wrap(data);
+	}
 
 	data = transformCascade.call(this, this, data);
 
@@ -372,6 +398,11 @@ Chart.prototype.trigger = function(name) {
  *
  * @param {String} name Identifier for the new Chart constructor.
  * @param {Object} protoProps Properties to set on the new chart's prototype.
+ *        d3.chart reserves the following properties:
+ *
+ *        - {Array} dataAttrs A list of strings describing the attributes that
+ *          the chart requires.
+ *
  * @param {Object} staticProps Properties to set on the chart constructor
  *        itself.
  *
@@ -379,7 +410,7 @@ Chart.prototype.trigger = function(name) {
  */
 Chart.extend = function(name, protoProps, staticProps) {
 	var parent = this;
-	var child;
+	var child, dataAttrs;
 
 	// The constructor function for the new subclass is either defined by
 	// you (the "constructor" property in your `extend` definition), or
@@ -406,6 +437,17 @@ Chart.extend = function(name, protoProps, staticProps) {
 	// Set a convenience property in case the parent's prototype is needed
 	// later.
 	child.__super__ = parent.prototype;
+
+	// Inherit chart data attributes. This allows charts that derive from
+	// other charts to use the same attributes for data without
+	// compromising their ability to add additional attributes.
+	if (hasOwnProp.call(child.prototype, "dataAttrs")) {
+		dataAttrs = child.prototype.dataAttrs;
+	} else {
+		dataAttrs = [];
+	}
+	dataAttrs = dataAttrs.concat(parent.prototype.dataAttrs);
+	child.prototype.dataAttrs = dataAttrs;
 
 	Chart[name] = child;
 	return child;

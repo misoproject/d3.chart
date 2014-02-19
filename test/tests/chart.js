@@ -102,7 +102,9 @@ suite("d3.chart", function() {
 
 	suite("Attachments", function() {
 		setup(function() {
-			d3.chart("test", {});
+			d3.chart("test", {
+				dataAttrs: ["series1", "series2"]
+			});
 			this.myChart = d3.select("#test").chart("test");
 			var attachmentChart = this.attachmentChart =
 				d3.select("body").chart("test");
@@ -194,14 +196,164 @@ suite("d3.chart", function() {
 			sinon.stub(this.attachment1, "draw");
 			sinon.stub(this.attachment2, "draw");
 		});
+
+		suite("data accessors", function() {
+			suiteSetup(function() {
+				d3.chart("DataAttrTestChart", {
+					dataAttrs: ["attr1", "attr2", "attr3"]
+				});
+				this.myChart.transform = this.transform;
+			});
+
+			suite("attribute name declaration", function() {
+				test("attribute names declared in chart constructor are accessible", function(done) {
+					var chart = d3.select("#test").chart("DataAttrTestChart");
+					chart.transform = function(wrappedData) {
+						assert.ok(wrappedData[0].attr1);
+						assert.ok(wrappedData[0].attr2);
+						assert.ok(wrappedData[0].attr3);
+
+						done();
+					};
+					chart.draw([{ attr1: 1, attr2: 2, attr3: 3 }]);
+				});
+
+				test("attribute names not declared in chart constructor are inaccessible", function(done) {
+					var chart = d3.select("#test").chart("DataAttrTestChart");
+
+					chart.transform = function(wrappedData) {
+						assert.equal(wrappedData[0].attr4, undefined);
+
+						done();
+					};
+
+					chart.draw([{ attr4: 23 }]);
+				});
+
+				suite("name inheritance", function() {
+
+					test("names are properly inherited", function(done) {
+						d3.chart("DataAttrTestChart")
+							.extend("ExtendedDataAttrTestChart", {
+								dataAttrs: ["attr4"]
+							});
+
+						var chart = d3.select("#test")
+							.chart("ExtendedDataAttrTestChart");
+						chart.transform = function(wrappedData) {
+							assert.ok(wrappedData[0].attr1);
+							assert.ok(wrappedData[0].attr2);
+							assert.ok(wrappedData[0].attr3);
+							assert.ok(wrappedData[0].attr4);
+
+							done();
+						};
+
+						chart.draw([
+							{ attr1: 1, attr2: 2, attr3: 3, attr4: 4 }
+						]);
+					});
+
+					test("names are inherited from parent charts", function(done) {
+						d3.chart("DataAttrTestChart")
+							.extend("ExtendedDataAttrTestChart", {});
+
+						var chart = d3.select("#test")
+							.chart("ExtendedDataAttrTestChart");
+						chart.transform = function(wrappedData) {
+							assert.ok(wrappedData[0].attr1);
+							assert.ok(wrappedData[0].attr2);
+							assert.ok(wrappedData[0].attr3);
+
+							done();
+						};
+
+						chart.draw([{ attr1: 1, attr2: 2, attr3: 3 }]);
+					});
+				});
+
+				test("opting out with `dataMapping: false`", function(done) {
+					var chart = d3.select("#test").chart("DataAttrTestChart", {
+						dataMapping: false
+					});
+
+					chart.transform = function(data) {
+						assert.ok(data[0].attr4);
+						done();
+					};
+
+					chart.draw([{ attr4: true }]);
+				});
+
+			});
+
+			suite("mapping", function() {
+				test("primitive data points pass through unmodified", function(done) {
+					d3.chart("SimpleDataAttrTestChart", {});
+					var chart = d3.select("#test")
+						.chart("SimpleDataAttrTestChart");
+					var obj = {};
+					var data = [1, "a string", false, obj];
+					chart.transform = function(data) {
+						assert.equal(data[0], 1);
+						assert.equal(data[1], "a string");
+						assert.equal(data[2], false);
+						assert.notEqual(data[3], obj);
+
+						done();
+					};
+
+					chart.draw(data);
+				});
+
+				test("default accessors dereference data with specified attribute names", function(done) {
+					var chart = d3.select("#test").chart("DataAttrTestChart");
+					var data = [{
+						attr1: 1
+					}, {
+						attr2: 2
+					}, {
+						attr3: 3
+					}];
+					chart.transform = function(data) {
+						assert.equal(data[0].attr1, 1);
+						assert.equal(data[1].attr2, 2);
+						assert.equal(data[2].attr3, 3);
+
+						done();
+					};
+
+					chart.draw(data);
+				});
+
+				test("uses custom accessors when specified", function(done) {
+					var chart = d3.select("#test").chart("DataAttrTestChart", {
+						dataMapping: {
+							attr1: function() { return this.custom; },
+							attr2: function() { return this.deeply.nested; }
+						}
+					});
+					chart.transform = function(data) {
+						assert.equal(data[0].attr1, 23);
+						assert.equal(data[0].attr2, 45);
+						done();
+					};
+
+					chart.draw([{ custom: 23, deeply: { nested: 45 } }]);
+				});
+			});
+		});
+
 		test("invokes the transform method once with the specified data", function() {
 			var data = [1, 2, 3];
+			var wrappedData;
 			assert.equal(this.transform.callCount, 0);
 
 			this.myChart.draw(data);
 
 			assert.equal(this.transform.callCount, 1);
-			assert.equal(this.transform.args[0][0], data);
+			wrappedData = this.transform.args[0][0];
+			assert.equal(wrappedData.length, 3);
 		});
 
 		test("transform cascading", function() {
@@ -231,7 +383,7 @@ suite("d3.chart", function() {
 			assert.equal(this.layer1.draw.callCount, 0);
 			assert.equal(this.layer2.draw.callCount, 0);
 
-			this.myChart.draw([]);
+			this.myChart.draw();
 
 			assert.equal(this.layer1.draw.callCount, 1);
 			assert.equal(this.layer2.draw.callCount, 1);

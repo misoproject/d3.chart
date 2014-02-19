@@ -26,6 +26,7 @@
     "grunt-contrib-jshint": "~0.1.1",
     "grunt-contrib-watch": "~0.3.1",
     "grunt-mocha": "~0.4.6",
-    "grunt-cli": "~0.1.11"
+    "grunt-cli": "~0.1.11",
+    "datamap": "0.0.2"
   }
 }
