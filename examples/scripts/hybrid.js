@@ -4,14 +4,10 @@ d3.chart("Hybrid", {
     var barHeight = this.barHeight();
     var barWidth = this.radius * 2;
 
-    var chord = this.chord = this.mixin("ImprovedChord", this.base.append("g"));
-    var bc = this.bc = this.mixin("FadingBarChart", this.base.append("g"));
-    chord.transform = function(data) {
-      return d3.chart("Chord").prototype.transform(data.series2);
-    };
-    bc.transform = function(data) {
-      return d3.chart("BarChart").prototype.transform.call(bc, data.series1);
-    };
+    var chord = this.chord = this.base.append("g").chart("ImprovedChord");
+    this.attach("chord", chord);
+    var bc = this.bc = this.base.append("g").chart("FadingBarChart");
+    this.attach("bc", bc);
 
     this.base.attr("width", chord.base.attr("width"));
     this.base.attr("height", chord.base.attr("height"));
@@ -33,6 +29,14 @@ d3.chart("Hybrid", {
     bc.layer("bars").on("update:transition", this.transformBars, { chart : this });
   },
 
+  demux: function(attachmentName, data) {
+    if (attachmentName === "chord") {
+      return data.series2;
+    } else {
+      return data.series1;
+    }
+  },
+
   radius: 200,
 
   barHeight: function() {
@@ -43,11 +47,11 @@ d3.chart("Hybrid", {
     var length = 0;
     var chart = this.chart();
 
-    // Cannot use `this.chart()` here, because it returns the BarChart mixin,
-    // not the "hybrid" chart. This behavior should not be overridden
-    // (otherwise, using a chart as a mixin will break that chart), but there
-    // needs to be a way to access the higher-level chart from an event handler
-    // on the mixin.
+    // Cannot use `this.chart()` here, because it returns the BarChart
+    // attachment, not the "hybrid" chart. This behavior should not be
+    // overridden (otherwise, using a chart as a mixin will break that chart),
+    // but there needs to be a way to access the higher-level chart from an
+    // event handler on the mixin.
     var barHeight = chart.barHeight();
     this.attr("x", function() { length++; });
     this.attr("x", null);

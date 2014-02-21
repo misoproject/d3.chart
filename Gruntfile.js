@@ -8,7 +8,9 @@ module.exports = function(grunt) {
       srcFiles: [
         "src/init.js",
         "src/layer.js",
-        "src/chart.js"
+        "src/layer-extensions.js",
+        "src/chart.js",
+        "src/chart-extensions.js"
       ]
     },
     watch: {
@@ -27,7 +29,15 @@ module.exports = function(grunt) {
       },
       chart: {
         options: {
-          browser: true
+          browser: true,
+          globalstrict: true,
+          globals: {
+            hasOwnProp: true,
+            d3: true,
+            d3cAssert: true,
+            Layer: true,
+            Chart: true
+          }
         },
         files: {
           src: "<%= meta.srcFiles %>"
@@ -70,7 +80,8 @@ module.exports = function(grunt) {
         banner: "/*! <%= meta.pkg.name %> - v<%= meta.pkg.version %>\n" +
           " *  License: <%= meta.pkg.license %>\n" +
           " *  Date: <%= grunt.template.today('yyyy-mm-dd') %>\n" +
-          " */\n"
+          " */\n(function(window) {\n",
+        footer: "})(this);"
       },
       release: {
         files: {
@@ -81,7 +92,8 @@ module.exports = function(grunt) {
     uglify: {
       options: {
         // Preserve banner
-        preserveComments: "some"
+        preserveComments: "some",
+        sourceMap: "d3.chart.min.map"
       },
       release: {
         files: {

@@ -25,6 +25,17 @@ suite("d3.chart", function() {
 
 			assert.equal(myChart.base, selection);
 		});
+		test("sets the `transform` method as specified to the constructor", function() {
+			var transform = function() {};
+			var myChart;
+			d3.chart("test", {});
+
+			myChart = d3.select("#test").chart("test", {
+				transform: transform
+			});
+
+			assert.equal(myChart.transform, transform);
+		});
 
 		suite("`initialize` method invocation", function() {
 			setup(function() {
@@ -46,10 +57,13 @@ suite("d3.chart", function() {
 
 				assert.equal(instance, this.init1.thisValues[0]);
 			});
-			test("immediately invoked with the specified arguments", function() {
-				d3.select("#test").chart("test", 1, 2, 3);
+			test("immediately invoked with the specified options", function() {
+				var options = {};
+				d3.select("#test").chart("test", options);
 
-				assert.deepEqual(this.init1.args[0], [1, 2, 3]);
+				assert.equal(this.init1.callCount, 1);
+				assert.equal(this.init1.args[0].length, 1);
+				assert.strictEqual(this.init1.args[0][0], options);
 			});
 			test("recursively invokes parent `initialize` methods (from the topmost, down)", function() {
 				d3.select("#test").chart("test3");
@@ -86,33 +100,76 @@ suite("d3.chart", function() {
 		});
 	});
 
-	suite("#mixin", function() {
+	suite("Attachments", function() {
 		setup(function() {
 			d3.chart("test", {});
-			d3.chart("test2", {
-				initialize: sinon.spy()
-			});
 			this.myChart = d3.select("#test").chart("test");
+			var attachmentChart = this.attachmentChart =
+				d3.select("body").chart("test");
+			sinon.spy(attachmentChart, "draw");
 		});
-		test("instantiates the specified chart", function() {
-			var mixin = this.myChart.mixin("test2", d3.select("body"), 1, 2, 45);
-			assert(mixin instanceof d3.chart("test2"));
+		suite("#attach", function() {
+			test("returns the requested attachment", function() {
+				this.myChart.attach("myAttachment", this.attachmentChart);
+
+				assert.equal(
+					this.myChart.attach("myAttachment"),
+					this.attachmentChart
+				);
+			});
+			test("connects the specified chart", function() {
+				var data = [23, 45];
+				this.myChart.attach("myAttachment", this.attachmentChart);
+				this.myChart.draw(data);
+
+				assert.equal(this.attachmentChart.draw.callCount, 1);
+				assert.equal(this.attachmentChart.draw.args[0].length, 1);
+				assert.deepEqual(this.attachmentChart.draw.args[0][0], data);
+			});
 		});
-		test("instantiates with the correct arguments", function() {
-			var mixin = this.myChart.mixin("test2", d3.select("body"), 1, 2, 45);
-			assert.deepEqual(mixin.initialize.args[0], [1, 2, 45]);
-		});
-		test("correctly sets the `base` attribute of the mixin", function() {
-			var mixinBase = d3.select("body");
-			var mixin = this.myChart.mixin("test2", mixinBase);
-			assert.equal(mixin.base, mixinBase);
+
+		suite("#demux", function() {
+			var data = {
+				series1: [1, 2, 3],
+				series2: [4, 5, 6]
+			};
+			setup(function() {
+				this.attachmentChart2 = d3.select("body").chart("test");
+				sinon.spy(this.attachmentChart2, "draw");
+				this.myChart.attach("attachment1", this.attachmentChart);
+				this.myChart.attach("attachment2", this.attachmentChart2);
+			});
+			test("uses provided function to demultiplex data", function() {
+				this.myChart.demux = function(attachmentName, data) {
+					if (attachmentName === "attachment1") {
+						return data.series1;
+					}
+					return data;
+				};
+				this.myChart.draw(data);
+
+				assert.deepEqual(
+					this.attachmentChart.draw.args,
+					[[[1, 2, 3]]],
+					"Demuxes data passed to charts with registered function"
+				);
+				assert.deepEqual(
+					this.attachmentChart2.draw.args[0][0].series1,
+					data.series1,
+					"Unmodified data passes through to attachments directly"
+				);
+				assert.deepEqual(
+					this.attachmentChart2.draw.args[0][0].series2,
+					data.series2,
+					"Unmodified data passes through to attachments directly"
+				);
+			});
 		});
 	});
 
 	suite("#draw", function() {
 		setup(function() {
-			var layer1, layer2, mixin1, mixin2, transform, transformedData,
-				myChart;
+			var layer1, layer2, transform, transformedData, myChart;
 			this.transformedData = transformedData = {};
 			this.transform = transform = sinon.stub().returns(transformedData);
 			d3.chart("test", {});
@@ -130,13 +187,15 @@ suite("d3.chart", function() {
 			});
 			sinon.spy(layer2, "draw");
 
-			this.mixin1 = mixin1 = myChart.mixin("test", d3.select("#test"));
-			this.mixin2 = mixin2 = myChart.mixin("test", d3.select("#test"));
-			sinon.stub(mixin1, "draw");
-			sinon.stub(mixin2, "draw");
+			this.attachment1 = d3.select("#test").chart("test");
+			this.attachment2 = d3.select("#test").chart("test");
+			myChart.attach("test1", this.attachment1);
+			myChart.attach("test2", this.attachment2);
+			sinon.stub(this.attachment1, "draw");
+			sinon.stub(this.attachment2, "draw");
 		});
 		test("invokes the transform method once with the specified data", function() {
-			var data = {};
+			var data = [1, 2, 3];
 			assert.equal(this.transform.callCount, 0);
 
 			this.myChart.draw(data);
@@ -144,43 +203,73 @@ suite("d3.chart", function() {
 			assert.equal(this.transform.callCount, 1);
 			assert.equal(this.transform.args[0][0], data);
 		});
+
+		test("transform cascading", function() {
+			var grandpaTransform = sinon.spy(function(d) { return d * 2; });
+			var paTransform = sinon.spy(function(d) { return d * 3; });
+			var instanceTransform = sinon.spy(function(d) { return d * 5; });
+
+			d3.chart("TestTransformGrandpa", {
+				transform: grandpaTransform
+			});
+			d3.chart("TestTransformGrandpa").extend("TestTransformPa", {
+				transform: paTransform
+			});
+
+			var chart = d3.select("#test").chart("TestTransformPa");
+			chart.transform = instanceTransform;
+
+			chart.draw(7);
+
+			sinon.assert.calledWith(instanceTransform, 7);
+			sinon.assert.calledWith(paTransform, 35);
+			sinon.assert.calledWith(grandpaTransform, 105);
+
+		});
+
 		test("invokes the `draw` method of each of its layers", function() {
 			assert.equal(this.layer1.draw.callCount, 0);
 			assert.equal(this.layer2.draw.callCount, 0);
 
-			this.myChart.draw();
+			this.myChart.draw([]);
 
 			assert.equal(this.layer1.draw.callCount, 1);
 			assert.equal(this.layer2.draw.callCount, 1);
 		});
 		test("invokes the `draw` method of each of its layers with the transformed data", function() {
-			this.myChart.draw({});
+			this.myChart.draw([]);
 
 			assert.equal(this.layer1.draw.args[0][0], this.transformedData);
 			assert.equal(this.layer2.draw.args[0][0], this.transformedData);
 		});
-		test("invokes the `draw` method on each of its mixins", function() {
-			assert.equal(this.mixin1.draw.callCount, 0);
-			assert.equal(this.mixin2.draw.callCount, 0);
+		test("invokes the `draw` method on each of its attachments", function() {
+			assert.equal(this.attachment1.draw.callCount, 0);
+			assert.equal(this.attachment2.draw.callCount, 0);
 
 			this.myChart.draw();
 
-			assert.equal(this.mixin1.draw.callCount, 1);
-			assert.equal(this.mixin2.draw.callCount, 1);
+			assert.equal(this.attachment1.draw.callCount, 1);
+			assert.equal(this.attachment2.draw.callCount, 1);
 		});
-		test("invokes the `draw` method of each of its mixins with the transformed data", function() {
+		test("invokes the `draw` method of each of its attachments with the transformed data", function() {
 			this.myChart.draw();
 
-			assert.equal(this.mixin1.draw.args[0][0], this.transformedData);
-			assert.equal(this.mixin2.draw.args[0][0], this.transformedData);
+			assert.equal(
+				this.attachment1.draw.args[0][0],
+				this.transformedData
+			);
+			assert.equal(
+				this.attachment2.draw.args[0][0],
+				this.transformedData
+			);
 		});
-		test("invokes the `draw` method of its layers before invoking the `draw` method of its mixins", function() {
+		test("invokes the `draw` method of its layers before invoking the `draw` method of its attachments", function() {
 			this.myChart.draw();
 
-			assert(this.layer1.draw.calledBefore(this.mixin1.draw));
-			assert(this.layer1.draw.calledBefore(this.mixin2.draw));
-			assert(this.layer2.draw.calledBefore(this.mixin1.draw));
-			assert(this.layer2.draw.calledBefore(this.mixin2.draw));
+			assert(this.layer1.draw.calledBefore(this.attachment1.draw));
+			assert(this.layer1.draw.calledBefore(this.attachment2.draw));
+			assert(this.layer2.draw.calledBefore(this.attachment1.draw));
+			assert(this.layer2.draw.calledBefore(this.attachment2.draw));
 		});
 	});
 

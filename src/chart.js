@@ -1,273 +1,412 @@
-(function(window, undefined) {
+"use strict";
 
-	"use strict";
-
-	var d3Chart = window.d3Chart;
-	var d3 = window.d3;
-	var hasOwnProp = Object.hasOwnProperty;
-
-	var Surrogate = function(ctor) { this.constructor = ctor; };
-	var variadicNew = function(Ctor, args) {
-		var inst;
-		Surrogate.prototype = Ctor.prototype;
-		inst = new Surrogate(Ctor);
-		Ctor.apply(inst, args);
-		return inst;
-	};
-
-	// extend
-	// Borrowed from Underscore.js
-	function extend(object) {
-		var argsIndex, argsLength, iteratee, key;
-		if (!object) {
-			return object;
-		}
-		argsLength = arguments.length;
-		for (argsIndex = 1; argsIndex < argsLength; argsIndex++) {
-			iteratee = arguments[argsIndex];
-			if (iteratee) {
-				for (key in iteratee) {
-					object[key] = iteratee[key];
-				}
-			}
-		}
+// extend
+// Borrowed from Underscore.js
+function extend(object) {
+	var argsIndex, argsLength, iteratee, key;
+	if (!object) {
 		return object;
 	}
-
-	// initCascade
-	// Call the initialize method up the inheritance chain, starting with the
-	// base class and continuing "downward".
-	var initCascade = function(instance, args) {
-		var sup = this.constructor.__super__;
-		if (sup) {
-			initCascade.call(sup, instance, args);
-		}
-		// Do not invoke the `initialize` method on classes further up the
-		// prototype chain.
-		if (hasOwnProp.call(this.constructor.prototype, "initialize")) {
-			this.initialize.apply(instance, args);
-		}
-	};
-
-	var Chart = function(selection) {
-
-		this.base = selection;
-		this._layers = {};
-		this._mixins = [];
-		this._events = {};
-
-		initCascade.call(this, this, Array.prototype.slice.call(arguments, 1));
-	};
-
-	Chart.prototype.unlayer = function(name) {
-		var layer = this.layer(name);
-
-		delete this._layers[name];
-		delete layer._chart;
-
-		return layer;
-	};
-
-	Chart.prototype.layer = function(name, selection, options) {
-		var layer;
-
-		if (arguments.length === 1) {
-			return this._layers[name];
-		}
-
-		// we are reattaching a previous layer, which the
-		// selection argument is now set to.
-		if (arguments.length === 2) {
-
-			if (typeof selection.draw === "function") {
-				selection._chart = this;
-				this._layers[name] = selection;
-				return this._layers[name];
-			
-			} else {
-				d3Chart.assert(false, "When reattaching a layer, the second argument "+
-					"must be a d3.chart layer");
+	argsLength = arguments.length;
+	for (argsIndex = 1; argsIndex < argsLength; argsIndex++) {
+		iteratee = arguments[argsIndex];
+		if (iteratee) {
+			for (key in iteratee) {
+				object[key] = iteratee[key];
 			}
 		}
+	}
+	return object;
+}
 
-		layer = selection.layer(options);
+/**
+ * Call the {@Chart#initialize} method up the inheritance chain, starting with
+ * the base class and continuing "downward".
+ *
+ * @private
+ */
+var initCascade = function(instance, args) {
+	var ctor = this.constructor;
+	var sup = ctor.__super__;
+	if (sup) {
+		initCascade.call(sup, instance, args);
+	}
 
-		this._layers[name] = layer;
+	// Do not invoke the `initialize` method on classes further up the
+	// prototype chain (again).
+	if (hasOwnProp.call(ctor.prototype, "initialize")) {
+		this.initialize.apply(instance, args);
+	}
+};
 
-		selection._chart = this;
+/**
+ * Call the `transform` method down the inheritance chain, starting with the
+ * instance and continuing "upward". The result of each transformation should
+ * be supplied as input to the next.
+ *
+ * @private
+ */
+var transformCascade = function(instance, data) {
+	var ctor = this.constructor;
+	var sup = ctor.__super__;
 
-		return layer;
-	};
-
-	Chart.prototype.initialize = function() {};
-
-	Chart.prototype.transform = function(data) {
-		return data;
-	};
-
-	Chart.prototype.mixin = function(chartName) {
-		var args = Array.prototype.slice.call(arguments, 1);
-		var ctor = Chart[chartName];
-		var chart = variadicNew(ctor, args);
-
-		this._mixins.push(chart);
-		return chart;
-	};
-
-	Chart.prototype.draw = function(data) {
-
-		var layerName, idx, len;
-
+	// Unlike `initialize`, the `transform` method has significance when
+	// attached directly to a chart instance. Ensure that this transform takes
+	// first but is not invoked on later recursions.
+	if (this === instance && hasOwnProp.call(this, "transform")) {
 		data = this.transform(data);
+	}
 
-		for (layerName in this._layers) {
-			this._layers[layerName].draw(data);
-		}
+	// Do not invoke the `transform` method on classes further up the prototype
+	// chain (yet).
+	if (hasOwnProp.call(ctor.prototype, "transform")) {
+		data = ctor.prototype.transform.call(instance, data);
+	}
 
-		for (idx = 0, len = this._mixins.length; idx < len; idx++) {
-			this._mixins[idx].draw(data);
-		}
-	};
+	if (sup) {
+		data = transformCascade.call(sup, instance, data);
+	}
 
-	Chart.prototype.on = function(name, callback, context) {
-		var events = this._events[name] || (this._events[name] = []);
-		events.push({
-			callback: callback,
-			context: context || this,
-			_chart: this
-		});
-		return this;
-	};
+	return data;
+};
 
-	Chart.prototype.once = function(name, callback, context) {
-		var self = this;
-		var once = function() {
-			self.off(name, once);
-			callback.apply(this, arguments);
-		};
-		return this.on(name, once, context);
-	};
+/**
+ * Create a d3.chart
+ *
+ * @param {d3.selection} selection The chart's "base" DOM node. This should
+ *        contain any nodes that the chart generates.
+ * @param {mixed} chartOptions A value for controlling how the chart should be
+ *        created. This value will be forwarded to {@link Chart#initialize}, so
+ *        charts may define additional properties for consumers to modify their
+ *        behavior during initialization.
+ *
+ * @constructor
+ */
+var Chart = function(selection, chartOptions) {
 
-	Chart.prototype.off = function(name, callback, context) {
-		var names, n, events, event, i, j;
+	this.base = selection;
+	this._layers = {};
+	this._attached = {};
+	this._events = {};
 
-		// remove all events
-		if (arguments.length === 0) {
-			for (name in this._events) {
-				this._events[name].length = 0;
-			}
-			return this;
-		}
+	if (chartOptions && chartOptions.transform) {
+		this.transform = chartOptions.transform;
+	}
 
-		// remove all events for a specific name
-		if (arguments.length === 1) {
-			events = this._events[name];
-			if (events) {
-				events.length = 0;
-			}
-			return this;
-		}
+	initCascade.call(this, this, [chartOptions]);
+};
 
-		// remove all events that match whatever combination of name, context
-		// and callback.
-		names = name ? [name] : Object.keys(this._events);
-		for (i = 0; i < names.length; i++) {
-			n = names[i];
-			events = this._events[n];
-			j = events.length;
-			while (j--) {
-				event = events[j];
-				if ((callback && callback === event.callback) ||
-						(context && context === event.context)) {
-					events.splice(j, 1);
-				}
-			}
-		}
+/**
+ * Set up a chart instance. This method is intended to be overridden by Charts
+ * authored with this library. It will be invoked with a single argument: the
+ * `options` value supplied to the {@link Chart|constructor}.
+ *
+ * For charts that are defined as extensions of other charts using
+ * `Chart.extend`, each chart's `initilize` method will be invoked starting
+ * with the "oldest" ancestor (see the private {@link initCascade} function for
+ * more details).
+ */
+Chart.prototype.initialize = function() {};
 
-		return this;
-	};
+/**
+ * Remove a layer from the chart.
+ *
+ * @param {String} name The name of the layer to remove.
+ *
+ * @returns {Layer} The layer removed by this operation.
+ */
+Chart.prototype.unlayer = function(name) {
+	var layer = this.layer(name);
 
-	Chart.prototype.trigger = function(name) {
-		var args = Array.prototype.slice.call(arguments, 1);
-		var events = this._events[name];
-		var i, ev;
+	delete this._layers[name];
+	delete layer._chart;
 
-		if (events !== undefined) {
-			for (i = 0; i < events.length; i++) {
-				ev = events[i];
-				ev.callback.apply(ev.context, args);
-			}
-		}
+	return layer;
+};
 
-		return this;
-	};
+/**
+ * Interact with the chart's {@link Layer|layers}.
+ *
+ * If only a `name` is provided, simply return the layer registered to that
+ * name (if any).
+ *
+ * If a `name` and `selection` are provided, treat the `selection` as a
+ * previously-created layer and attach it to the chart with the specified
+ * `name`.
+ *
+ * If all three arguments are specified, initialize a new {@link Layer} using
+ * the specified `selection` as a base passing along the specified `options`.
+ *
+ * The {@link Layer.draw} method of attached layers will be invoked
+ * whenever this chart's {@link Chart#draw} is invoked and will receive the
+ * data (optionally modified by the chart's {@link Chart#transform} method.
+ *
+ * @param {String} name Name of the layer to attach or retrieve.
+ * @param {d3.selection|Layer} [selection] The layer's base or a
+ *        previously-created {@link Layer}.
+ * @param {Object} [options] Options to be forwarded to {@link Layer|the Layer
+ *        constructor}
+ *
+ * @returns {Layer}
+ */
+Chart.prototype.layer = function(name, selection, options) {
+	var layer;
 
-	Chart.extend = function(name, protoProps, staticProps) {
-		var parent = this;
-		var child;
+	if (arguments.length === 1) {
+		return this._layers[name];
+	}
 
-		// The constructor function for the new subclass is either defined by
-		// you (the "constructor" property in your `extend` definition), or
-		// defaulted by us to simply call the parent's constructor.
-		if (protoProps && hasOwnProp.call(protoProps, "constructor")) {
-			child = protoProps.constructor;
+	// we are reattaching a previous layer, which the
+	// selection argument is now set to.
+	if (arguments.length === 2) {
+
+		if (typeof selection.draw === "function") {
+			selection._chart = this;
+			this._layers[name] = selection;
+			return this._layers[name];
+
 		} else {
-			child = function(){ return parent.apply(this, arguments); };
+			d3cAssert(false, "When reattaching a layer, the second argument "+
+				"must be a d3.chart layer");
 		}
+	}
 
-		// Add static properties to the constructor function, if supplied.
-		extend(child, parent, staticProps);
+	layer = selection.layer(options);
 
-		// Set the prototype chain to inherit from `parent`, without calling
-		// `parent`'s constructor function.
-		var Surrogate = function(){ this.constructor = child; };
-		Surrogate.prototype = parent.prototype;
-		child.prototype = new Surrogate();
+	this._layers[name] = layer;
 
-		// Add prototype properties (instance properties) to the subclass, if
-		// supplied.
-		if (protoProps) { extend(child.prototype, protoProps); }
+	selection._chart = this;
 
-		// Set a convenience property in case the parent's prototype is needed
-		// later.
-		child.__super__ = parent.prototype;
+	return layer;
+};
 
-		Chart[name] = child;
-		return child;
-	};
+/**
+ * Register or retrieve an "attachment" Chart. The "attachment" chart's `draw`
+ * method will be invoked whenever the containing chart's `draw` method is
+ * invoked.
+ *
+ * @param {String} attachmentName Name of the attachment
+ * @param {Chart} [chart] d3.chart to register as a mix in of this chart. When
+ *        unspecified, this method will return the attachment previously
+ *        registered with the specified `attachmentName` (if any).
+ *
+ * @returns {Chart} Reference to this chart (chainable).
+ */
+Chart.prototype.attach = function(attachmentName, chart) {
+	if (arguments.length === 1) {
+		return this._attached[attachmentName];
+	}
 
-	// d3.chart
-	// A factory for creating chart constructors
-	d3.chart = function(name) {
-		if (arguments.length === 0) {
-			return Chart;
-		} else if (arguments.length === 1) {
-			return Chart[name];
+	this._attached[attachmentName] = chart;
+	return chart;
+};
+
+/**
+ * Update the chart's representation in the DOM, drawing all of its layers and
+ * any "attachment" charts (as attached via {@link Chart#attach}).
+ *
+ * @param {Object} data Data to pass to the {@link Layer#draw|draw method} of
+ *        this cart's {@link Layer|layers} (if any) and the {@link
+ *        Chart#draw|draw method} of this chart's attachments (if any).
+ */
+Chart.prototype.draw = function(data) {
+
+	var layerName, attachmentName, attachmentData;
+
+	data = transformCascade.call(this, this, data);
+
+	for (layerName in this._layers) {
+		this._layers[layerName].draw(data);
+	}
+
+	for (attachmentName in this._attached) {
+		if (this.demux) {
+			attachmentData = this.demux(attachmentName, data);
+		} else {
+			attachmentData = data;
 		}
+		this._attached[attachmentName].draw(attachmentData);
+	}
+};
 
-		return Chart.extend.apply(Chart, arguments);
+/**
+ * Function invoked with the context specified when the handler was bound (via
+ * {@link Chart#on} {@link Chart#once}).
+ *
+ * @callback ChartEventHandler
+ * @param {...*} arguments Invoked with the arguments passed to {@link
+ *         Chart#trigger}
+ */
+
+/**
+ * Subscribe a callback function to an event triggered on the chart. See {@link
+ * Chart#once} to subscribe a callback function to an event for one occurence.
+ *
+ * @param {String} name Name of the event
+ * @param {ChartEventHandler} callback Function to be invoked when the event
+ *        occurs
+ * @param {Object} [context] Value to set as `this` when invoking the
+ *        `callback`. Defaults to the chart instance.
+ *
+ * @returns {Chart} A reference to this chart (chainable).
+ */
+Chart.prototype.on = function(name, callback, context) {
+	var events = this._events[name] || (this._events[name] = []);
+	events.push({
+		callback: callback,
+		context: context || this,
+		_chart: this
+	});
+	return this;
+};
+
+/**
+ * Subscribe a callback function to an event triggered on the chart. This
+ * function will be invoked at the next occurance of the event and immediately
+ * unsubscribed. See {@link Chart#on} to subscribe a callback function to an
+ * event indefinitely.
+ *
+ * @param {String} name Name of the event
+ * @param {ChartEventHandler} callback Function to be invoked when the event
+ *        occurs
+ * @param {Object} [context] Value to set as `this` when invoking the
+ *        `callback`. Defaults to the chart instance
+ *
+ * @returns {Chart} A reference to this chart (chainable)
+ */
+Chart.prototype.once = function(name, callback, context) {
+	var self = this;
+	var once = function() {
+		self.off(name, once);
+		callback.apply(this, arguments);
 	};
+	return this.on(name, once, context);
+};
 
-	d3.selection.prototype.chart = function(chartName) {
-		// Without an argument, attempt to resolve the current selection's
-		// containing d3.chart.
-		if (arguments.length === 0) {
-			return this._chart;
+/**
+ * Unsubscribe one or more callback functions from an event triggered on the
+ * chart. When no arguments are specified, *all* handlers will be unsubscribed.
+ * When only a `name` is specified, all handlers subscribed to that event will
+ * be unsubscribed. When a `name` and `callback` are specified, only that
+ * function will be unsubscribed from that event. When a `name` and `context`
+ * are specified (but `callback` is omitted), all events bound to the given
+ * event with the given context will be unsubscribed.
+ *
+ * @param {String} [name] Name of the event to be unsubscribed
+ * @param {ChartEventHandler} [callback] Function to be unsubscribed
+ * @param {Object} [context] Contexts to be unsubscribe
+ *
+ * @returns {Chart} A reference to this chart (chainable).
+ */
+Chart.prototype.off = function(name, callback, context) {
+	var names, n, events, event, i, j;
+
+	// remove all events
+	if (arguments.length === 0) {
+		for (name in this._events) {
+			this._events[name].length = 0;
 		}
-		var ChartCtor = Chart[chartName];
-		var chartArgs;
-		d3Chart.assert(ChartCtor, "No chart registered with name '" +
-			chartName + "'");
+		return this;
+	}
 
-		chartArgs = Array.prototype.slice.call(arguments, 1);
-		chartArgs.unshift(this);
-		return variadicNew(ChartCtor, chartArgs);
-	};
+	// remove all events for a specific name
+	if (arguments.length === 1) {
+		events = this._events[name];
+		if (events) {
+			events.length = 0;
+		}
+		return this;
+	}
 
-	d3.selection.enter.prototype.chart = function() {
-		return this._chart;
-	};
+	// remove all events that match whatever combination of name, context
+	// and callback.
+	names = name ? [name] : Object.keys(this._events);
+	for (i = 0; i < names.length; i++) {
+		n = names[i];
+		events = this._events[n];
+		j = events.length;
+		while (j--) {
+			event = events[j];
+			if ((callback && callback === event.callback) ||
+					(context && context === event.context)) {
+				events.splice(j, 1);
+			}
+		}
+	}
 
-	d3.transition.prototype.chart = d3.selection.enter.prototype.chart;
+	return this;
+};
 
-}(this));
+/**
+ * Publish an event on this chart with the given `name`.
+ *
+ * @param {String} name Name of the event to publish
+ * @param {...*} arguments Values with which to invoke the registered
+ *        callbacks.
+ *
+ * @returns {Chart} A reference to this chart (chainable).
+ */
+Chart.prototype.trigger = function(name) {
+	var args = Array.prototype.slice.call(arguments, 1);
+	var events = this._events[name];
+	var i, ev;
+
+	if (events !== undefined) {
+		for (i = 0; i < events.length; i++) {
+			ev = events[i];
+			ev.callback.apply(ev.context, args);
+		}
+	}
+
+	return this;
+};
+
+/**
+ * Create a new {@link Chart} constructor with the provided options acting as
+ * "overrides" for the default chart instance methods. Allows for basic
+ * inheritance so that new chart constructors may be defined in terms of
+ * existing chart constructors. Based on the `extend` function defined by
+ * {@link http://backbonejs.org/|Backbone.js}.
+ *
+ * @static
+ *
+ * @param {String} name Identifier for the new Chart constructor.
+ * @param {Object} protoProps Properties to set on the new chart's prototype.
+ * @param {Object} staticProps Properties to set on the chart constructor
+ *        itself.
+ *
+ * @returns {Function} A new Chart constructor
+ */
+Chart.extend = function(name, protoProps, staticProps) {
+	var parent = this;
+	var child;
+
+	// The constructor function for the new subclass is either defined by
+	// you (the "constructor" property in your `extend` definition), or
+	// defaulted by us to simply call the parent's constructor.
+	if (protoProps && hasOwnProp.call(protoProps, "constructor")) {
+		child = protoProps.constructor;
+	} else {
+		child = function(){ return parent.apply(this, arguments); };
+	}
+
+	// Add static properties to the constructor function, if supplied.
+	extend(child, parent, staticProps);
+
+	// Set the prototype chain to inherit from `parent`, without calling
+	// `parent`'s constructor function.
+	var Surrogate = function(){ this.constructor = child; };
+	Surrogate.prototype = parent.prototype;
+	child.prototype = new Surrogate();
+
+	// Add prototype properties (instance properties) to the subclass, if
+	// supplied.
+	if (protoProps) { extend(child.prototype, protoProps); }
+
+	// Set a convenience property in case the parent's prototype is needed
+	// later.
+	child.__super__ = parent.prototype;
+
+	Chart[name] = child;
+	return child;
+};

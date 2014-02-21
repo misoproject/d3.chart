@@ -19,10 +19,10 @@
   var dataSrc = new DataSrc();
   var myBarChart = d3.select( document.getElementById("barChart") )
     .append("svg").chart("BarChart");
-  myBarChart.draw(dataSrc);
+  myBarChart.draw(dataSrc.data);
   setInterval(function() {
     dataSrc.fetch();
-    myBarChart.draw(dataSrc);
+    myBarChart.draw(dataSrc.data);
   }, 1500);
 
   // 2. Custom Bar Chart
@@ -37,10 +37,10 @@
   };
   myCustomBarChart.layer("bars").on("enter:transition", fadeOut);
   myCustomBarChart.layer("bars").on("update:transition", fadeOut);
-  myCustomBarChart.draw(dataSrc2);
+  myCustomBarChart.draw(dataSrc2.data);
   setInterval(function() {
     dataSrc2.fetch();
-    myCustomBarChart.draw(dataSrc2);
+    myCustomBarChart.draw(dataSrc2.data);
   }, 1500);
 
   // 3. Fading Bar Chart
@@ -48,10 +48,10 @@
   var dataSrc3 = new DataSrc();
   var myFadingBarChart = d3.select( document.getElementById("barChartFading") )
     .append("svg").chart("FadingBarChart");
-  myFadingBarChart.draw(dataSrc3);
+  myFadingBarChart.draw(dataSrc3.data);
   setInterval(function() {
     dataSrc3.fetch();
-    myFadingBarChart.draw(dataSrc3);
+    myFadingBarChart.draw(dataSrc3.data);
   }, 1500);
 
   // 4. Chord Diagram
@@ -86,13 +86,13 @@
   var hybrid = d3.select( document.getElementById("hybrid") )
     .append("svg").chart("Hybrid");
   hybrid.draw({
-    series1: dataSrc4,
+    series1: dataSrc4.data,
     series2: matrix
   });
   setInterval(function() {
     dataSrc4.fetch();
     hybrid.draw({
-      series1: dataSrc4,
+      series1: dataSrc4.data,
       series2: matrix
     });
   }, 1500);

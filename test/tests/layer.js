@@ -27,7 +27,7 @@ suite("d3.layer", function() {
 	suite("#draw", function() {
 		setup(function() {
 			var dataBind = this.dataBind = sinon.spy(function(data) {
-				var updating = this.data(data, function(d) { return d; });
+				var updating = this.selectAll("g").data(data, function(d) { return d; });
 				// Cache `exit` method so it can be invoked from its stub
 				// without provoking infinite recursion.
 				var originalExit = updating.exit;
@@ -49,7 +49,7 @@ suite("d3.layer", function() {
 				sinon.spy(entering, "transition");
 				return entering;
 			});
-			var base = this.base = d3.select("#test");
+			var base = this.base = d3.select("#test").append("svg");
 
 			this.layer = base.layer({
 				dataBind: dataBind,
@@ -130,6 +130,28 @@ suite("d3.layer", function() {
 				layer.remove();
 			});
 
+			test("Does not invoke lifecycle events for empty selections", function() {
+				var layer = d3.select("#test").append("svg").layer({
+					dataBind: function(d) {
+						return this.selectAll("g").data(d);
+					},
+					insert: function() {
+						return this.append("g");
+					}
+				});
+				var enterSpy = sinon.spy();
+				var updateSpy = sinon.spy();
+				layer.draw([1]);
+
+				layer.on("enter", enterSpy);
+				layer.on("update", updateSpy);
+
+				layer.draw([1]);
+
+				sinon.assert.callCount(enterSpy, 0);
+				sinon.assert.callCount(updateSpy, 1);
+			});
+
 			suite("Layer#off", function() {
 				setup(function() {
 					this.onEnter1 = sinon.spy();
@@ -139,6 +161,7 @@ suite("d3.layer", function() {
 						insert: this.insert,
 						dataBind: this.dataBind
 					});
+					this.layer.draw([1]);
 					this.layer.on("enter", this.onEnter1);
 					this.layer.on("enter", this.onEnter2);
 					this.layer.on("update", this.onUpdate);
@@ -148,7 +171,7 @@ suite("d3.layer", function() {
 				});
 				test("unbinds only the specified handler", function() {
 					this.layer.off("enter", this.onEnter1);
-					this.layer.draw([]);
+					this.layer.draw([1, 2]);
 
 					assert.equal(this.onEnter1.callCount, 0);
 					assert.equal(this.onEnter2.callCount, 1);
@@ -156,7 +179,7 @@ suite("d3.layer", function() {
 				});
 				test("unbinds only the handlers for the specified lifecycle selection", function() {
 					this.layer.off("enter");
-					this.layer.draw([]);
+					this.layer.draw([1]);
 
 					assert.equal(this.onEnter1.callCount, 0);
 					assert.equal(this.onEnter2.callCount, 0);
@@ -175,12 +198,13 @@ suite("d3.layer", function() {
 					merge: sinon.spy(),
 					exit: sinon.spy()
 				};
+				layer.draw([1, 2]);
 				layer.on("update", spies.update);
 				layer.on("enter", spies.enter);
 				layer.on("merge", spies.merge);
 				layer.on("exit", spies.exit);
 
-				layer.draw([]);
+				layer.draw([2, 3]);
 
 				assert.equal(spies.update.callCount, 1);
 				assert.equal(spies.update.thisValues[0].transition.callCount,
@@ -215,7 +239,11 @@ suite("d3.layer", function() {
 					});
 				});
 				test("invokes all event handlers exactly once", function() {
-					this.layer.draw([]);
+					this.layer.draw([1, 2]);
+					Object.keys(this.spies).forEach(function(key) {
+						this.spies[key].reset();
+					}, this);
+					this.layer.draw([2, 3]);
 
 					assert.equal(this.spies.enter.callCount, 1);
 					assert.equal(this.spies.update.callCount, 1);
@@ -228,11 +256,12 @@ suite("d3.layer", function() {
 				});
 				test("invokes all event handlers in the context of the corresponding 'lifecycle selection'", function() {
 					var entering, updating, exiting;
-					this.layer.draw([]);
+					this.layer.draw([1, 2]);
+					this.layer.draw([2, 3]);
 
 					// Alias lifecycle selections
 					entering = this.insert.returnValues[0];
-					updating = this.dataBind.returnValues[0];
+					updating = this.dataBind.returnValues[1];
 					exiting = updating.exit.returnValues[0];
 
 					assert(this.spies.enter.calledOn(entering));
@@ -269,6 +298,8 @@ suite("d3.layer", function() {
 
 				});
 				test("invokes all event handlers exactly once", function() {
+					this.layer.draw([1, 2]);
+
 					this.layer.on("enter", this.onEnter1);
 					this.layer.on("update", this.onUpdate1);
 					this.layer.on("update", this.onUpdate2);
@@ -287,7 +318,7 @@ suite("d3.layer", function() {
 					this.layer.on("merge:transition", this.onMergeTrans3);
 					this.layer.on("exit:transition", this.onExitTrans1);
 
-					this.layer.draw([]);
+					this.layer.draw([2, 3]);
 
 					assert.equal(this.onEnter1.callCount, 1);
 					assert.equal(this.onUpdate1.callCount, 1);
@@ -312,6 +343,7 @@ suite("d3.layer", function() {
 					this.layer.on("exit", this.onExit2);
 					this.layer.on("exit", this.onExit3);
 
+					this.layer.draw([1]);
 					this.layer.draw([]);
 
 					assert(this.onExit1.calledBefore(this.onExit2));
@@ -328,11 +360,12 @@ suite("d3.layer", function() {
 					this.layer.on("merge:transition", this.onMergeTrans1);
 					this.layer.on("exit:transition", this.onExitTrans1);
 
-					this.layer.draw([]);
+					this.layer.draw([1, 2]);
+					this.layer.draw([2, 3]);
 
 					// Alias lifecycle selections
 					entering = this.insert.returnValues[0];
-					updating = this.dataBind.returnValues[0];
+					updating = this.dataBind.returnValues[1];
 					exiting = updating.exit.returnValues[0];
 
 					assert(this.onEnter1.calledOn(entering));
@@ -355,7 +388,7 @@ suite("d3.layer", function() {
 						this.layer.on("enter", this.handler, {
 							chart: this.chartVal
 						});
-						this.layer.draw([]);
+						this.layer.draw([1]);
 
 						assert.equal(this.handler.thisValues[0].chart(),
 							this.chartVal);
@@ -365,7 +398,7 @@ suite("d3.layer", function() {
 						this.layer.on("enter:transition", this.handler, {
 							chart: this.chartVal
 						});
-						this.layer.draw([]);
+						this.layer.draw([1]);
 
 						assert.equal(this.handler.thisValues[0].chart(),
 							this.chartVal);
@@ -375,7 +408,8 @@ suite("d3.layer", function() {
 						this.layer.on("update", this.handler, {
 							chart: this.chartVal
 						});
-						this.layer.draw([]);
+						this.layer.draw([1]);
+						this.layer.draw([1]);
 
 						assert.equal(this.handler.thisValues[0].chart(),
 							this.chartVal);
@@ -385,7 +419,8 @@ suite("d3.layer", function() {
 						this.layer.on("update:transition", this.handler, {
 							chart: this.chartVal
 						});
-						this.layer.draw([]);
+						this.layer.draw([1]);
+						this.layer.draw([1]);
 
 						assert.equal(this.handler.thisValues[0].chart(),
 							this.chartVal);
@@ -395,7 +430,7 @@ suite("d3.layer", function() {
 						this.layer.on("merge", this.handler, {
 							chart: this.chartVal
 						});
-						this.layer.draw([]);
+						this.layer.draw([1]);
 
 						assert.equal(this.handler.thisValues[0].chart(),
 							this.chartVal);
@@ -405,7 +440,7 @@ suite("d3.layer", function() {
 						this.layer.on("merge:transition", this.handler, {
 							chart: this.chartVal
 						});
-						this.layer.draw([]);
+						this.layer.draw([1]);
 
 						assert.equal(this.handler.thisValues[0].chart(),
 							this.chartVal);
@@ -415,6 +450,7 @@ suite("d3.layer", function() {
 						this.layer.on("exit", this.handler, {
 							chart: this.chartVal
 						});
+						this.layer.draw([1]);
 						this.layer.draw([]);
 
 						assert.equal(this.handler.thisValues[0].chart(),
@@ -425,6 +461,7 @@ suite("d3.layer", function() {
 						this.layer.on("exit:transition", this.handler, {
 							chart: this.chartVal
 						});
+						this.layer.draw([1]);
 						this.layer.draw([]);
 
 						assert.equal(this.handler.thisValues[0].chart(),
@@ -442,12 +479,12 @@ suite("d3.layer", function() {
 		});
 		suite("#on", function () {
 			test("returns the layer instance (chains)", function() {
-				assert.equal(this.layer.on("e1"), this.layer);
+				assert.equal(this.layer.on("enter"), this.layer);
 			});
 		});
 		suite("#off", function () {
 			test("returns the layer instance (chains)", function() {
-				assert.equal(this.layer.off("e1"), this.layer);
+				assert.equal(this.layer.off("enter"), this.layer);
 			});
 		});
 	});
