@@ -1,0 +1,16 @@
+{
+  "name": "d3.chart",
+  "main": "d3.chart.js",
+  "ignore": [
+    "**/.*",
+    "Gruntfile.js",
+    "bower_components",
+    "examples",
+    "package.json",
+    "src",
+    "test"
+  ],
+  "dependencies": {
+    "d3": "~3.3.2"
+  }
+}
