@@ -2,54 +2,23 @@ module.exports = function(grunt) {
   "use strict";
 
   grunt.config.set("jshint", {
-    options: {
-      curly: true,
-      unused: true,
-      undef: true,
-      quotmark: "double",
-      trailing: false
-    },
-    chart: {
+    src: {
       options: {
-        browser: true,
-        globalstrict: true,
-        globals: {
-          hasOwnProp: true,
-          d3: true,
-          d3cAssert: true,
-          Layer: true,
-          Chart: true
-        }
+        jshintrc: "src/.jshintrc"
       },
-      files: {
-        src: "<%= meta.srcFiles %>"
-      }
+      src: ["<%= meta.srcFiles %>"]
     },
     test: {
       options: {
-        globals: {
-          d3: true,
-          assert: true,
-          chai: true,
-          setup: true,
-          teardown: true,
-          suite: true,
-          test: true,
-          sinon: true
-        }
+        jshintrc: "test/.jshintrc"
       },
-      files: {
-        src: ["test/tests/*.js"]
-      }
+      src: ["test/tests/*.js"]
     },
-    grunt: {
+    build: {
       options: {
-        node: true,
-        scripturl: true
+        jshintrc: "build/.jshintrc"
       },
-      files: {
-        src: ["Gruntfile.js"]
-      }
+      src: ["Gruntfile.js", "build/**/*.js"]
     }
   });
 
