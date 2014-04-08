@@ -15,6 +15,7 @@
     "name": "The Miso Project team",
     "uri": "https://github.com/misoproject/d3.chart/blob/master/AUTHORS.txt"
   },
+  "main": "d3.chart",
   "scripts": {
     "test": "grunt test"
   },

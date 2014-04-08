@@ -62,7 +62,8 @@ module.exports = function(grunt) {
       },
       grunt: {
         options: {
-          node: true
+          node: true,
+          scripturl: true
         },
         files: {
           src: ["Gruntfile.js"]
@@ -70,22 +71,50 @@ module.exports = function(grunt) {
       }
     },
     mocha: {
-      options: {
-        run: true
+      unit: {
+        src: ["test/index.html"],
+        options: {
+          run: true
+        }
       },
-      src: ["test/index.html"]
+      // Test that the distributed source files function correctly in AMD and
+      // "browser global" environments.
+      exportsAmd: {
+        src: ["test/exports/amd.html"],
+        options: {
+          run: false
+        }
+      },
+      exportsGlobal: {
+        src: ["test/exports/global.html"],
+        options: {
+          run: true
+        }
+      }
     },
     concat: {
       options: {
         banner: "/*! <%= meta.pkg.name %> - v<%= meta.pkg.version %>\n" +
           " *  License: <%= meta.pkg.license %>\n" +
           " *  Date: <%= grunt.template.today('yyyy-mm-dd') %>\n" +
-          " */\n(function(window) {\n",
-        footer: "})(this);"
+          " */\n"
+      },
+      test: {
+        files: {
+          "d3.chart.test.js": [
+            "src/wrapper/start.frag",
+            "<%= meta.srcFiles %>",
+            "src/wrapper/end.frag"
+          ]
+        }
       },
       release: {
         files: {
-          "d3.chart.js": "<%= meta.srcFiles %>"
+          "d3.chart.js": [
+            "src/wrapper/start.frag",
+            "<%= meta.srcFiles %>",
+            "src/wrapper/end.frag"
+          ]
         }
       }
     },
@@ -109,7 +138,14 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks("grunt-contrib-watch");
   grunt.loadNpmTasks("grunt-mocha");
 
-  grunt.registerTask("test", ["mocha"]);
+  grunt.registerTask("build", ["concat:release", "uglify"]);
+
+  grunt.registerTask("test-unit", ["mocha:unit"]);
+  grunt.registerTask(
+    "test-build", ["concat:test", "mocha:exportsAmd", "mocha:exportsGlobal"]
+  );
+  grunt.registerTask("test", ["test-unit", "test-build"]);
+
   grunt.registerTask("default", ["jshint", "test"]);
-  grunt.registerTask("release", ["default", "concat", "uglify"]);
+  grunt.registerTask("release", ["default", "build"]);
 };
