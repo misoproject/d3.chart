@@ -10,6 +10,7 @@ var lifecycleRe = /^(enter|update|merge|exit)(:transition)?$/;
  *
  * @private
  * @constructor
+ * @externalExample {runnable} layer
  *
  * @param {d3.selection} base The containing DOM node for the layer.
  */
@@ -43,6 +44,8 @@ Layer.prototype.insert = function() {
  * events) are triggered when {@link Layer#draw} is invoked--see that method
  * for more details on lifecycle events.
  *
+ * @externalExample {runnable} layer-on
+ *
  * @param {String} eventName Identifier for the lifecycle event for which to
  *        subscribe.
  * @param {Function} handler Callback function
@@ -71,6 +74,8 @@ Layer.prototype.on = function(eventName, handler, options) {
 /**
  * Unsubscribe the specified handler from the specified event. If no handler is
  * supplied, remove *all* handlers from the event.
+ *
+ * @externalExample {runnable} layer-off
  *
  * @param {String} eventName Identifier for event from which to remove
  *        unsubscribe
@@ -118,6 +123,8 @@ Layer.prototype.off = function(eventName, handler) {
  * - enter:transition
  * - exit
  * - exit:transition
+ *
+ * @externalExample {runnable} layer-draw
  *
  * @param {Array} data Data to drive the rendering.
  */

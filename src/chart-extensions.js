@@ -1,10 +1,24 @@
 "use strict";
 
 /**
+ * A namespace defined by [the D3.js library](http://d3js.org/). The d3.chart
+ * API is defined within this namespace.
+ * @namespace d3
+ */
+
+/**
+ * A constructor function defined by [the D3.js library](http://d3js.org/).
+ * @constructor d3.selection
+ * @memberof d3
+ */
+
+/**
  * Create a new chart constructor or return a previously-created chart
  * constructor.
  *
  * @static
+ * @memberof d3
+ * @externalExample {runnable} chart
  *
  * @param {String} name If no other arguments are specified, return the
  *        previously-created chart with this name.
@@ -27,7 +41,7 @@ d3.chart = function(name) {
  * Instantiate a chart or return the chart that the current selection belongs
  * to.
  *
- * @static
+ * @externalExample {runnable} selection-chart
  *
  * @param {String} [chartName] The name of the chart to instantiate. If the
  *        name is unspecified, this method will return the chart that the

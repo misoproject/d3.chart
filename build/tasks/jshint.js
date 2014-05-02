@@ -8,6 +8,12 @@ module.exports = function(grunt) {
       },
       src: ["<%= meta.srcFiles %>"]
     },
+    examples: {
+      options: {
+        jshintrc: "examples/api/.jshintrc"
+      },
+      src: ["examples/api/*.js"]
+    },
     test: {
       options: {
         jshintrc: "test/.jshintrc"
