@@ -78,7 +78,13 @@ var transformCascade = function(instance, data) {
  * @param {mixed} chartOptions A value for controlling how the chart should be
  *        created. This value will be forwarded to {@link Chart#initialize}, so
  *        charts may define additional properties for consumers to modify their
- *        behavior during initialization.
+ *        behavior during initialization. The following attributes will be
+ *        copied onto the chart instance (if present):
+ *
+ *        - {Function} transform - A data transformation function unique to the
+ *          Chart instance being created. If specified, this function will be
+ *          invoked after all inherited implementations as part of the
+ *          `Chart#draw` operation.
  *
  * @constructor
  */
