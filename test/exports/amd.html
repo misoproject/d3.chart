@@ -3,22 +3,28 @@
 	<head>
 		<meta charset="utf-8">
 		<meta http-equiv="X-UA-Compatible" content="IE=Edge">
-		<script src="../lib/aight.js"></script>
-		<script src="../lib/mocha.js"></script>
-		<script src="../lib/assert.js"></script>
+		<script src="../../bower_components/aight/aight.js"></script>
+		<script src="../../bower_components/mocha/mocha.js"></script>
+		<script src="../../bower_components/assert/assert.js"></script>
 		<script src="../lib/sinon.js"></script>
 		<script>
 			mocha.setup({
 				ui: 'tdd'
 			});
 		</script>
-		<link href="../lib/mocha.css" rel="stylesheet"></link>
+		<link href="../../bower_components/mocha/mocha.css" rel="stylesheet"></link>
 		<title>d3.chart test suite</title>
 		<script src="../lib/require.js"></script>
 		<script>
 			require({
+				baseUrl: "../..",
 				paths: {
-					d3: "../lib/d3"
+					d3: "bower_components/d3/d3"
+				},
+				shim: {
+					d3: {
+						exports: "d3"
+					}
 				}
 			});
 		</script>
@@ -26,11 +32,8 @@
 		<script src="../tests/layer.js"></script>
 		<script src="../tests/integration.js"></script>
 		<script>
-			require(["../../d3.chart.test"], function() {
-				require(["d3"], function(d3) {
-					window.d3 = d3;
-					mocha.run();
-				});
+			require(["d3.chart.test"], function() {
+				mocha.run();
 			});
 		</script>
 	</head>

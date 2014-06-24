@@ -1,6 +1,6 @@
-/*! d3.chart - v0.2.0
+/*! d3.chart - v0.2.1
  *  License: MIT Expat
- *  Date: 2014-02-21
+ *  Date: 2014-06-24
  */
 (function(window) {
 "use strict";

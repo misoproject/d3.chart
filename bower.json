@@ -1,0 +1,26 @@
+{
+  "name": "d3.chart",
+  "version": "0.2.1",
+  "main": "d3.chart.js",
+  "ignore": [
+    "**/.*",
+    "Gruntfile.js",
+    "bower_components",
+    "examples",
+    "package.json",
+    "src",
+    "test"
+  ],
+  "dependencies": {
+    "d3": "~3.3.11"
+  },
+  "keywords": [
+    "d3.js",
+    "visualization"
+  ],
+  "devDependencies": {
+    "mocha": "~1.20.1",
+    "aight": "~1.2.5",
+    "assert": "~0.1.0"
+  }
+}
