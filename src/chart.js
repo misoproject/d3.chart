@@ -73,6 +73,9 @@ var transformCascade = function(instance, data) {
 /**
  * Create a d3.chart
  *
+ * @constructor
+ * @externalExample {runnable} chart
+ *
  * @param {d3.selection} selection The chart's "base" DOM node. This should
  *        contain any nodes that the chart generates.
  * @param {mixed} chartOptions A value for controlling how the chart should be
@@ -89,7 +92,6 @@ var transformCascade = function(instance, data) {
  * @constructor
  */
 var Chart = function(selection, chartOptions) {
-
 	this.base = selection;
 	this._layers = {};
 	this._attached = {};
@@ -116,6 +118,8 @@ Chart.prototype.initialize = function() {};
 
 /**
  * Remove a layer from the chart.
+ *
+ * @externalExample chart-unlayer
  *
  * @param {String} name The name of the layer to remove.
  *
@@ -146,6 +150,8 @@ Chart.prototype.unlayer = function(name) {
  * The {@link Layer.draw} method of attached layers will be invoked
  * whenever this chart's {@link Chart#draw} is invoked and will receive the
  * data (optionally modified by the chart's {@link Chart#transform} method.
+ *
+ * @externalExample chart-layer
  *
  * @param {String} name Name of the layer to attach or retrieve.
  * @param {d3.selection|Layer} [selection] The layer's base or a
@@ -191,6 +197,8 @@ Chart.prototype.layer = function(name, selection, options) {
  * method will be invoked whenever the containing chart's `draw` method is
  * invoked.
  *
+ * @externalExample chart-attach
+ *
  * @param {String} attachmentName Name of the attachment
  * @param {Chart} [chart] d3.chart to register as a mix in of this chart. When
  *        unspecified, this method will return the attachment previously
@@ -208,8 +216,30 @@ Chart.prototype.attach = function(attachmentName, chart) {
 };
 
 /**
+ * A "hook" method that you may define to modify input data before it is used
+ * to draw the chart's layers and attachments. This method will be used by all
+ * sub-classes (see {@link transformCascade} for details).
+ *
+ * Note you will most likely never call this method directly, but rather
+ * include it as part of a chart definition, and then rely on d3.chart to
+ * invoke it when you draw the chart with {@link Chart#draw}.
+ *
+ * @externalExample {runnable} chart-transform
+ *
+ * @param {Array} data Input data provided to @link Chart#draw}.
+ *
+ * @returns {mixed} Data to be used in drawing the chart's layers and
+ *                  attachments.
+ */
+Chart.prototype.transform = function(data) {
+	return data;
+};
+
+/**
  * Update the chart's representation in the DOM, drawing all of its layers and
  * any "attachment" charts (as attached via {@link Chart#attach}).
+ *
+ * @externalExample chart-draw
  *
  * @param {Object} data Data to pass to the {@link Layer#draw|draw method} of
  *        this cart's {@link Layer|layers} (if any) and the {@link
@@ -248,6 +278,8 @@ Chart.prototype.draw = function(data) {
  * Subscribe a callback function to an event triggered on the chart. See {@link
  * Chart#once} to subscribe a callback function to an event for one occurence.
  *
+ * @externalExample {runnable} chart-on
+ *
  * @param {String} name Name of the event
  * @param {ChartEventHandler} callback Function to be invoked when the event
  *        occurs
@@ -271,6 +303,8 @@ Chart.prototype.on = function(name, callback, context) {
  * function will be invoked at the next occurance of the event and immediately
  * unsubscribed. See {@link Chart#on} to subscribe a callback function to an
  * event indefinitely.
+ *
+ * @externalExample {runnable} chart-once
  *
  * @param {String} name Name of the event
  * @param {ChartEventHandler} callback Function to be invoked when the event
@@ -297,6 +331,8 @@ Chart.prototype.once = function(name, callback, context) {
  * function will be unsubscribed from that event. When a `name` and `context`
  * are specified (but `callback` is omitted), all events bound to the given
  * event with the given context will be unsubscribed.
+ *
+ * @externalExample {runnable} chart-off
  *
  * @param {String} [name] Name of the event to be unsubscribed
  * @param {ChartEventHandler} [callback] Function to be unsubscribed
@@ -346,6 +382,8 @@ Chart.prototype.off = function(name, callback, context) {
 /**
  * Publish an event on this chart with the given `name`.
  *
+ * @externalExample {runnable} chart-trigger
+ *
  * @param {String} name Name of the event to publish
  * @param {...*} arguments Values with which to invoke the registered
  *        callbacks.
@@ -372,9 +410,10 @@ Chart.prototype.trigger = function(name) {
  * "overrides" for the default chart instance methods. Allows for basic
  * inheritance so that new chart constructors may be defined in terms of
  * existing chart constructors. Based on the `extend` function defined by
- * {@link http://backbonejs.org/|Backbone.js}.
+ * [Backbone.js](http://backbonejs.org/).
  *
  * @static
+ * @externalExample {runnable} chart-extend
  *
  * @param {String} name Identifier for the new Chart constructor.
  * @param {Object} protoProps Properties to set on the new chart's prototype.

@@ -1,0 +1,9 @@
+{
+  "extends": "../../.jshintrc",
+  "unused": false,
+  "globals": {
+    "log": true,
+    "output": true,
+    "d3": true
+  }
+}
