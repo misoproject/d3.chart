@@ -9,11 +9,17 @@ To get started you can:
 * Read about reusability in d3 [here](http://weblog.bocoup.com/reusability-with-d3/)
 * Read our introduction post to d3.chart [here](http://weblog.bocoup.com/introducing-d3-chart/)
 * Dive right into the [wiki](http://github.com/misoproject/d3.chart/wiki), which is full of instructions and guides.
-* Check out the [Miso Project website](http://misoproject.com/d3-chart) which has some live coding examples 
+* Check out the [Miso Project website](http://misoproject.com/d3-chart) which has some live coding examples
 
-## Requirements
+## Installing
 
-`d3.chart` depends on D3.js version 3, so include it only *after* D3.js has been
+You can install d3.chart via [bower](http://bower.io) by running:
+
+    $ bower install
+
+Otherwise, you can download it directly and embed it using a script tag.
+
+`d3.chart` depends on D3.js, so include it only *after* D3.js has been
 defined in the document, e.g.
 
 ```html
@@ -32,6 +38,7 @@ To fetch required dependencies, run the following command from the root of
 this repository:
 
     $ npm install
+    $ bower install
 
 After this, the project can be built by invoking Grunt from within this
 repository:

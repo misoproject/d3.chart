@@ -1,5 +1,9 @@
 # d3.chart change log
 
+### 0.2.1 (06.24.2014)
+
+- Add bower.json
+
 ### 0.2.0 (02.21.2014)
 
 - Introduce more intuitive inheritance behavior for `Chart#transform`
