@@ -87,6 +87,11 @@ var transformCascade = function(instance, data) {
  *        unique to the Chart instance being created. If specified, this
  *        function will be invoked after all inherited implementations as part
  *        of the `Chart#draw` operation.
+ * @param {Function} [chartOptions.demux] - A data filtering function for
+ *        attachment charts. If specified, this function will be invoked with
+ *        every {@link Chart#draw|draw} operation and provided with two
+ *        arguments: the attachment name (see {@link Chart#attach}) and the
+ *        data.
  *
  * @constructor
  */
