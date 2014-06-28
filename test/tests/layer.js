@@ -55,6 +55,10 @@ suite("d3.layer", function() {
 				dataBind: dataBind,
 				insert: insert
 			});
+			// this.layer.remove = sinon.spy();
+			var remove = this.remove = sinon.spy(function() {
+				return this.layer.remove();
+			});
 		});
 
 		test("invokes the provided `dataBind` method exactly once", function() {
@@ -81,6 +85,11 @@ suite("d3.layer", function() {
 		test("invokes the provided `insert` method in the context of the layer's bound 'enter' selection", function() {
 			this.layer.draw([]);
 			assert(this.insert.calledOn(this.dataBind.returnValues[0].enter.returnValues[0]));
+		});
+		test("invokes the provided `remove` method exactly once", function() {
+			assert.equal(this.remove.callCount, 0);
+			this.layer.draw([]);
+			assert.equal(this.remove.callCount, 1);
 		});
 		
 		suite("event triggering", function() {
