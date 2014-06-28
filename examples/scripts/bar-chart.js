@@ -34,8 +34,7 @@ d3.chart("BarChart", {
 
     function onExitTrans() {
       this.duration(1000)
-          .attr("x", function(d, i) { return chart.x(i - 1) - .5; })
-          .remove();
+          .attr("x", function(d, i) { return chart.x(i - 1) - .5; });
     }
 
     function dataBind(data) {
