@@ -55,10 +55,6 @@ suite("d3.layer", function() {
 				dataBind: dataBind,
 				insert: insert
 			});
-			// this.layer.remove = sinon.spy();
-			var remove = this.remove = sinon.spy(function() {
-				return this.layer.remove();
-			});
 		});
 
 		test("invokes the provided `dataBind` method exactly once", function() {
@@ -86,10 +82,11 @@ suite("d3.layer", function() {
 			this.layer.draw([]);
 			assert(this.insert.calledOn(this.dataBind.returnValues[0].enter.returnValues[0]));
 		});
-		test("invokes the provided `remove` method exactly once", function() {
-			assert.equal(this.remove.callCount, 0);
+		test("invokes the provided `remove` method", function() {
+			this.layer.draw([1]);
+			assert.equal(this.layer.selectAll('g')[0].length, 1);
 			this.layer.draw([]);
-			assert.equal(this.remove.callCount, 1);
+			assert.equal(this.layer.selectAll('g')[0].length, 0);
 		});
 		
 		suite("event triggering", function() {
