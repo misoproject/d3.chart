@@ -1,24 +1,12 @@
 /*! d3.chart - v0.2.1
  *  License: MIT Expat
- *  Date: 2014-06-28
+ *  Date: 2014-06-24
  */
-(function(global, factory) {
-	"use strict";
-
-	if (typeof global.define === "function" && global.define.amd) {
-		define(["d3"], function(d3) {
-			factory(global, d3);
-		});
-	} else {
-		factory(global, global.d3);
-	}
-
-})(this, function(window, d3) {
-"use strict";
-
+(function(window) {
 "use strict";
 /*jshint unused: false */
 
+var d3 = window.d3;
 var hasOwnProp = Object.hasOwnProperty;
 
 var d3cAssert = function(test, message) {
@@ -44,7 +32,6 @@ var lifecycleRe = /^(enter|update|merge|exit)(:transition)?$/;
  *
  * @private
  * @constructor
- * @externalExample {runnable} layer
  *
  * @param {d3.selection} base The containing DOM node for the layer.
  */
@@ -74,20 +61,9 @@ Layer.prototype.insert = function() {
 };
 
 /**
- * Invoked by {@link Layer#draw} in order to remove existing DOM nodes from
- * this layer's `base`. This default implementation may be overridden by
- * Layer instances.
- */
-Layer.prototype.remove = function() {
-	this.remove();
-};
-
-/**
  * Subscribe a handler to a "lifecycle event". These events (and only these
  * events) are triggered when {@link Layer#draw} is invoked--see that method
  * for more details on lifecycle events.
- *
- * @externalExample {runnable} layer-on
  *
  * @param {String} eventName Identifier for the lifecycle event for which to
  *        subscribe.
@@ -117,8 +93,6 @@ Layer.prototype.on = function(eventName, handler, options) {
 /**
  * Unsubscribe the specified handler from the specified event. If no handler is
  * supplied, remove *all* handlers from the event.
- *
- * @externalExample {runnable} layer-off
  *
  * @param {String} eventName Identifier for event from which to remove
  *        unsubscribe
@@ -156,12 +130,9 @@ Layer.prototype.off = function(eventName, handler) {
 
 /**
  * Render the layer according to the input data: Bind the data to the layer
- * (according to {@link Layer#dataBind}), insert new elements (according to
- * {@link Layer#insert}), make lifecycle selections, invoke all relevant
- * handlers (as attached via {@link Layer#on}) with the lifecycle selections,
- * then remove existing elements (according to {@link Layer#remove}).
- *
- * The lifecycle selections are:
+ * (according to {@link Layer#dataBind}, insert new elements (according to
+ * {@link Layer#insert}, make lifecycle selections, and invoke all relevant
+ * handlers (as attached via {@link Layer#on}) with the lifecycle selections.
  *
  * - update
  * - update:transition
@@ -170,13 +141,10 @@ Layer.prototype.off = function(eventName, handler) {
  * - exit
  * - exit:transition
  *
- * @externalExample {runnable} layer-draw
- *
  * @param {Array} data Data to drive the rendering.
  */
 Layer.prototype.draw = function(data) {
-	var bound, entering, events, selection, method, handlers, eventName, idx,
-		len;
+	var bound, entering, events, selection, handlers, eventName, idx, len;
 
 	bound = this.dataBind.call(this._base, data);
 
@@ -196,37 +164,30 @@ Layer.prototype.draw = function(data) {
 		},
 		{
 			name: "enter",
-			selection: entering,
-			method: this.insert
+			// Defer invocation of the `insert` method so that the previous
+			// `update` selection does not contain the new nodes.
+			selection: this.insert.bind(entering)
 		},
 		{
 			name: "merge",
-			// Although the `merge` lifecycle event shares its selection object
-			// with the `update` lifecycle event, the object's contents will be
-			// modified when d3.chart invokes the user-supplied `insert` method
-			// when triggering the `enter` event.
+			// This selection will be modified when the previous selection
+			// is made.
 			selection: bound
 		},
 		{
 			name: "exit",
-			// Although the `exit` lifecycle event shares its selection object
-			// with the `update` and `merge` lifecycle events, the object's
-			// contents will be modified when d3.chart invokes
-			// `d3.selection.exit`.
-			selection: bound,
-			method: bound.exit
+			selection: bound.exit.bind(bound)
 		}
 	];
 
 	for (var i = 0, l = events.length; i < l; ++i) {
 		eventName = events[i].name;
 		selection = events[i].selection;
-		method = events[i].method;
 
-		// Some lifecycle selections modify shared state, so they must be
-		// deferred until just prior to handler invocation.
-		if (typeof method === "function") {
-			selection = method.call(selection);
+		// Some lifecycle selections are expressed as functions so that
+		// they may be delayed.
+		if (typeof selection === "function") {
+			selection = selection();
 		}
 
 		if (selection.empty()) {
@@ -262,8 +223,6 @@ Layer.prototype.draw = function(data) {
 			}
 		}
 	}
-
-	this.remove.call(selection);
 };
 
 "use strict";
@@ -375,25 +334,17 @@ var transformCascade = function(instance, data) {
 /**
  * Create a d3.chart
  *
- * @constructor
- * @externalExample {runnable} chart
- *
  * @param {d3.selection} selection The chart's "base" DOM node. This should
  *        contain any nodes that the chart generates.
  * @param {mixed} chartOptions A value for controlling how the chart should be
  *        created. This value will be forwarded to {@link Chart#initialize}, so
  *        charts may define additional properties for consumers to modify their
- *        behavior during initialization. The following attributes will be
- *        copied onto the chart instance (if present):
- *
- *        - {Function} transform - A data transformation function unique to the
- *          Chart instance being created. If specified, this function will be
- *          invoked after all inherited implementations as part of the
- *          `Chart#draw` operation.
+ *        behavior during initialization.
  *
  * @constructor
  */
 var Chart = function(selection, chartOptions) {
+
 	this.base = selection;
 	this._layers = {};
 	this._attached = {};
@@ -420,8 +371,6 @@ Chart.prototype.initialize = function() {};
 
 /**
  * Remove a layer from the chart.
- *
- * @externalExample chart-unlayer
  *
  * @param {String} name The name of the layer to remove.
  *
@@ -452,8 +401,6 @@ Chart.prototype.unlayer = function(name) {
  * The {@link Layer.draw} method of attached layers will be invoked
  * whenever this chart's {@link Chart#draw} is invoked and will receive the
  * data (optionally modified by the chart's {@link Chart#transform} method.
- *
- * @externalExample chart-layer
  *
  * @param {String} name Name of the layer to attach or retrieve.
  * @param {d3.selection|Layer} [selection] The layer's base or a
@@ -499,8 +446,6 @@ Chart.prototype.layer = function(name, selection, options) {
  * method will be invoked whenever the containing chart's `draw` method is
  * invoked.
  *
- * @externalExample chart-attach
- *
  * @param {String} attachmentName Name of the attachment
  * @param {Chart} [chart] d3.chart to register as a mix in of this chart. When
  *        unspecified, this method will return the attachment previously
@@ -518,30 +463,8 @@ Chart.prototype.attach = function(attachmentName, chart) {
 };
 
 /**
- * A "hook" method that you may define to modify input data before it is used
- * to draw the chart's layers and attachments. This method will be used by all
- * sub-classes (see {@link transformCascade} for details).
- *
- * Note you will most likely never call this method directly, but rather
- * include it as part of a chart definition, and then rely on d3.chart to
- * invoke it when you draw the chart with {@link Chart#draw}.
- *
- * @externalExample {runnable} chart-transform
- *
- * @param {Array} data Input data provided to @link Chart#draw}.
- *
- * @returns {mixed} Data to be used in drawing the chart's layers and
- *                  attachments.
- */
-Chart.prototype.transform = function(data) {
-	return data;
-};
-
-/**
  * Update the chart's representation in the DOM, drawing all of its layers and
  * any "attachment" charts (as attached via {@link Chart#attach}).
- *
- * @externalExample chart-draw
  *
  * @param {Object} data Data to pass to the {@link Layer#draw|draw method} of
  *        this cart's {@link Layer|layers} (if any) and the {@link
@@ -580,8 +503,6 @@ Chart.prototype.draw = function(data) {
  * Subscribe a callback function to an event triggered on the chart. See {@link
  * Chart#once} to subscribe a callback function to an event for one occurence.
  *
- * @externalExample {runnable} chart-on
- *
  * @param {String} name Name of the event
  * @param {ChartEventHandler} callback Function to be invoked when the event
  *        occurs
@@ -605,8 +526,6 @@ Chart.prototype.on = function(name, callback, context) {
  * function will be invoked at the next occurance of the event and immediately
  * unsubscribed. See {@link Chart#on} to subscribe a callback function to an
  * event indefinitely.
- *
- * @externalExample {runnable} chart-once
  *
  * @param {String} name Name of the event
  * @param {ChartEventHandler} callback Function to be invoked when the event
@@ -633,8 +552,6 @@ Chart.prototype.once = function(name, callback, context) {
  * function will be unsubscribed from that event. When a `name` and `context`
  * are specified (but `callback` is omitted), all events bound to the given
  * event with the given context will be unsubscribed.
- *
- * @externalExample {runnable} chart-off
  *
  * @param {String} [name] Name of the event to be unsubscribed
  * @param {ChartEventHandler} [callback] Function to be unsubscribed
@@ -684,8 +601,6 @@ Chart.prototype.off = function(name, callback, context) {
 /**
  * Publish an event on this chart with the given `name`.
  *
- * @externalExample {runnable} chart-trigger
- *
  * @param {String} name Name of the event to publish
  * @param {...*} arguments Values with which to invoke the registered
  *        callbacks.
@@ -712,10 +627,9 @@ Chart.prototype.trigger = function(name) {
  * "overrides" for the default chart instance methods. Allows for basic
  * inheritance so that new chart constructors may be defined in terms of
  * existing chart constructors. Based on the `extend` function defined by
- * [Backbone.js](http://backbonejs.org/).
+ * {@link http://backbonejs.org/|Backbone.js}.
  *
  * @static
- * @externalExample {runnable} chart-extend
  *
  * @param {String} name Identifier for the new Chart constructor.
  * @param {Object} protoProps Properties to set on the new chart's prototype.
@@ -761,24 +675,10 @@ Chart.extend = function(name, protoProps, staticProps) {
 "use strict";
 
 /**
- * A namespace defined by [the D3.js library](http://d3js.org/). The d3.chart
- * API is defined within this namespace.
- * @namespace d3
- */
-
-/**
- * A constructor function defined by [the D3.js library](http://d3js.org/).
- * @constructor d3.selection
- * @memberof d3
- */
-
-/**
  * Create a new chart constructor or return a previously-created chart
  * constructor.
  *
  * @static
- * @memberof d3
- * @externalExample {runnable} chart
  *
  * @param {String} name If no other arguments are specified, return the
  *        previously-created chart with this name.
@@ -801,7 +701,7 @@ d3.chart = function(name) {
  * Instantiate a chart or return the chart that the current selection belongs
  * to.
  *
- * @externalExample {runnable} selection-chart
+ * @static
  *
  * @param {String} [chartName] The name of the chart to instantiate. If the
  *        name is unspecified, this method will return the chart that the
@@ -827,5 +727,4 @@ d3.selection.enter.prototype.chart = function() {
 	return this._chart;
 };
 d3.transition.prototype.chart = d3.selection.enter.prototype.chart;
-
-});
+})(this);
