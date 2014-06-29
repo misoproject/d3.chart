@@ -40,7 +40,7 @@ Layer.prototype.insert = function() {
 };
 
 /**
- * Invoked by {@link Layer#draw} in order to remove existing DOM nodes from
+ * Invoked by {@link Layer#draw} in order to remove exiting DOM nodes from
  * this layer's `base`. This default implementation may be overridden by
  * Layer instances.
  */
@@ -125,7 +125,7 @@ Layer.prototype.off = function(eventName, handler) {
  * (according to {@link Layer#dataBind}), insert new elements (according to
  * {@link Layer#insert}), make lifecycle selections, invoke all relevant
  * handlers (as attached via {@link Layer#on}) with the lifecycle selections,
- * then remove existing elements (according to {@link Layer#remove}).
+ * then remove exiting elements (according to {@link Layer#remove}).
  *
  * The lifecycle selections are:
  *
