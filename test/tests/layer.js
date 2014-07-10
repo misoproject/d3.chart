@@ -84,9 +84,9 @@ suite("d3.layer", function() {
 		});
 		test("invokes the provided `remove` method", function() {
 			this.layer.draw([1]);
-			assert.equal(this.layer.selectAll('g')[0].length, 1);
+			assert.equal(this.layer.selectAll('g').size(), 1);
 			this.layer.draw([]);
-			assert.equal(this.layer.selectAll('g')[0].length, 0);
+			assert.equal(this.layer.selectAll('g').size(), 0);
 		});
 		
 		suite("event triggering", function() {
