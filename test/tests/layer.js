@@ -49,11 +49,12 @@ suite("d3.layer", function() {
 				sinon.spy(entering, "transition");
 				return entering;
 			});
+			var remove = this.remove = sinon.spy();
 			var base = this.base = d3.select("#test").append("svg");
 
 			this.layer = base.layer({
 				dataBind: dataBind,
-				insert: insert
+				insert: insert,
 			});
 		});
 
@@ -82,11 +83,21 @@ suite("d3.layer", function() {
 			this.layer.draw([]);
 			assert(this.insert.calledOn(this.dataBind.returnValues[0].enter.returnValues[0]));
 		});
-		test("invokes the provided `remove` method", function() {
+		test("by default removes exiting nodes from the DOM", function() {
 			this.layer.draw([1]);
 			assert.equal(this.layer.selectAll('g').size(), 1);
 			this.layer.draw([]);
 			assert.equal(this.layer.selectAll('g').size(), 0);
+		});
+		test("invokes the provided `remove` method", function() {
+			this.layer = this.base.layer({
+				dataBind: this.dataBind,
+				insert: this.insert,
+				remove: this.remove
+			});
+
+			this.layer.draw([]);
+			assert(this.remove.called);
 		});
 		
 		suite("event triggering", function() {
