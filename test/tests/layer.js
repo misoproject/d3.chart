@@ -56,6 +56,12 @@ suite("d3.layer", function() {
 				dataBind: dataBind,
 				insert: insert,
 			});
+
+			this.layerWithRemove = this.base.append('g').layer({
+				dataBind: dataBind,
+				insert: insert,
+				remove: remove
+			});
 		});
 
 		test("invokes the provided `dataBind` method exactly once", function() {
@@ -89,17 +95,18 @@ suite("d3.layer", function() {
 			this.layer.draw([]);
 			assert.equal(this.layer.selectAll('g').size(), 0);
 		});
-		test("invokes the provided `remove` method", function() {
-			this.layer = this.base.layer({
-				dataBind: this.dataBind,
-				insert: this.insert,
-				remove: this.remove
-			});
+		test("invokes the provided `remove` method in the context of the layer's bound 'exit' selection", function() {
+      var updating, exiting;
 
-			this.layer.draw([]);
-			assert(this.remove.called);
+			this.layerWithRemove.draw([1, 2, 3]);
+			this.layerWithRemove.draw([]);
+
+      updating = this.dataBind.returnValues[1];
+      exiting = updating.exit.returnValues[0];
+
+			assert(this.remove.calledOn(exiting));
 		});
-		
+
 		suite("event triggering", function() {
 			test("invokes event handlers with the correct selection", function() {
 				var layer = this.base.append("g").layer({
@@ -154,19 +161,25 @@ suite("d3.layer", function() {
 					},
 					insert: function() {
 						return this.append("g");
-					}
+					},
+          remove: function() {
+            return this.remove();
+          }
 				});
 				var enterSpy = sinon.spy();
 				var updateSpy = sinon.spy();
+				var exitSpy = sinon.spy();
 				layer.draw([1]);
 
 				layer.on("enter", enterSpy);
 				layer.on("update", updateSpy);
+				layer.on("exit", exitSpy);
 
 				layer.draw([1]);
 
 				sinon.assert.callCount(enterSpy, 0);
 				sinon.assert.callCount(updateSpy, 1);
+				sinon.assert.callCount(exitSpy, 0);
 			});
 
 			suite("Layer#off", function() {
