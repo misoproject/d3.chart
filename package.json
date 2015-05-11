@@ -19,7 +19,7 @@
   "scripts": {
     "test": "grunt test"
   },
-  "license": "MIT Expat",
+  "license": "MIT",
   "devDependencies": {
     "grunt": "~0.4.0",
     "grunt-contrib-concat": "~0.1.3",
