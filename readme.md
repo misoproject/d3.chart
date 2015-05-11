@@ -13,6 +13,10 @@ To get started you can:
 
 ## Installing
 
+You can install d3.chart via [npm](https://npmjs.org) by running:
+
+    $ npm install d3.chart
+
 You can install d3.chart via [bower](http://bower.io) by running:
 
     $ bower install d3.chart
