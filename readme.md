@@ -15,7 +15,11 @@ To get started you can:
 
 You can install d3.chart via [bower](http://bower.io) by running:
 
-    $ bower install
+    $ bower install d3.chart
+
+You can also install it via [npm](http://npmjs.org) by running:
+
+    $ npm install d3.chart
 
 Otherwise, you can download it directly and embed it using a script tag.
 
