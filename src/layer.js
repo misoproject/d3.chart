@@ -229,5 +229,7 @@ Layer.prototype.draw = function(data) {
 		}
 	}
 
-	this.remove.call(selection);
+	if (!selection.empty()) {
+		this.remove.call(selection);
+	}
 };

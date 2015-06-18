@@ -106,6 +106,12 @@ suite("d3.layer", function() {
 
 			assert(this.remove.calledOn(exiting));
 		});
+		test("does not invoke `remove` method when `exit` selection is empty", function() {
+			this.layerWithRemove.draw([1, 2, 3]);
+			this.layerWithRemove.draw([1, 2, 3]);
+
+			assert.equal(this.remove.callCount, 0);
+		});
 
 		suite("event triggering", function() {
 			test("invokes event handlers with the correct selection", function() {
