@@ -13,9 +13,12 @@ d3.selection.prototype.layer = function(options) {
 	var layer = new Layer(this);
 	var eventName;
 
-	// Set layer methods (required)
+	// Set layer methods (databind/insert required, remove optional)
 	layer.dataBind = options.dataBind;
 	layer.insert = options.insert;
+	if (options.remove) {
+		layer.remove = options.remove;
+	}
 
 	// Bind events (optional)
 	if ("events" in options) {
