@@ -24,7 +24,7 @@ module.exports = function(grunt) {
 		"test-build",
 		["concat:test", "mocha:exportsAmd", "mocha:exportsGlobal"]
 	);
-	grunt.registerTask("test", ["jshint", "test-unit", "test-build"]);
+	grunt.registerTask("test", ["jshint", "jscs", "test-unit", "test-build"]);
 
 	grunt.registerTask("default", ["test"]);
 	grunt.registerTask("release", ["default", "build"]);

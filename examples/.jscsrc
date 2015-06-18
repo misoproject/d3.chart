@@ -1,0 +1,6 @@
+{
+    "disallowMixedSpacesAndTabs": true,
+    "maximumLineLength": 80,
+    "validateIndentation": 2,
+    "validateQuoteMarks": "\""
+}

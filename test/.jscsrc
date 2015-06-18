@@ -1,0 +1,5 @@
+{
+    "disallowMixedSpacesAndTabs": true,
+    "validateIndentation": "\t",
+    "validateQuoteMarks": "\""
+}

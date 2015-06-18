@@ -2,6 +2,5 @@
   "curly": true,
   "unused": true,
   "undef": true,
-  "quotmark": "double",
   "trailing": false
 }
