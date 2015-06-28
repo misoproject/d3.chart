@@ -54,10 +54,10 @@ suite("d3.layer", function() {
 
 			this.layer = base.layer({
 				dataBind: dataBind,
-				insert: insert,
+				insert: insert
 			});
 
-			this.layerWithRemove = this.base.append('g').layer({
+			this.layerWithRemove = this.base.append("g").layer({
 				dataBind: dataBind,
 				insert: insert,
 				remove: remove
@@ -91,18 +91,18 @@ suite("d3.layer", function() {
 		});
 		test("by default removes exiting nodes from the DOM", function() {
 			this.layer.draw([1]);
-			assert.equal(this.layer.selectAll('g').size(), 1);
+			assert.equal(this.layer.selectAll("g").size(), 1);
 			this.layer.draw([]);
-			assert.equal(this.layer.selectAll('g').size(), 0);
+			assert.equal(this.layer.selectAll("g").size(), 0);
 		});
 		test("invokes the provided `remove` method in the context of the layer's bound 'exit' selection", function() {
-      var updating, exiting;
+			var updating, exiting;
 
 			this.layerWithRemove.draw([1, 2, 3]);
 			this.layerWithRemove.draw([]);
 
-      updating = this.dataBind.returnValues[1];
-      exiting = updating.exit.returnValues[0];
+			updating = this.dataBind.returnValues[1];
+			exiting = updating.exit.returnValues[0];
 
 			assert(this.remove.calledOn(exiting));
 		});
@@ -162,9 +162,9 @@ suite("d3.layer", function() {
 					insert: function() {
 						return this.append("g");
 					},
-          remove: function() {
-            return this.remove();
-          }
+					remove: function() {
+						return this.remove();
+					}
 				});
 				var enterSpy = sinon.spy();
 				var updateSpy = sinon.spy();
