@@ -22,7 +22,10 @@ module.exports = function(grunt) {
 	grunt.registerTask("test-unit", ["mocha:unit"]);
 	grunt.registerTask(
 		"test-build",
-		["concat:test", "mocha:exportsAmd", "mocha:exportsGlobal"]
+		[
+			"concat:test", "mocha:exportsAmd", "mocha:exportsGlobal",
+			"browserify", "mocha:cjs"
+		]
 	);
 	grunt.registerTask("test", ["jshint", "jscs", "test-unit", "test-build"]);
 
