@@ -93,7 +93,7 @@
 					}
 				});
 
-				require(["d3.chart.test"], function() {
+				require(["test/d3.chart.test-build"], function() {
 					done();
 				});
 			}
@@ -101,7 +101,7 @@
 		global: {
 			prereqs: [
 				"../bower_components/d3/d3.js",
-				"../d3.chart.test.js"
+				"d3.chart.test-build.js"
 			],
 			setup: function(done) {
 				done();

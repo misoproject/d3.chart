@@ -10,7 +10,7 @@ module.exports = function(grunt) {
 		},
 		test: {
 			files: {
-				"d3.chart.test.js": [
+				"test/d3.chart.test-build.js": [
 					"src/wrapper/start.frag",
 					"<%= meta.srcFiles %>",
 					"src/wrapper/end.frag"

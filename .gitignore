@@ -1,3 +1,3 @@
 node_modules/
-d3.chart.test.js
+test/d3.chart.test-build.js
 bower_components/
