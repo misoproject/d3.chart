@@ -46,6 +46,16 @@ module.exports = function(grunt) {
 					}
 				}
 			}
+		},
+		cjs: {
+			src: ["test/index.html"],
+			options: {
+				page: {
+					settings: {
+						userAgent: "PhantomJS:testSource(cjs)"
+					}
+				}
+			}
 		}
 	});
 

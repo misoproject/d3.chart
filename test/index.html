@@ -21,7 +21,7 @@
 	<body>
 		<div>
 			<h1>Test Sources</h1>
-			<p><a href="?">Direct</a> | <a href="?testSource=amd">AMD</a>* | <a href="?testSource=global">Global</a>*</p>
+			<p><a href="?">Direct</a> | <a href="?testSource=amd">AMD</a>* | <a href="?testSource=global">Global</a>* | <a href="?testSource=cjs">CJS</a></p>
 			<p>(* requires built file)</p>
 		</div>
 		<div id="mocha"></div>
@@ -106,7 +106,13 @@
 			setup: function(done) {
 				done();
 			}
-		}
+		},
+		cjs: {
+			prereqs: ["cjs-app.test-build.js"],
+			setup: function(done) {
+				done();
+			}
+		 }
 	};
 	var source = getSource(sources, location.search, navigator.userAgent);
 
