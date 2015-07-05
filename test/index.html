@@ -14,23 +14,112 @@
 		</script>
 		<link href="../bower_components/mocha/mocha.css" rel="stylesheet"></link>
 		<title>d3.chart test suite</title>
-		<script src="../bower_components/d3/d3.js"></script>
-		<script src="../src/init.js"></script>
-		<script src="../src/layer.js"></script>
-		<script src="../src/layer-extensions.js"></script>
-		<script src="../src/chart.js"></script>
-		<script src="../src/chart-extensions.js"></script>
 		<script src="tests/chart.js"></script>
 		<script src="tests/layer.js"></script>
 		<script src="tests/integration.js"></script>
 	</head>
 	<body>
+		<div>
+			<h1>Test Sources</h1>
+			<p><a href="?">Direct</a> | <a href="?testSource=amd">AMD</a>* | <a href="?testSource=global">Global</a>*</p>
+			<p>(* requires built file)</p>
+		</div>
 		<div id="mocha"></div>
 		<div id="test"></div>
 		<script>
-			if (navigator.userAgent.indexOf('PhantomJS') === -1) {
-				mocha.run();
+(function() {
+	"use strict";
+	function loadScript(script, done) {
+		var el = document.createElement("script");
+		el.src = script;
+		el.addEventListener("load", done);
+		document.head.appendChild(el);
+	}
+	function loadScripts(scripts, done) {
+		if (scripts.length === 0) {
+			setTimeout(done, 0);
+			return;
+		}
+
+		loadScript(scripts.shift(), function() {
+			loadScripts(scripts, done);
+		});
+	}
+	function getSourceHeadful(sources, search) {
+		var params = search.slice(1).split("&");
+		var sourceName = "direct";
+
+		params.forEach(function(param) {
+			var parts = param.split("=");
+			if (parts[0] === "testSource") {
+				sourceName = parts[1];
 			}
+		});
+
+		return sources[sourceName];
+	}
+	function getSourceHeadless(sources, _, userAgent) {
+		var sourceName = userAgent.match(/PhantomJS:testSource\((.*)\)/)[1];
+		return sources[sourceName];
+	}
+	var getSource = navigator.userAgent.indexOf("PhantomJS") === -1 ?
+		getSourceHeadful : getSourceHeadless;
+	var sources = {
+		direct: {
+			prereqs: [
+				"../bower_components/d3/d3.js",
+				"../src/init.js",
+				"../src/layer.js",
+				"../src/layer-extensions.js",
+				"../src/chart.js",
+				"../src/chart-extensions.js"
+			],
+			setup: function(done) {
+				done();
+			}
+		},
+		amd: {
+			prereqs: ["lib/require.js"],
+			setup: function(done) {
+				require({
+					baseUrl: "../",
+					paths: {
+						d3: "bower_components/d3/d3"
+					},
+					shim: {
+						d3: {
+							exports: "d3"
+						}
+					}
+				});
+
+				require(["d3.chart.test"], function() {
+					done();
+				});
+			}
+		},
+		global: {
+			prereqs: [
+				"../bower_components/d3/d3.js",
+				"../d3.chart.test.js"
+			],
+			setup: function(done) {
+				done();
+			}
+		}
+	};
+	var source = getSource(sources, location.search, navigator.userAgent);
+
+	if (!source) {
+		throw new Error("d3.chart test source not recognized!");
+	}
+
+	loadScripts(source.prereqs, function() {
+		source.setup(function() {
+			mocha.run();
+		});
+	});
+}());
 		</script>
 	</body>
 </html>
