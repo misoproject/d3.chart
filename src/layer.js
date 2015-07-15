@@ -40,6 +40,15 @@ Layer.prototype.insert = function() {
 };
 
 /**
+ * Invoked by {@link Layer#draw} in order to remove exiting DOM nodes from
+ * this layer's `base`. This default implementation may be overridden by
+ * Layer instances.
+ */
+Layer.prototype.remove = function() {
+	this.remove();
+};
+
+/**
  * Subscribe a handler to a "lifecycle event". These events (and only these
  * events) are triggered when {@link Layer#draw} is invoked--see that method
  * for more details on lifecycle events.
@@ -113,9 +122,12 @@ Layer.prototype.off = function(eventName, handler) {
 
 /**
  * Render the layer according to the input data: Bind the data to the layer
- * (according to {@link Layer#dataBind}, insert new elements (according to
- * {@link Layer#insert}, make lifecycle selections, and invoke all relevant
- * handlers (as attached via {@link Layer#on}) with the lifecycle selections.
+ * (according to {@link Layer#dataBind}), insert new elements (according to
+ * {@link Layer#insert}), make lifecycle selections, invoke all relevant
+ * handlers (as attached via {@link Layer#on}) with the lifecycle selections,
+ * then remove exiting elements (according to {@link Layer#remove}).
+ *
+ * The lifecycle selections are:
  *
  * - update
  * - update:transition
@@ -215,5 +227,9 @@ Layer.prototype.draw = function(data) {
 				selection.call(handlers[idx].callback);
 			}
 		}
+	}
+
+	if (!selection.empty()) {
+		this.remove.call(selection);
 	}
 };

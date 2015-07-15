@@ -49,11 +49,18 @@ suite("d3.layer", function() {
 				sinon.spy(entering, "transition");
 				return entering;
 			});
+			var remove = this.remove = sinon.spy();
 			var base = this.base = d3.select("#test").append("svg");
 
 			this.layer = base.layer({
 				dataBind: dataBind,
 				insert: insert
+			});
+
+			this.layerWithRemove = this.base.append("g").layer({
+				dataBind: dataBind,
+				insert: insert,
+				remove: remove
 			});
 		});
 
@@ -82,7 +89,30 @@ suite("d3.layer", function() {
 			this.layer.draw([]);
 			assert(this.insert.calledOn(this.dataBind.returnValues[0].enter.returnValues[0]));
 		});
-		
+		test("by default removes exiting nodes from the DOM", function() {
+			this.layer.draw([1]);
+			assert.equal(this.layer.selectAll("g").size(), 1);
+			this.layer.draw([]);
+			assert.equal(this.layer.selectAll("g").size(), 0);
+		});
+		test("invokes the provided `remove` method in the context of the layer's bound 'exit' selection", function() {
+			var updating, exiting;
+
+			this.layerWithRemove.draw([1, 2, 3]);
+			this.layerWithRemove.draw([]);
+
+			updating = this.dataBind.returnValues[1];
+			exiting = updating.exit.returnValues[0];
+
+			assert(this.remove.calledOn(exiting));
+		});
+		test("does not invoke `remove` method when `exit` selection is empty", function() {
+			this.layerWithRemove.draw([1, 2, 3]);
+			this.layerWithRemove.draw([1, 2, 3]);
+
+			assert.equal(this.remove.callCount, 0);
+		});
+
 		suite("event triggering", function() {
 			test("invokes event handlers with the correct selection", function() {
 				var layer = this.base.append("g").layer({
@@ -137,19 +167,25 @@ suite("d3.layer", function() {
 					},
 					insert: function() {
 						return this.append("g");
+					},
+					remove: function() {
+						return this.remove();
 					}
 				});
 				var enterSpy = sinon.spy();
 				var updateSpy = sinon.spy();
+				var exitSpy = sinon.spy();
 				layer.draw([1]);
 
 				layer.on("enter", enterSpy);
 				layer.on("update", updateSpy);
+				layer.on("exit", exitSpy);
 
 				layer.draw([1]);
 
 				sinon.assert.callCount(enterSpy, 0);
 				sinon.assert.callCount(updateSpy, 1);
+				sinon.assert.callCount(exitSpy, 0);
 			});
 
 			suite("Layer#off", function() {
