@@ -1,4 +1,7 @@
+define(function(require, exports, module) {
 "use strict";
+var assert = require("./assert");
+var hasOwnProp = require("./has-own-prop");
 
 // extend
 // Borrowed from Underscore.js
@@ -182,7 +185,7 @@ Chart.prototype.layer = function(name, selection, options) {
 			return this._layers[name];
 
 		} else {
-			d3cAssert(false, "When reattaching a layer, the second argument "+
+			assert(false, "When reattaching a layer, the second argument " +
 				"must be a d3.chart layer");
 		}
 	}
@@ -459,3 +462,6 @@ Chart.extend = function(name, protoProps, staticProps) {
 	Chart[name] = child;
 	return child;
 };
+
+module.exports = Chart;
+});

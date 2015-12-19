@@ -14,14 +14,15 @@
 		</script>
 		<link href="../bower_components/mocha/mocha.css" rel="stylesheet"></link>
 		<title>d3.chart test suite</title>
-		<script src="tests/chart.js"></script>
-		<script src="tests/layer.js"></script>
-		<script src="tests/integration.js"></script>
 	</head>
 	<body>
 		<div>
 			<h1>Test Sources</h1>
-			<p><a href="?">Direct</a> | <a href="?testSource=amd">AMD</a>* | <a href="?testSource=global">Global</a>*</p>
+			<p>
+				<a href="?">Direct</a> |
+				<a href="?testSource=amd">AMD</a>* |
+				<a href="?testSource=commonjs">CommonJS</a>* |
+				<a href="?testSource=global">Global</a>*</p>
 			<p>(* requires built file)</p>
 		</div>
 		<div id="mocha"></div>
@@ -66,16 +67,23 @@
 		getSourceHeadful : getSourceHeadless;
 	var sources = {
 		direct: {
-			prereqs: [
-				"../bower_components/d3/d3.js",
-				"../src/init.js",
-				"../src/layer.js",
-				"../src/layer-extensions.js",
-				"../src/chart.js",
-				"../src/chart-extensions.js"
-			],
+			prereqs: ["lib/require.js"],
 			setup: function(done) {
-				done();
+				require({
+					baseUrl: "../src",
+					paths: {
+						d3: "../bower_components/d3/d3"
+					},
+					shim: {
+						d3: {
+							exports: "d3"
+						}
+					}
+				});
+
+				require(["chart-extensions"], function() {
+					done(null, window.d3.chart);
+				});
 			}
 		},
 		amd: {
@@ -94,7 +102,7 @@
 				});
 
 				require(["test/d3.chart.test-build"], function() {
-					done();
+					done(null, window.d3.chart);
 				});
 			}
 		},
@@ -104,19 +112,40 @@
 				"d3.chart.test-build.js"
 			],
 			setup: function(done) {
-				done();
+				done(null, window.d3.chart);
 			}
 		}
 	};
 	var source = getSource(sources, location.search, navigator.userAgent);
 
 	if (!source) {
-		throw new Error("d3.chart test source not recognized!");
+		test("d3.chart test source defined correctly", function() {
+			throw new Error("d3.chart test source not recognized!");
+		});
+		mocha.run();
+		return;
 	}
 
 	loadScripts(source.prereqs, function() {
-		source.setup(function() {
-			mocha.run();
+		source.setup(function(err, d3chart) {
+
+			test("d3.chart loaded successfully", function() {
+				if (err) {
+					throw err;
+				}
+
+				if (window.d3.chart !== d3chart) {
+					throw new Error("Failed to load d3.chart");
+				}
+			});
+
+			loadScripts([
+					"../test/tests/chart.js",
+					"../test/tests/layer.js",
+					"../test/tests/integration.js"
+				], function() {
+					mocha.run();
+				});
 		});
 	});
 }());

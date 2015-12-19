@@ -1,4 +1,13 @@
+define(function(require) {
 "use strict";
+var d3 = require("d3");
+
+var Chart = require("./chart");
+var assert = require("./assert");
+
+assert(/^3\./.test(d3.version), "d3.js version 3 is required");
+
+require("./layer-extensions");
 
 /**
  * A namespace defined by [the D3.js library](http://d3js.org/). The d3.chart
@@ -56,7 +65,7 @@ d3.selection.prototype.chart = function(chartName, options) {
 		return this._chart;
 	}
 	var ChartCtor = Chart[chartName];
-	d3cAssert(ChartCtor, "No chart registered with name '" + chartName + "'");
+	assert(ChartCtor, "No chart registered with name '" + chartName + "'");
 
 	return new ChartCtor(this, options);
 };
@@ -67,3 +76,5 @@ d3.selection.enter.prototype.chart = function() {
 	return this._chart;
 };
 d3.transition.prototype.chart = d3.selection.enter.prototype.chart;
+
+});

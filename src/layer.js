@@ -1,4 +1,8 @@
+define(function(require, exports, module) {
 "use strict";
+var d3 = require("d3");
+
+var assert = require("./assert");
 
 var lifecycleRe = /^(enter|update|merge|exit)(:transition)?$/;
 
@@ -15,7 +19,7 @@ var lifecycleRe = /^(enter|update|merge|exit)(:transition)?$/;
  * @param {d3.selection} base The containing DOM node for the layer.
  */
 var Layer = function(base) {
-	d3cAssert(base, "Layers must be initialized with a base.");
+	assert(base, "Layers must be initialized with a base.");
 	this._base = base;
 	this._handlers = {};
 };
@@ -27,7 +31,7 @@ var Layer = function(base) {
  * @param {Array} data Value passed to {@link Layer#draw}
  */
 Layer.prototype.dataBind = function() {
-	d3cAssert(false, "Layers must specify a `dataBind` method.");
+	assert(false, "Layers must specify a `dataBind` method.");
 };
 
 /**
@@ -36,7 +40,7 @@ Layer.prototype.dataBind = function() {
  * Layer instances.
  */
 Layer.prototype.insert = function() {
-	d3cAssert(false, "Layers must specify an `insert` method.");
+	assert(false, "Layers must specify an `insert` method.");
 };
 
 /**
@@ -55,7 +59,7 @@ Layer.prototype.insert = function() {
 Layer.prototype.on = function(eventName, handler, options) {
 	options = options || {};
 
-	d3cAssert(
+	assert(
 		lifecycleRe.test(eventName),
 		"Unrecognized lifecycle event name specified to `Layer#on`: '" +
 		eventName + "'."
@@ -88,7 +92,7 @@ Layer.prototype.off = function(eventName, handler) {
 	var handlers = this._handlers[eventName];
 	var idx;
 
-	d3cAssert(
+	assert(
 		lifecycleRe.test(eventName),
 		"Unrecognized lifecycle event name specified to `Layer#off`: '" +
 		eventName + "'."
@@ -136,9 +140,9 @@ Layer.prototype.draw = function(data) {
 
 	// Although `bound instanceof d3.selection` is more explicit, it fails
 	// in IE8, so we use duck typing to maintain compatability.
-	d3cAssert(bound && bound.call === d3.selection.prototype.call,
+	assert(bound && bound.call === d3.selection.prototype.call,
 		"Invalid selection defined by `Layer#dataBind` method.");
-	d3cAssert(bound.enter, "Layer selection not properly bound.");
+	assert(bound.enter, "Layer selection not properly bound.");
 
 	entering = bound.enter();
 	entering._chart = this._base._chart;
@@ -190,7 +194,7 @@ Layer.prototype.draw = function(data) {
 		// Although `selection instanceof d3.selection` is more explicit,
 		// it fails in IE8, so we use duck typing to maintain
 		// compatability.
-		d3cAssert(selection &&
+		assert(selection &&
 			selection.call === d3.selection.prototype.call,
 			"Invalid selection defined for '" + eventName +
 			"' lifecycle event.");
@@ -217,3 +221,6 @@ Layer.prototype.draw = function(data) {
 		}
 	}
 };
+
+module.exports = Layer;
+});

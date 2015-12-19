@@ -3,10 +3,7 @@
   "browser": true,
   "globalstrict": true,
   "globals": {
-    "hasOwnProp": true,
-    "d3": true,
-    "d3cAssert": true,
-    "Layer": true,
-    "Chart": true
+    "require": false,
+    "define": false
   }
 }
