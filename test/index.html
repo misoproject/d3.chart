@@ -81,8 +81,8 @@
 					}
 				});
 
-				require(["chart-extensions"], function() {
-					done(null, window.d3.chart);
+				require(["chart-extensions"], function(d3chart) {
+					done(null, d3chart);
 				});
 			}
 		},
@@ -101,9 +101,34 @@
 					}
 				});
 
-				require(["test/d3.chart.test-build"], function() {
-					done(null, window.d3.chart);
+				require(["test/d3.chart.test-build"], function(d3chart) {
+					if (typeof d3chart !== "function") {
+						done(new Error("Application failed to load d3.chart."));
+						return;
+					}
+
+					if (d3chart !== window.d3.chart) {
+						done(new Error("d3chart not attached to global `d3` object."));
+						return;
+					}
+
+					done(null, d3chart);
 				});
+			}
+		},
+		commonjs: {
+			prereqs: [
+				"sample-cjs-app/packaged.js"
+			],
+			setup: function(done) {
+				if (!window.app) {
+					done(new Error("Application global not found."));
+					return;
+				}
+
+				window.d3 = window.app.d3;
+
+				done(null, window.app.d3chart);
 			}
 		},
 		global: {

@@ -37,6 +37,16 @@ module.exports = function(grunt) {
 				}
 			}
 		},
+		exportsCommonjs: {
+			src: ["test/index.html"],
+			options: {
+				page: {
+					settings: {
+						userAgent: "PhantomJS:testSource(commonjs)"
+					}
+				}
+			}
+		},
 		exportsGlobal: {
 			src: ["test/index.html"],
 			options: {

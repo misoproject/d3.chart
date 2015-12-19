@@ -9,7 +9,10 @@ module.exports = function(grunt) {
 	grunt.registerTask("test-unit", ["mocha:unit"]);
 	grunt.registerTask(
 		"test-build",
-		["webpack:test", "mocha:exportsAmd", "mocha:exportsGlobal"]
+		[
+			"webpack:test", "browserify", "mocha:exportsAmd",
+			"mocha:exportsCommonjs", "mocha:exportsGlobal"
+		]
 	);
 	grunt.registerTask("test", ["jshint", "jscs", "test-unit", "test-build"]);
 

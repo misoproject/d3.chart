@@ -1,3 +1,4 @@
 node_modules/
 test/d3.chart.test-build.js
+test/sample-cjs-app/packaged.js
 bower_components/

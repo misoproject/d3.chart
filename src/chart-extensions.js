@@ -1,4 +1,4 @@
-define(function(require) {
+define(function(require, exports, module) {
 "use strict";
 var d3 = require("d3");
 
@@ -77,4 +77,5 @@ d3.selection.enter.prototype.chart = function() {
 };
 d3.transition.prototype.chart = d3.selection.enter.prototype.chart;
 
+module.exports = d3.chart;
 });
