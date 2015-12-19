@@ -81,8 +81,8 @@
 					}
 				});
 
-				require(["chart-extensions"], function() {
-					done(null, window.d3.chart);
+				require(["d3", "chart-extensions"], function(d3, d3chart) {
+					done(null, d3, d3chart);
 				});
 			}
 		},
@@ -92,7 +92,8 @@
 				require({
 					baseUrl: "../",
 					paths: {
-						d3: "bower_components/d3/d3"
+						d3: "bower_components/d3/d3",
+						"d3.chart": "test/d3.chart.test-build"
 					},
 					shim: {
 						d3: {
@@ -101,9 +102,27 @@
 					}
 				});
 
-				require(["test/d3.chart.test-build"], function() {
-					done(null, window.d3.chart);
+				require(["d3", "d3.chart"], function(d3, d3chart) {
+					if (typeof d3chart !== "function") {
+						done(new Error("Application failed to load d3.chart."));
+						return;
+					}
+
+					done(null, d3, d3chart);
 				});
+			}
+		},
+		commonjs: {
+			prereqs: [
+				"sample-cjs-app/packaged.js"
+			],
+			setup: function(done) {
+				if (!window.app) {
+					done(new Error("Application global not found."));
+					return;
+				}
+
+				done(null, window.app.d3, window.app.d3chart);
 			}
 		},
 		global: {
@@ -112,7 +131,7 @@
 				"d3.chart.test-build.js"
 			],
 			setup: function(done) {
-				done(null, window.d3.chart);
+				done(null, window.d3, window["d3.chart"]);
 			}
 		}
 	};
@@ -127,16 +146,19 @@
 	}
 
 	loadScripts(source.prereqs, function() {
-		source.setup(function(err, d3chart) {
+		source.setup(function(err, d3, d3chart) {
 
 			test("d3.chart loaded successfully", function() {
 				if (err) {
 					throw err;
 				}
 
-				if (window.d3.chart !== d3chart) {
-					throw new Error("Failed to load d3.chart");
+				if (d3chart !== d3.chart) {
+					throw new Error("d3chart not attached to `d3` object.");
+					return;
 				}
+
+				window.d3 = d3;
 			});
 
 			loadScripts([
