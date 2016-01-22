@@ -21,15 +21,24 @@ You can also install it via [npm](http://npmjs.org) by running:
 
     $ npm install d3.chart
 
-Otherwise, you can download it directly and embed it using a script tag.
+Otherwise, you can download it directly from this repository.
 
-`d3.chart` depends on D3.js, so include it only *after* D3.js has been
-defined in the document, e.g.
+## Using
 
-```html
-<script src="scripts/lib/d3.v3.min.js"></script>
-<script src="scripts/lib/d3.chart.min.js"></script>
-```
+d3.chart implements "UMD", making it convenient to consume from a number of
+environments:
+
+- The library may be loaded in a web browser directly via HTML `<script>`
+  tags--just be sure to load it *after* D3.js, e.g.
+
+  ```html
+  <script src="scripts/lib/d3.v3.min.js"></script>
+  <script src="scripts/lib/d3.chart.min.js"></script>
+  ```
+- From [AMD](https://github.com/amdjs/amdjs-api)-enabled environments, simply
+  add an entry for "d3.chart" in your `paths` configuration.
+- Consuming using [CommonJS modules](http://wiki.commonjs.org/wiki/Modules/1.1)
+  (e.g. via tools like [Browserify](http://browserify.org/)) should "just work"
 
 ## Build Instructions
 
