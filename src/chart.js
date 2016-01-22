@@ -1,7 +1,7 @@
 define(function(require, exports, module) {
 	"use strict";
 	var assert = require("./assert");
-	var hasOwnProp = require("./has-own-prop");
+	var hasOwnProp = Object.hasOwnProperty;
 
 	// extend
 	// Borrowed from Underscore.js
