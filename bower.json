@@ -1,6 +1,5 @@
 {
   "name": "d3.chart",
-  "version": "0.2.1",
   "main": "d3.chart.js",
   "ignore": [
     "**/.*",
