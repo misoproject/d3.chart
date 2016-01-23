@@ -1,5 +1,20 @@
 # d3.chart migration guide
 
+### From 0.2 to 0.3
+
+- Change configuration from AMD- and CommonJS-enabled environments. d3.chart is
+  now defined using the Universal Module Definition ("UMD") pattern,
+  facilitating more natural consumption from projects that are structured
+  according to the AMD or CommonJS module formats.
+  - AMD projects should now define an entry to the "paths" configuration for
+    "d3.chart" (a "shim" configuration is no longer necessary).
+  - CommonJS projects may now include d3.chart directly via
+    `require('d3.chart')`.
+  - No change is required in projects that include `d3.chart` via an HTML
+    `<script>` tag.
+- In all cases, this library will continue to define a new property on the
+  object exposed by the `d3` module.
+
 ### From 0.1 to 0.2
 
 - Update chart definitions:

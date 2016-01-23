@@ -1,5 +1,9 @@
 # d3.chart change log
 
+### 0.3.0 (01.23.2016)
+
+- Define library using Universal Module Definition ("UMD") pattern
+
 ### 0.2.1 (06.24.2014)
 
 - Add bower.json
